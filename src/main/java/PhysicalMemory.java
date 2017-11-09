@@ -33,12 +33,12 @@ public class PhysicalMemory {
     public void initializeMemorySizeAndValues(int sharedDataMemTotalBlocks, int localInstMemTotalBlocks){
 
         for(int i = 0; i < sharedDataMemTotalBlocks; i++){
-            int[] emptyBlock = {0};
+            int[] emptyBlock = {0}; //Byte is represented a 1 Integer.
             sharedDataMem.add(i,emptyBlock);
         }
 
         for(int i = 0; i < localInstMemTotalBlocks; i++){
-            int[] emptyBlock = {0,0,0,0};
+            int[] emptyBlock = {0,0,0,0};  //Local Instruction Memory Byte Size: Remember, instructions are actually 4 Integers.
             localInstMem.add(i,emptyBlock);
         }
 
@@ -94,8 +94,8 @@ public class PhysicalMemory {
                     "The block number does not belong to this local physical Shared Memory");
 
         }else{
-            Preconditions.checkArgument(false, "Unknow memory type \""+type+"\" for memory." );
+            Preconditions.checkArgument(false, "Unknown memory type \""+type+"\" for memory." );
         }
     }
-    
+
 }
