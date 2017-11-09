@@ -33,13 +33,13 @@ public class PhysicalMemory {
     public void initializeMemorySizeAndValues(int sharedDataMemTotalBlocks, int localInstMemTotalBlocks){
 
         for(int i = 0; i < sharedDataMemTotalBlocks; i++){
-            int[] emptyBlock = {0}; //Byte is represented a 1 Integer.
-            sharedDataMem.add(i,emptyBlock);
+            //Byte is represented a 1 Integer.
+            sharedDataMem.add(i,Constant.DATA_EMPTY_BLOCK);
         }
 
         for(int i = 0; i < localInstMemTotalBlocks; i++){
-            int[] emptyBlock = {0,0,0,0};  //Local Instruction Memory Byte Size: Remember, instructions are actually 4 Integers.
-            localInstMem.add(i,emptyBlock);
+            //Local Instruction Memory Byte Size: Remember, instructions are actually 4 Integers.
+            localInstMem.add(i,Constant.INSTRUCTION_EMPTY_BLOCK);
         }
 
     }
@@ -59,7 +59,7 @@ public class PhysicalMemory {
     }
 
     public void writeInstructionMemory(int blockNumber, int[] block) throws Exception{
-        Preconditions.checkArgument(block.length == 4, "Error: Trying to write a block with a different real size of 4 integers in Instruction Memory.");
+        Preconditions.checkArgument(block.length == Constant.INSTRUCTION_EMPTY_BLOCK.length, "Error: Trying to write a block with a different real size of 4 integers in Instruction Memory.");
         checkPrecontionsBlockNumber(blockNumber, Constant.INSTRUCTION_MEMORY_TYPE);
 
         int actualIndex = blockNumber - localInstMemInitBlock;
@@ -67,7 +67,7 @@ public class PhysicalMemory {
     }
 
     public void writeSharedMemory(int blockNumber, int[] block) throws Exception{
-        Preconditions.checkArgument(block.length == 1, "Error: Trying to write a block with a different real size of 1 integer in Shared Memory.");
+        Preconditions.checkArgument(block.length == Constant.DATA_EMPTY_BLOCK.length, "Error: Trying to write a block with a different real size of 1 integer in Shared Memory.");
         checkPrecontionsBlockNumber(blockNumber, Constant.SHARED_MEMORY_TYPE);
 
         int actualIndex = blockNumber - sharedDataInitBlock;
