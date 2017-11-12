@@ -23,15 +23,22 @@ public final class Constant {
     public static final int OFF = 0;
     public static final int ON = 1;
 
-    //Cache Types, which imply real size.
-    public static final int DATA_CACHE = 1;
-    public static final int INSTRUCTION_CACHE = 4;
+    //Cache Types, which implies real size.
+    public static final int DATA_CACHE_TYPE = 1;
+    public static final int INSTRUCTION_CACHE_TYPE = 2; //
+
+    //The number of integers that form a word in the simulation.
+    public static final int DATA_CACHE_REAL_WORD_SIZE = 1;
+    public static final int INSTRUCTION_CACHE_REAL_WORD_SIZE = 4;
 
     public static final int NULL_BLOCK_NUMBER = -1;
     public static final int WORDS_IN_BLOCK = 4;
 
-    public static final int[] INSTRUCTION_EMPTY_BLOCK = {0,0,0,0};
-    public static final int[] DATA_EMPTY_BLOCK = {0};
+    public static final int[] INSTRUCTION_EMPTY_BLOCK = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    public static final int[] DATA_EMPTY_BLOCK = {0,0,0,0};
+
+    public static final int[] INSTRUCTION_EMPTY_WORD = {0,0,0,0};
+    public static final int[] DATA_EMPTY_WORD = {0};
 
 
 
