@@ -40,6 +40,10 @@ public final class Constant {
     public static final int[] INSTRUCTION_EMPTY_WORD = {0,0,0,0};
     public static final int[] DATA_EMPTY_WORD = {0};
 
+    public static final int NUMBER_OF_REGISTER_PER_CORE = 32;
+    public static final int REGISTER_ZERO = 0;
+    public static final int REGISTER_NULL_VALUE = -1;
+
 
 
     private Constant(){
