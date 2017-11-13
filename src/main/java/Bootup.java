@@ -16,7 +16,7 @@ public class Bootup {
         this.memInst=memInst;
     }
 
-    public static void readData(String file) throws FileNotFoundException, IOException {
+    public static void readData(String file) throws Exception {
         String line;
         FileReader f = new FileReader(file);
         BufferedReader b = new BufferedReader(f);
