@@ -9,6 +9,7 @@ import java.util.concurrent.Semaphore;
 public class Core implements Runnable {
     private int clock;
     private int quantum;
+
     private int pc;
     private int numberOfCoresSystem;
     private boolean running;
@@ -39,14 +40,25 @@ public class Core implements Runnable {
     }
 
     public void run(){
-        int instructionDuration = 0;
-        boolean instructionIsFinished = false; //Cuando finaliza una instrucción, esta se modifica.
+        int currentProgramDuration = 0;
+        int instructionDuration = 0; //Cuando finaliza una instrucción, esta se modifica.
+
         while(running){
 
-            //Instrucción corre aquí.
+            //Cuando se hace fetch, intructionIsFinished se = false;
+            //El PC indica si se avanza o no!
+
+            if(instructionDuration == 0) {
+                
+                //Instrucción corre aquí.
+                instructionDuration = 7; //Lo que retorna la instucion.
+            }
 
             //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
             clock++;
+            currentProgramDuration++;
+            instructionDuration--;
+
             //La barrera va aquí para que sea necesario correr otro ciclo si ya no hay quantum.
             if(barrier.getQueueLength() == numberOfCoresSystem - 1){
                 //es el último en llegar a la barrera, liberar todos.
@@ -59,7 +71,7 @@ public class Core implements Runnable {
                 }
             }
             //La verificación del cuantum está aquí.
-            if(instructionIsFinished && instructionDuration >= quantum){
+            if(instructionDuration == 0 && currentProgramDuration >= quantum){
                 //Store the current context if program is not finished (current instruction is not FIN).
                 //Take the next context from the queue.
                 //If the next context is null, then the core shuts down.
