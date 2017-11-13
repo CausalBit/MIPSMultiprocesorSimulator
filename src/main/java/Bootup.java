@@ -7,13 +7,13 @@
  import java.io.IOException;
 
 public class Bootup {
-    private int ite;
+    private static int ite;
     private String file;
-    private Cache cacheInst;
-    public Bootup(String file, Cache cacheInst){
+    private static PhysicalMemory memInst;
+    public Bootup(String file, PhysicalMemory memInst){
         ite=0;
         this.file = file;
-        this.cacheInst=cacheInst;
+        this.memInst=memInst;
     }
 
     public static void readData(String file) throws FileNotFoundException, IOException {
@@ -23,10 +23,11 @@ public class Bootup {
         while((line = b.readLine())!=null) {
               //store in instructios cach
             String[] tokens = line.split(" ");
-            for(int i = 0 ; i < 3;i++) {
-
-                cacheInst.writeWordOnCache(0,i,Integer.parseInt(tokens[i]));
-            }
+            int blockInst [] = new int [4];
+            for(int i =0 ; i < 4; i++)
+            blockInst[i] = Integer.parseInt(tokens[i]) ;
+            memInst.writeInstructionMemory(ite,blockInst);
+            ite++;
         }
         b.close();
     }
