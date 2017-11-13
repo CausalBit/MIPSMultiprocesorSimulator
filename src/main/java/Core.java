@@ -49,7 +49,7 @@ public class Core implements Runnable {
             //El PC indica si se avanza o no!
 
             if(instructionDuration == 0) {
-                
+
                 //Instrucción corre aquí.
                 instructionDuration = 7; //Lo que retorna la instucion.
             }
