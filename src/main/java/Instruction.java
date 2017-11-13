@@ -6,23 +6,37 @@ import java.util.HashMap;
 public class Instruction {
     int PC;
     HashMap<String, Integer> registers;
+    //TODO
+
 
     /*
     constructor of class
     */
     public Instruction(int PC, HashMap<String, Integer> registers) {
+        //TODO pasar la referencia de BUSES.
         this.PC = PC;
         this.registers = registers;
     }
 
-    public
+    public int decodreAndExecute(int[] instruction){
+        int duration = 0;
+        //switch.
+        //calcular la cantidad de cicles que se llevo en la instrucción (aunque no haya terminaod).
+        return duration;
+    }
 
     /*
     */
-    private void DADDI(int regTarget, int regSource ,int num) {
+    private int  DADDI(int regTarget, int regSource ,int num) {
         registers.put(Integer.toString( regTarget) , registers.get(regSource)+num);
-        PC=PC+1;
+        PC=PC+1; //TODO la pc se actualiza a la hora de leer insturcción en la clase core, para
+        //TODO abortar entonces se quita -4.
+
+        return 1; //TODO hacer que retorne enteros de cantidades de ciclos que se tomó.
     }
+
+
+    //TODO HACER "FETCH" para cache de instrucciones que retorna una cantidad de ciclose que dura.
 
 
     /*

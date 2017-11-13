@@ -15,12 +15,11 @@ public class Core implements Runnable {
     private boolean running;
     Semaphore barrier;
     HashMap<String, Integer> registers;
-
     Queue<Context> coreContexts;
 
 
 
-    public Core(Semaphore barrier, int clock, int pc, int quantum, int numberOfCoresSystem) {
+    public Core(Semaphore barrier, int clock, int pc, int quantum, int numberOfCoresSystem, Queue<Context> coreContexts) {
         this.barrier = barrier;
         this.clock = clock;
         this.pc = pc;
@@ -35,7 +34,10 @@ public class Core implements Runnable {
             registers.put(Integer.toString(i), Constant.REGISTER_NULL_VALUE);
         }
 
-        coreContexts = new LinkedList<Context>();
+        this.coreContexts = coreContexts;
+
+        //TODO Ademas de tener copias de la cola de contexto, aquí se carga
+        //TODO el contexto inicial desde esa cola.
 
     }
 
@@ -45,13 +47,20 @@ public class Core implements Runnable {
 
         while(running){
 
-            //Cuando se hace fetch, intructionIsFinished se = false;
-            //El PC indica si se avanza o no!
+
+            if(instructionDuration == 0) {
+
+                //Cuando se hace fetch, intructionIsFinished se = false;
+                //El PC indica si se avanza o no!
+                //Se hace usando la clase Instruction
+                //instructionDuration = lo que dura el fetch.
+
+            }
 
             if(instructionDuration == 0) {
 
                 //Instrucción corre aquí.
-                instructionDuration = 7; //Lo que retorna la instucion.
+                instructionDuration = 40; //Lo que retorna la instucion.
             }
 
             //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
@@ -77,9 +86,6 @@ public class Core implements Runnable {
                 //If the next context is null, then the core shuts down.
                 //The shut down implies decreasing the numberOfCoresSystem by one. :D
             }
-            //TODO preguntarle a profe que si un hilo corre 40 ciclos en una instrucción (número de ejemplo)
-            //y otro hilo corre una instrucción por 20, y el otro por 10. Entonces los dos primeros
-            //hilos tiene que tiene que esperarse 20 y 30 respectivamente antes de seguir con la siguiente instrucción?
         }
     }
 

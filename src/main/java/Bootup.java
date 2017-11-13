@@ -16,6 +16,7 @@ public class Bootup {
         this.memInst=memInst;
     }
 
+    //TODO lo mete en Processor
     public static void readData(String file) throws Exception {
         String line;
         FileReader f = new FileReader(file);
@@ -23,8 +24,9 @@ public class Bootup {
         while((line = b.readLine())!=null) {
               //store in instructios cach
             String[] tokens = line.split(" ");
-            int blockInst [] = new int [4];
-            for(int i =0 ; i < 4; i++)
+            //TODO RECORDAR GUARDAR CUATRO LINEAS POR BLOQUE!!!!!!!!
+            int blockInst [] = new int [Constant.INSTRUCTION_EMPTY_BLOCK.length];
+            for(int i =0 ; i < Constant.INSTRUCTION_EMPTY_BLOCK.length; i++)
             blockInst[i] = Integer.parseInt(tokens[i]) ;
             memInst.writeInstructionMemory(ite,blockInst);
             ite++;
