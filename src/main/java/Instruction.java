@@ -18,7 +18,7 @@ public class Instruction {
         this.registers = registers;
     }
 
-    public int decodreAndExecute(int[] instruction){
+    public int decodeAndExecute(int[] instruction){
         int duration = 0;
         //switch.
         //calcular la cantidad de cicles que se llevo en la instrucción (aunque no haya terminaod).
@@ -37,7 +37,7 @@ public class Instruction {
 
 
     //TODO HACER "FETCH" para cache de instrucciones que retorna una cantidad de ciclose que dura.
-
+    //TODO hacer metodos de calculo de bloque y de palabra apartir de una direccion
 
     /*
 

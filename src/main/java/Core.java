@@ -37,6 +37,10 @@ public class Core implements Runnable {
         this.coreContexts = coreContexts;
 
         //TODO Ademas de tener copias de la cola de contexto, aquí se carga
+        /*circle queue, poll head of queue then insert again, this insert se realizara al final*/
+        Context temp = coreContexts.poll(0);
+        this.pc= temp.getPc;
+        this.registers = temp.getRegisters;
         //TODO el contexto inicial desde esa cola.
 
     }
@@ -54,7 +58,8 @@ public class Core implements Runnable {
                 //El PC indica si se avanza o no!
                 //Se hace usando la clase Instruction
                 //instructionDuration = lo que dura el fetch.
-
+                //Fetch recibe el Pc que es la instruccion que se quiere hacer 
+                //TODO hacer fetch en instruction class , este retorna duracion para restarselo a quantum, el fecth en caso de abortar modifica el pc en -4
             }
 
             if(instructionDuration == 0) {
@@ -85,10 +90,10 @@ public class Core implements Runnable {
                 //Take the next context from the queue.
                 //If the next context is null, then the core shuts down.
                 //The shut down implies decreasing the numberOfCoresSystem by one. :D
+                //TODO add to queue context ie new context because before ha sido eliminada
             }
         }
     }
 
 
 }
-
