@@ -46,14 +46,14 @@ public class Processor {
 
     /*open each instruction file in a folder, read each  file truncating every 4 lines to store it in memory of instructions
     */
-    public void bootUp(){
+    public void bootUp(String path){
         //Tomar un directorio y tomar todos los archivos de ese directorio como hilillos a subir.
         //Subir a los hilillos a memoria de intruciones
         //para cada hilillo.
         //Crear nuevos contextos para la cola de contextos del procesos que comparten los núcleo.
         //Cada dirección en la memoria de instruciones donde inicia un hilillo, es el PC inicial un contexto
         //inicial de la cola.
-        String path= "C:\Users\Tony\Desktop\p1MIPS";//path of files for a specific core
+        //String path= "C:\Users\Tony\Desktop\p1MIPS";//path of files for a specific core
         File folder = new File(path);//take folder
         File[] listOfFiles = folder.listFiles(); //list of files for a specific core
         int instMemBlockNumber=0;
