@@ -44,7 +44,19 @@ public final class Constant {
     public static final int REGISTER_ZERO = 0;
     public static final int REGISTER_NULL_VALUE = -1;
 
-
+    //The locks' tags to use when some structure will be locked or unlocked with the buses
+    public static final String DATA_CACHE_0 = "DCache0";
+    public static final String INSTRUCTIONS_CACHE_0 = "ICache0";
+    public static final String DATA_CACHE_1 = "DCache1";
+    public static final String INSTRUCTIONS_CACHE_1 = "ICache1";
+    public static final String DATA_CACHE_2 = "DCache2";
+    public static final String INSTRUCTIONS_CACHE_2 = "ICache2";
+    public static final String DIRECTORY_0 = "Directory0";
+    public static final String DIRECTORY_1 = "Directory1";
+    public static final String INSTRUCTIONS_MEMORY_0 = "IMemory0";
+    public static final String INSTRUCTIONS_MEMORY_1 = "IMemory1";
+    public static final String SHARED_DATA_MEMORY_0 = "DMemory0";
+    public static final String SHARED_DATA_MEMORY_1 = "DMemory1";
 
     private Constant(){
     }
