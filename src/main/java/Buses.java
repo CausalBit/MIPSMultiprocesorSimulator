@@ -13,18 +13,18 @@ public class Buses {
      * be available to be requested and locked by a core.
      */
     public Buses(){
-        buses.put("DCache0", new ReentrantLock());
-        buses.put("ICache0", new ReentrantLock());
-        buses.put("DCache1", new ReentrantLock());
-        buses.put("ICache1", new ReentrantLock());
-        buses.put("DCache2", new ReentrantLock());
-        buses.put("ICache2", new ReentrantLock());
-        buses.put("Directory0", new ReentrantLock());
-        buses.put("Directory1", new ReentrantLock());
-        buses.put("InstructionsMemory0", new ReentrantLock());
-        buses.put("InstructionsMemory1", new ReentrantLock());
-        buses.put("SharedDataMemory0", new ReentrantLock());
-        buses.put("SharedDataMemory1", new ReentrantLock());
+        buses.put(Constant.DATA_CACHE_0, new ReentrantLock());
+        buses.put(Constant.INSTRUCTIONS_CACHE_0, new ReentrantLock());
+        buses.put(Constant.DATA_CACHE_1, new ReentrantLock());
+        buses.put(Constant.INSTRUCTIONS_CACHE_1, new ReentrantLock());
+        buses.put(Constant.DATA_CACHE_2, new ReentrantLock());
+        buses.put(Constant.INSTRUCTIONS_CACHE_2, new ReentrantLock());
+        buses.put(Constant.DIRECTORY_0, new ReentrantLock());
+        buses.put(Constant.DIRECTORY_1, new ReentrantLock());
+        buses.put(Constant.INSTRUCTIONS_MEMORY_0, new ReentrantLock());
+        buses.put(Constant.INSTRUCTIONS_MEMORY_1, new ReentrantLock());
+        buses.put(Constant.SHARED_DATA_MEMORY_0, new ReentrantLock());
+        buses.put(Constant.SHARED_DATA_MEMORY_1, new ReentrantLock());
     }
 
     /**
