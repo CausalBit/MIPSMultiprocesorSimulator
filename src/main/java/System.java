@@ -11,9 +11,9 @@ public class System {
         PhysicalMemory memP1 = new PhysicalMemory(8,16,16,24);
         Buses buses= new Buses();
         Processor p1 = new Processor(0,1,memP0);//aqui se crean los nucleos, las caches I D y los directorios
-        p1.bootUp("Path");
+        p1.bootUp("./src/main/threads/t1");
         Processor p2 = new Processor(2,memP1);
-        p2.bootUp("Path");
+        p2.bootUp("./src/main/threads/t2");
         //run cores
         p1.runCore(0);
         p1.runCore(1);
