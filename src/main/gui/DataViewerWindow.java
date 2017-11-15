@@ -23,17 +23,17 @@ import javax.swing.JButton;
 public class DataViewerWindow extends JFrame {
 
 	private JPanel contentPane;
-	private JTable table;
-	private JTable table_2;
-	private JTable table_3;
-	private JTable table_4;
-	private JTable table_6;
-	private JTable table_5;
-	private JTable table_13;
-	private JTable table_1;
-	private JTable table_7;
-	private JTable table_9;
-	private JTable table_10;
+	private JTable tableChache0;
+	private JTable tableRegisters0;
+	private JTable tableDirectory0;
+	private JTable tableSharedMemory;
+	private JTable tableMemory0;
+	private JTable tableCache1;
+	private JTable tableRegisters2;
+	private JTable tableCache2;
+	private JTable tableDirectory1;
+	private JTable tableMemory1;
+	private JTable tableRegisters1;
 
 	/**
 	 * Launch the application.
@@ -55,43 +55,56 @@ public class DataViewerWindow extends JFrame {
 	 * Create the frame.
 	 */
 	public DataViewerWindow() {
+		setResizable(false);
 		setTitle("Data Viewer");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1169, 748);
+		setBounds(100, 100, 1057, 842);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
 		JPanel panelProcessor0 = new JPanel();
-		panelProcessor0.setBounds(10, 11, 1133, 267);
+		panelProcessor0.setBounds(10, 11, 676, 458);
 		contentPane.add(panelProcessor0);
-		panelProcessor0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Procesor 0", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelProcessor0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 0", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelProcessor0.setLayout(null);
 		
 		JPanel panelCore0 = new JPanel();
 		panelCore0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core 0", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelCore0.setBounds(10, 21, 323, 235);
+		panelCore0.setBounds(10, 21, 323, 428);
 		panelProcessor0.add(panelCore0);
 		panelCore0.setLayout(null);
 		
-		JPanel panelCache00 = new JPanel();
-		panelCache00.setBorder(new TitledBorder(null, "Data Cache", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelCache00.setBounds(10, 70, 146, 154);
-		panelCore0.add(panelCache00);
-		panelCache00.setLayout(null);
+		JPanel panelCache0 = new JPanel();
+		panelCache0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Data cache", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelCache0.setBounds(10, 70, 146, 347);
+		panelCore0.add(panelCache0);
+		panelCache0.setLayout(null);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setWheelScrollingEnabled(false);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(10, 21, 126, 122);
-		panelCache00.add(scrollPane);
+		JScrollPane scrollCache0 = new JScrollPane();
+		scrollCache0.setWheelScrollingEnabled(false);
+		scrollCache0.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		scrollCache0.setBounds(10, 21, 126, 315);
+		panelCache0.add(scrollCache0);
 		
-		table = new JTable();
-		scrollPane.setViewportView(table);
-		table.setModel(new DefaultTableModel(
+		tableChache0 = new JTable();
+		scrollCache0.setViewportView(tableChache0);
+		tableChache0.setModel(new DefaultTableModel(
 			new Object[][] {
 				{"", null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
 				{null, null, null, null},
 				{null, null, null, null},
 				{null, null, null, null},
@@ -109,39 +122,109 @@ public class DataViewerWindow extends JFrame {
 				return columnEditables[column];
 			}
 		});
-		table.getColumnModel().getColumn(0).setResizable(false);
-		table.getColumnModel().getColumn(1).setResizable(false);
-		table.getColumnModel().getColumn(2).setResizable(false);
-		table.getColumnModel().getColumn(3).setResizable(false);
+		tableChache0.getColumnModel().getColumn(0).setResizable(false);
+		tableChache0.getColumnModel().getColumn(1).setResizable(false);
+		tableChache0.getColumnModel().getColumn(2).setResizable(false);
+		tableChache0.getColumnModel().getColumn(3).setResizable(false);
 		
 		JLabel lblCurrentThread0 = new JLabel("Current thread:");
 		lblCurrentThread0.setBounds(10, 46, 83, 14);
 		panelCore0.add(lblCurrentThread0);
 		
-		JLabel label = new JLabel("<thread>");
-		label.setBounds(103, 45, 53, 14);
-		panelCore0.add(label);
+		JLabel dinLblThread0 = new JLabel("<thread>");
+		dinLblThread0.setBounds(103, 45, 53, 14);
+		panelCore0.add(dinLblThread0);
 		
 		JLabel lblCurrentCycle0 = new JLabel("Current cycle:");
 		lblCurrentCycle0.setBounds(10, 21, 83, 14);
 		panelCore0.add(lblCurrentCycle0);
 		
-		JLabel label_1 = new JLabel("<cycle>");
-		label_1.setBounds(103, 21, 46, 14);
-		panelCore0.add(label_1);
+		JLabel dinLblCycle0 = new JLabel("<cycle>");
+		dinLblCycle0.setBounds(103, 21, 46, 14);
+		panelCore0.add(dinLblCycle0);
 		
-		JPanel panelRegisters00 = new JPanel();
-		panelRegisters00.setBounds(166, 11, 146, 213);
-		panelCore0.add(panelRegisters00);
-		panelRegisters00.setBorder(new TitledBorder(null, "CPU Registers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelRegisters00.setLayout(null);
+		JPanel panelRegisters0 = new JPanel();
+		panelRegisters0.setBounds(166, 11, 146, 406);
+		panelCore0.add(panelRegisters0);
+		panelRegisters0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core registers", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelRegisters0.setLayout(null);
 		
-		table_2 = new JTable();
-		table_2.setBorder(new LineBorder(new Color(0, 0, 0)));
-		table_2.setBounds(10, 74, 126, 128);
-		panelRegisters00.add(table_2);
-		table_2.setModel(new DefaultTableModel(
+		tableRegisters0 = new JTable();
+		tableRegisters0.setRowHeight(19);
+		tableRegisters0.setBorder(new LineBorder(new Color(0, 0, 0)));
+		tableRegisters0.setBounds(10, 91, 126, 304);
+		panelRegisters0.add(tableRegisters0);
+		tableRegisters0.setModel(new DefaultTableModel(
 			new Object[][] {
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+			},
+			new String[] {
+				"New column", "New column"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				true, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		tableRegisters0.getColumnModel().getColumn(1).setResizable(false);
+		
+		JLabel lblPcRegister0 = new JLabel("PC register:");
+		lblPcRegister0.setBounds(10, 33, 71, 14);
+		panelRegisters0.add(lblPcRegister0);
+		
+		JLabel dinLblPc0 = new JLabel("<pc>");
+		dinLblPc0.setBounds(90, 33, 46, 14);
+		panelRegisters0.add(dinLblPc0);
+		
+		JPanel panelCore1 = new JPanel();
+		panelCore1.setLayout(null);
+		panelCore1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core 1", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelCore1.setBounds(343, 21, 323, 428);
+		panelProcessor0.add(panelCore1);
+		
+		JPanel panelCache1 = new JPanel();
+		panelCache1.setLayout(null);
+		panelCache1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Data cache", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelCache1.setBounds(10, 70, 146, 347);
+		panelCore1.add(panelCache1);
+		
+		JScrollPane scrollCache1 = new JScrollPane();
+		scrollCache1.setWheelScrollingEnabled(false);
+		scrollCache1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		scrollCache1.setBounds(10, 21, 126, 315);
+		panelCache1.add(scrollCache1);
+		
+		tableCache1 = new JTable();
+		tableCache1.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
 				{null, null, null, null},
 				{null, null, null, null},
 				{null, null, null, null},
@@ -152,40 +235,238 @@ public class DataViewerWindow extends JFrame {
 				{null, null, null, null},
 			},
 			new String[] {
-				"New column", "New column", "New column", "New column"
+				"0", "1", "2", "3"
 			}
 		) {
 			boolean[] columnEditables = new boolean[] {
-				true, true, true, false
+				false, false, false, false
 			};
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
 		});
+		tableCache1.getColumnModel().getColumn(0).setResizable(false);
+		tableCache1.getColumnModel().getColumn(1).setResizable(false);
+		tableCache1.getColumnModel().getColumn(2).setResizable(false);
+		tableCache1.getColumnModel().getColumn(3).setResizable(false);
+		scrollCache1.setViewportView(tableCache1);
 		
-		JLabel lblPcRegister0 = new JLabel("PC Register:");
-		lblPcRegister0.setBounds(10, 33, 71, 14);
-		panelRegisters00.add(lblPcRegister0);
+		JLabel lblCurrentThread1 = new JLabel("Current thread:");
+		lblCurrentThread1.setBounds(10, 46, 83, 14);
+		panelCore1.add(lblCurrentThread1);
 		
-		JLabel label_10 = new JLabel("<pc>");
-		label_10.setBounds(91, 33, 46, 14);
-		panelRegisters00.add(label_10);
-		table_2.getColumnModel().getColumn(3).setResizable(false);
+		JLabel dinLblThread1 = new JLabel("<thread>");
+		dinLblThread1.setBounds(103, 45, 53, 14);
+		panelCore1.add(dinLblThread1);
 		
-		JPanel panelDirectory0 = new JPanel();
-		panelDirectory0.setBorder(new TitledBorder(null, "CPU Directory", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelDirectory0.setBounds(676, 21, 147, 235);
-		panelProcessor0.add(panelDirectory0);
-		panelDirectory0.setLayout(null);
+		JLabel lblCurrentCycle1 = new JLabel("Current cycle:");
+		lblCurrentCycle1.setBounds(10, 21, 83, 14);
+		panelCore1.add(lblCurrentCycle1);
 		
-		JScrollPane scrollPane_2 = new JScrollPane();
-		scrollPane_2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane_2.setBounds(10, 22, 126, 202);
-		panelDirectory0.add(scrollPane_2);
+		JLabel dinLblCycle1 = new JLabel("<cycle>");
+		dinLblCycle1.setBounds(103, 21, 46, 14);
+		panelCore1.add(dinLblCycle1);
 		
-		table_3 = new JTable();
-		table_3.setRowHeight(22);
-		table_3.setModel(new DefaultTableModel(
+		JPanel panelRegisters1 = new JPanel();
+		panelRegisters1.setLayout(null);
+		panelRegisters1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core registers", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelRegisters1.setBounds(166, 11, 146, 406);
+		panelCore1.add(panelRegisters1);
+		
+		JLabel lblPcRegister1 = new JLabel("PC register:");
+		lblPcRegister1.setBounds(10, 33, 71, 14);
+		panelRegisters1.add(lblPcRegister1);
+		
+		JLabel dinLblPc1 = new JLabel("<pc>");
+		dinLblPc1.setBounds(91, 33, 46, 14);
+		panelRegisters1.add(dinLblPc1);
+		
+		tableRegisters1 = new JTable();
+		tableRegisters1.setRowHeight(19);
+		tableRegisters1.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+			},
+			new String[] {
+				"New column", "New column"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		tableRegisters1.getColumnModel().getColumn(0).setResizable(false);
+		tableRegisters1.getColumnModel().getColumn(1).setResizable(false);
+		tableRegisters1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		tableRegisters1.setBounds(10, 91, 126, 304);
+		panelRegisters1.add(tableRegisters1);
+		
+		JPanel panelProcesor1 = new JPanel();
+		panelProcesor1.setBounds(696, 11, 345, 458);
+		contentPane.add(panelProcesor1);
+		panelProcesor1.setLayout(null);
+		panelProcesor1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 1", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		
+		JPanel panelCore2 = new JPanel();
+		panelCore2.setLayout(null);
+		panelCore2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core 2", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelCore2.setBounds(10, 21, 323, 426);
+		panelProcesor1.add(panelCore2);
+		
+		JPanel panelCache2 = new JPanel();
+		panelCache2.setLayout(null);
+		panelCache2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Data cache", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelCache2.setBounds(10, 70, 146, 345);
+		panelCore2.add(panelCache2);
+		
+		JScrollPane scrollCache2 = new JScrollPane();
+		scrollCache2.setWheelScrollingEnabled(false);
+		scrollCache2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		scrollCache2.setBounds(10, 21, 126, 313);
+		panelCache2.add(scrollCache2);
+		
+		tableCache2 = new JTable();
+		tableCache2.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+			},
+			new String[] {
+				"0", "1", "2", "3"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				false, false, false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		tableCache2.getColumnModel().getColumn(0).setResizable(false);
+		tableCache2.getColumnModel().getColumn(1).setResizable(false);
+		tableCache2.getColumnModel().getColumn(2).setResizable(false);
+		tableCache2.getColumnModel().getColumn(3).setResizable(false);
+		scrollCache2.setViewportView(tableCache2);
+		
+		JLabel lblCurrentThread2 = new JLabel("Current thread:");
+		lblCurrentThread2.setBounds(10, 46, 83, 14);
+		panelCore2.add(lblCurrentThread2);
+		
+		JLabel dinLblThread2 = new JLabel("<thread>");
+		dinLblThread2.setBounds(103, 45, 53, 14);
+		panelCore2.add(dinLblThread2);
+		
+		JLabel lblCurrentCycle2 = new JLabel("Current cycle:");
+		lblCurrentCycle2.setBounds(10, 21, 83, 14);
+		panelCore2.add(lblCurrentCycle2);
+		
+		JLabel dinLblCycle2 = new JLabel("<cycle>");
+		dinLblCycle2.setBounds(103, 21, 46, 14);
+		panelCore2.add(dinLblCycle2);
+		
+		JPanel panelRegisters2 = new JPanel();
+		panelRegisters2.setLayout(null);
+		panelRegisters2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core registers", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelRegisters2.setBounds(166, 11, 146, 404);
+		panelCore2.add(panelRegisters2);
+		
+		tableRegisters2 = new JTable();
+		tableRegisters2.setRowHeight(19);
+		tableRegisters2.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+			},
+			new String[] {
+				"New column", "New column"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		tableRegisters2.getColumnModel().getColumn(0).setResizable(false);
+		tableRegisters2.getColumnModel().getColumn(1).setResizable(false);
+		tableRegisters2.setBorder(new LineBorder(new Color(0, 0, 0)));
+		tableRegisters2.setBounds(10, 89, 126, 304);
+		panelRegisters2.add(tableRegisters2);
+		
+		JLabel lblPcRegister2 = new JLabel("PC register:");
+		lblPcRegister2.setBounds(10, 33, 71, 14);
+		panelRegisters2.add(lblPcRegister2);
+		
+		JLabel dinLblPc2 = new JLabel("<pc>");
+		dinLblPc2.setBounds(91, 33, 46, 14);
+		panelRegisters2.add(dinLblPc2);
+		
+		JButton btnStop = new JButton("Stop");
+		btnStop.setBounds(952, 780, 89, 23);
+		contentPane.add(btnStop);
+		
+		JPanel panelDirectory1 = new JPanel();
+		panelDirectory1.setBounds(167, 480, 147, 187);
+		contentPane.add(panelDirectory1);
+		panelDirectory1.setLayout(null);
+		panelDirectory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 1 directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		
+		JScrollPane scrollDirectory1 = new JScrollPane();
+		scrollDirectory1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		scrollDirectory1.setBounds(10, 22, 126, 154);
+		panelDirectory1.add(scrollDirectory1);
+		
+		tableDirectory1 = new JTable();
+		tableDirectory1.setModel(new DefaultTableModel(
 			new Object[][] {
 				{null, null, null, null},
 				{null, null, null, null},
@@ -207,21 +488,112 @@ public class DataViewerWindow extends JFrame {
 				return columnEditables[column];
 			}
 		});
-		table_3.getColumnModel().getColumn(0).setResizable(false);
-		table_3.getColumnModel().getColumn(1).setResizable(false);
-		table_3.getColumnModel().getColumn(2).setResizable(false);
-		table_3.getColumnModel().getColumn(3).setResizable(false);
-		scrollPane_2.setViewportView(table_3);
+		tableDirectory1.getColumnModel().getColumn(0).setResizable(false);
+		tableDirectory1.getColumnModel().getColumn(1).setResizable(false);
+		tableDirectory1.getColumnModel().getColumn(2).setResizable(false);
+		tableDirectory1.getColumnModel().getColumn(3).setResizable(false);
+		scrollDirectory1.setViewportView(tableDirectory1);
+		
+		JPanel panelMemory1 = new JPanel();
+		panelMemory1.setBounds(687, 480, 354, 187);
+		contentPane.add(panelMemory1);
+		panelMemory1.setLayout(null);
+		panelMemory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 1 shared data memory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		
+		tableMemory1 = new JTable();
+		tableMemory1.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+				{null, null, null, null},
+			},
+			new String[] {
+				"New column", "New column", "New column", "New column"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				false, false, false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		tableMemory1.getColumnModel().getColumn(0).setResizable(false);
+		tableMemory1.getColumnModel().getColumn(1).setResizable(false);
+		tableMemory1.getColumnModel().getColumn(2).setResizable(false);
+		tableMemory1.getColumnModel().getColumn(3).setResizable(false);
+		tableMemory1.setRowHeight(19);
+		tableMemory1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		tableMemory1.setBounds(10, 21, 334, 152);
+		panelMemory1.add(tableMemory1);
+		
+		JPanel panelSharedMemory = new JPanel();
+		panelSharedMemory.setBounds(10, 678, 1031, 99);
+		contentPane.add(panelSharedMemory);
+		panelSharedMemory.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Full shared memory area", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelSharedMemory.setLayout(null);
+		
+		tableSharedMemory = new JTable();
+		tableSharedMemory.setBorder(new LineBorder(new Color(0, 0, 0)));
+		tableSharedMemory.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+			},
+			new String[] {
+				"New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		tableSharedMemory.getColumnModel().getColumn(0).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(1).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(2).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(3).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(4).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(5).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(6).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(7).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(8).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(9).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(10).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(11).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(12).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(13).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(14).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(15).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(16).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(17).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(18).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(19).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(20).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(21).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(22).setResizable(false);
+		tableSharedMemory.getColumnModel().getColumn(23).setResizable(false);
+		tableSharedMemory.setBounds(10, 21, 1011, 64);
+		panelSharedMemory.add(tableSharedMemory);
 		
 		JPanel panelMemory0 = new JPanel();
+		panelMemory0.setBounds(324, 480, 354, 187);
+		contentPane.add(panelMemory0);
 		panelMemory0.setLayout(null);
-		panelMemory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Shared data memory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelMemory0.setBounds(833, 21, 290, 235);
-		panelProcessor0.add(panelMemory0);
+		panelMemory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 0 shared data memory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		
-		table_6 = new JTable();
-		table_6.setRowHeight(26);
-		table_6.setModel(new DefaultTableModel(
+		tableMemory0 = new JTable();
+		tableMemory0.setRowHeight(19);
+		tableMemory0.setModel(new DefaultTableModel(
 			new Object[][] {
 				{"", null, null, null, null, null, null, null},
 				{null, null, null, null, null, null, null, null},
@@ -243,247 +615,29 @@ public class DataViewerWindow extends JFrame {
 				return columnEditables[column];
 			}
 		});
-		table_6.getColumnModel().getColumn(0).setResizable(false);
-		table_6.getColumnModel().getColumn(1).setResizable(false);
-		table_6.getColumnModel().getColumn(2).setResizable(false);
-		table_6.getColumnModel().getColumn(3).setResizable(false);
-		table_6.getColumnModel().getColumn(4).setResizable(false);
-		table_6.getColumnModel().getColumn(5).setResizable(false);
-		table_6.setBorder(new LineBorder(new Color(0, 0, 0)));
-		table_6.setBounds(10, 21, 270, 203);
-		panelMemory0.add(table_6);
+		tableMemory0.getColumnModel().getColumn(0).setResizable(false);
+		tableMemory0.getColumnModel().getColumn(1).setResizable(false);
+		tableMemory0.getColumnModel().getColumn(2).setResizable(false);
+		tableMemory0.getColumnModel().getColumn(3).setResizable(false);
+		tableMemory0.getColumnModel().getColumn(4).setResizable(false);
+		tableMemory0.getColumnModel().getColumn(5).setResizable(false);
+		tableMemory0.setBorder(new LineBorder(new Color(0, 0, 0)));
+		tableMemory0.setBounds(10, 21, 334, 152);
+		panelMemory0.add(tableMemory0);
 		
-		JPanel panelCore1 = new JPanel();
-		panelCore1.setLayout(null);
-		panelCore1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core 1", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelCore1.setBounds(343, 21, 323, 235);
-		panelProcessor0.add(panelCore1);
+		JPanel panelDirectory0 = new JPanel();
+		panelDirectory0.setBounds(10, 480, 147, 187);
+		contentPane.add(panelDirectory0);
+		panelDirectory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 0 directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelDirectory0.setLayout(null);
 		
-		JPanel panelCache01 = new JPanel();
-		panelCache01.setLayout(null);
-		panelCache01.setBorder(new TitledBorder(null, "Data Cache", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelCache01.setBounds(10, 70, 146, 154);
-		panelCore1.add(panelCache01);
+		JScrollPane scrollDirectory0 = new JScrollPane();
+		scrollDirectory0.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		scrollDirectory0.setBounds(10, 22, 127, 154);
+		panelDirectory0.add(scrollDirectory0);
 		
-		JScrollPane scrollPane_4 = new JScrollPane();
-		scrollPane_4.setWheelScrollingEnabled(false);
-		scrollPane_4.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane_4.setBounds(10, 21, 126, 122);
-		panelCache01.add(scrollPane_4);
-		
-		table_13 = new JTable();
-		table_13.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-			},
-			new String[] {
-				"0", "1", "2", "3"
-			}
-		) {
-			boolean[] columnEditables = new boolean[] {
-				false, false, false, false
-			};
-			public boolean isCellEditable(int row, int column) {
-				return columnEditables[column];
-			}
-		});
-		table_13.getColumnModel().getColumn(0).setResizable(false);
-		table_13.getColumnModel().getColumn(1).setResizable(false);
-		table_13.getColumnModel().getColumn(2).setResizable(false);
-		table_13.getColumnModel().getColumn(3).setResizable(false);
-		scrollPane_4.setViewportView(table_13);
-		
-		JLabel label_13 = new JLabel("Current thread:");
-		label_13.setBounds(10, 46, 83, 14);
-		panelCore1.add(label_13);
-		
-		JLabel label_14 = new JLabel("<thread>");
-		label_14.setBounds(103, 45, 53, 14);
-		panelCore1.add(label_14);
-		
-		JLabel label_15 = new JLabel("Current cycle:");
-		label_15.setBounds(10, 21, 83, 14);
-		panelCore1.add(label_15);
-		
-		JLabel label_16 = new JLabel("<cycle>");
-		label_16.setBounds(103, 21, 46, 14);
-		panelCore1.add(label_16);
-		
-		JPanel panelRegisters01 = new JPanel();
-		panelRegisters01.setLayout(null);
-		panelRegisters01.setBorder(new TitledBorder(null, "CPU Registers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelRegisters01.setBounds(166, 11, 146, 213);
-		panelCore1.add(panelRegisters01);
-		
-		table_5 = new JTable();
-		table_5.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-			},
-			new String[] {
-				"New column", "New column", "New column", "New column"
-			}
-		) {
-			boolean[] columnEditables = new boolean[] {
-				false, false, false, false
-			};
-			public boolean isCellEditable(int row, int column) {
-				return columnEditables[column];
-			}
-		});
-		table_5.getColumnModel().getColumn(0).setResizable(false);
-		table_5.getColumnModel().getColumn(1).setResizable(false);
-		table_5.getColumnModel().getColumn(2).setResizable(false);
-		table_5.getColumnModel().getColumn(3).setResizable(false);
-		table_5.setBorder(new LineBorder(new Color(0, 0, 0)));
-		table_5.setBounds(10, 74, 126, 128);
-		panelRegisters01.add(table_5);
-		
-		JLabel label_17 = new JLabel("PC Register:");
-		label_17.setBounds(10, 33, 71, 14);
-		panelRegisters01.add(label_17);
-		
-		JLabel label_18 = new JLabel("<pc>");
-		label_18.setBounds(91, 33, 46, 14);
-		panelRegisters01.add(label_18);
-		
-		JPanel panelProcesor1 = new JPanel();
-		panelProcesor1.setBounds(10, 289, 1133, 267);
-		contentPane.add(panelProcesor1);
-		panelProcesor1.setLayout(null);
-		panelProcesor1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Procesor 1", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		
-		JPanel panelCore2 = new JPanel();
-		panelCore2.setLayout(null);
-		panelCore2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core 2", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelCore2.setBounds(10, 21, 323, 235);
-		panelProcesor1.add(panelCore2);
-		
-		JPanel panelCache1 = new JPanel();
-		panelCache1.setLayout(null);
-		panelCache1.setBorder(new TitledBorder(null, "Data Cache", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelCache1.setBounds(10, 70, 146, 154);
-		panelCore2.add(panelCache1);
-		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setWheelScrollingEnabled(false);
-		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane_1.setBounds(10, 21, 126, 122);
-		panelCache1.add(scrollPane_1);
-		
-		table_7 = new JTable();
-		table_7.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-			},
-			new String[] {
-				"0", "1", "2", "3"
-			}
-		) {
-			boolean[] columnEditables = new boolean[] {
-				false, false, false, false
-			};
-			public boolean isCellEditable(int row, int column) {
-				return columnEditables[column];
-			}
-		});
-		table_7.getColumnModel().getColumn(0).setResizable(false);
-		table_7.getColumnModel().getColumn(1).setResizable(false);
-		table_7.getColumnModel().getColumn(2).setResizable(false);
-		table_7.getColumnModel().getColumn(3).setResizable(false);
-		scrollPane_1.setViewportView(table_7);
-		
-		JLabel label_2 = new JLabel("Current thread:");
-		label_2.setBounds(10, 46, 83, 14);
-		panelCore2.add(label_2);
-		
-		JLabel label_3 = new JLabel("<thread>");
-		label_3.setBounds(103, 45, 53, 14);
-		panelCore2.add(label_3);
-		
-		JLabel label_4 = new JLabel("Current cycle:");
-		label_4.setBounds(10, 21, 83, 14);
-		panelCore2.add(label_4);
-		
-		JLabel label_5 = new JLabel("<cycle>");
-		label_5.setBounds(103, 21, 46, 14);
-		panelCore2.add(label_5);
-		
-		JPanel panelRegisters1 = new JPanel();
-		panelRegisters1.setLayout(null);
-		panelRegisters1.setBorder(new TitledBorder(null, "CPU Registers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelRegisters1.setBounds(166, 11, 146, 213);
-		panelCore2.add(panelRegisters1);
-		
-		table_1 = new JTable();
-		table_1.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-			},
-			new String[] {
-				"New column", "New column", "New column", "New column"
-			}
-		) {
-			boolean[] columnEditables = new boolean[] {
-				false, false, false, false
-			};
-			public boolean isCellEditable(int row, int column) {
-				return columnEditables[column];
-			}
-		});
-		table_1.getColumnModel().getColumn(0).setResizable(false);
-		table_1.getColumnModel().getColumn(1).setResizable(false);
-		table_1.getColumnModel().getColumn(2).setResizable(false);
-		table_1.getColumnModel().getColumn(3).setResizable(false);
-		table_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		table_1.setBounds(10, 74, 126, 128);
-		panelRegisters1.add(table_1);
-		
-		JLabel label_11 = new JLabel("PC Register:");
-		label_11.setBounds(10, 33, 71, 14);
-		panelRegisters1.add(label_11);
-		
-		JLabel label_12 = new JLabel("<pc>");
-		label_12.setBounds(91, 33, 46, 14);
-		panelRegisters1.add(label_12);
-		
-		JPanel panelDirectory1 = new JPanel();
-		panelDirectory1.setLayout(null);
-		panelDirectory1.setBorder(new TitledBorder(null, "CPU Directory", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelDirectory1.setBounds(677, 21, 147, 235);
-		panelProcesor1.add(panelDirectory1);
-		
-		JScrollPane scrollPane_3 = new JScrollPane();
-		scrollPane_3.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane_3.setBounds(10, 22, 126, 202);
-		panelDirectory1.add(scrollPane_3);
-		
-		table_9 = new JTable();
-		table_9.setModel(new DefaultTableModel(
+		tableDirectory0 = new JTable();
+		tableDirectory0.setModel(new DefaultTableModel(
 			new Object[][] {
 				{null, null, null, null},
 				{null, null, null, null},
@@ -505,106 +659,10 @@ public class DataViewerWindow extends JFrame {
 				return columnEditables[column];
 			}
 		});
-		table_9.getColumnModel().getColumn(0).setResizable(false);
-		table_9.getColumnModel().getColumn(1).setResizable(false);
-		table_9.getColumnModel().getColumn(2).setResizable(false);
-		table_9.getColumnModel().getColumn(3).setResizable(false);
-		table_9.setRowHeight(22);
-		scrollPane_3.setViewportView(table_9);
-		
-		JPanel panelMemory1 = new JPanel();
-		panelMemory1.setLayout(null);
-		panelMemory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Shared data memory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelMemory1.setBounds(834, 21, 290, 235);
-		panelProcesor1.add(panelMemory1);
-		
-		table_10 = new JTable();
-		table_10.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
-			},
-			new String[] {
-				"New column", "New column", "New column", "New column"
-			}
-		) {
-			boolean[] columnEditables = new boolean[] {
-				false, false, false, false
-			};
-			public boolean isCellEditable(int row, int column) {
-				return columnEditables[column];
-			}
-		});
-		table_10.getColumnModel().getColumn(0).setResizable(false);
-		table_10.getColumnModel().getColumn(1).setResizable(false);
-		table_10.getColumnModel().getColumn(2).setResizable(false);
-		table_10.getColumnModel().getColumn(3).setResizable(false);
-		table_10.setRowHeight(26);
-		table_10.setBorder(new LineBorder(new Color(0, 0, 0)));
-		table_10.setBounds(10, 21, 270, 203);
-		panelMemory1.add(table_10);
-		
-		JPanel panelSharedMemory = new JPanel();
-		panelSharedMemory.setBounds(10, 567, 1133, 99);
-		contentPane.add(panelSharedMemory);
-		panelSharedMemory.setBorder(new TitledBorder(null, "Shared memory area", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelSharedMemory.setLayout(null);
-		
-		table_4 = new JTable();
-		table_4.setBorder(new LineBorder(new Color(0, 0, 0)));
-		table_4.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-			},
-			new String[] {
-				"New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column"
-			}
-		) {
-			boolean[] columnEditables = new boolean[] {
-				true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
-			};
-			public boolean isCellEditable(int row, int column) {
-				return columnEditables[column];
-			}
-		});
-		table_4.getColumnModel().getColumn(0).setResizable(false);
-		table_4.getColumnModel().getColumn(1).setResizable(false);
-		table_4.getColumnModel().getColumn(2).setResizable(false);
-		table_4.getColumnModel().getColumn(3).setResizable(false);
-		table_4.getColumnModel().getColumn(4).setResizable(false);
-		table_4.getColumnModel().getColumn(5).setResizable(false);
-		table_4.getColumnModel().getColumn(6).setResizable(false);
-		table_4.getColumnModel().getColumn(7).setResizable(false);
-		table_4.getColumnModel().getColumn(8).setResizable(false);
-		table_4.getColumnModel().getColumn(9).setResizable(false);
-		table_4.getColumnModel().getColumn(10).setResizable(false);
-		table_4.getColumnModel().getColumn(11).setResizable(false);
-		table_4.getColumnModel().getColumn(12).setResizable(false);
-		table_4.getColumnModel().getColumn(13).setResizable(false);
-		table_4.getColumnModel().getColumn(14).setResizable(false);
-		table_4.getColumnModel().getColumn(15).setResizable(false);
-		table_4.getColumnModel().getColumn(16).setResizable(false);
-		table_4.getColumnModel().getColumn(17).setResizable(false);
-		table_4.getColumnModel().getColumn(18).setResizable(false);
-		table_4.getColumnModel().getColumn(19).setResizable(false);
-		table_4.getColumnModel().getColumn(20).setResizable(false);
-		table_4.getColumnModel().getColumn(21).setResizable(false);
-		table_4.getColumnModel().getColumn(22).setResizable(false);
-		table_4.getColumnModel().getColumn(23).setResizable(false);
-		table_4.setBounds(10, 21, 1113, 64);
-		panelSharedMemory.add(table_4);
-		
-		JButton btnNewButton = new JButton("Stop");
-		btnNewButton.setBounds(1054, 676, 89, 23);
-		contentPane.add(btnNewButton);
+		tableDirectory0.getColumnModel().getColumn(0).setResizable(false);
+		tableDirectory0.getColumnModel().getColumn(1).setResizable(false);
+		tableDirectory0.getColumnModel().getColumn(2).setResizable(false);
+		tableDirectory0.getColumnModel().getColumn(3).setResizable(false);
+		scrollDirectory0.setViewportView(tableDirectory0);
 	}
 }
