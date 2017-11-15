@@ -64,6 +64,21 @@ public final class Constant {
     public static final int LOCAL_MEMORY_ACCESS = 16;
     public static final int REMOTE_MEMORY_ACCESS = 40;
 
+    // operation code of instructions
+    public static final int CODOP_DADDI = 8;
+    public static final int CODOP_DADD=32
+    public static final int CODOP_DSUB=34;
+    public static final int CODOP_DMUL=12;
+    public static final int CODOP_DDIV=14;
+    public static final int  CODOP_BEQZ=4;
+    public static final int CODOP_BNEQZ=5;
+    public static final int BCODOP_JAL=3;
+    public static final int BCODOP_JR=2;
+    public static final int CODOP_LW=35;
+    public static final int CODOP_SW=43;
+    public static final int CODOP_FIN=63;
+
+
     private Constant(){
     }
 }
