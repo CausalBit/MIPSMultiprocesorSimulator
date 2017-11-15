@@ -7,45 +7,59 @@ import java.util.List;
 public class Processor {
     List<Core> cores;
     List<HashMap<String, Integer>> registers;
-    PhysicalMemory memP;
-    Cache cacheInst0;
-    Cache cacheInst1;
-    Cache cacheData0;
-    Cache cacheData1;
+    List <Cache> cacheData;
+    Lsit<Cache>  cacheInst;
+    PhysicalMemory memLocal;
+    PhysicalMemory memExternal;
     Queue<Context> coreContexts;
+    int quantum;
+    int pc;
+    int clock;
+    Semaphore barrier;
+    Buses buses;
 
-    public Processor(int numberOfCore1, int numberOfCore2, PhysicalMemory memP){
-        this.memP = memP;
-        registers = new ArrayList<HashMap<String, Integer>>;
+    public Processor(int numberOfCore1, int numberOfCore2, PhysicalMemory memLocal, PhysicalMemory memExternal, int quantum , Buses buses, List <Cache> cacheData){
+        this.memLocal = memLocal;
+        this.memExternal= memExternal;
+        this.quantum=quantum;
+        this.cacheData= cacheData;
+        this.Buses= buses;
+        registers = new ArrayList<HashMap<String, Integer>>();
         registers.add(new HashMap<String, Integer>());
         registers.add(new HashMap<String, Integer>());
         cores = new ArrayList<Core>();
         coreContexts = new Queue<Context>();
+        //create cache inst
+        cacheInst = cacheInst= new ArrayList<Caches>();
+        cacheInst.add( new Cache(Constant.INSTRUCTION_CACHE_TYPE));
+        cacheInst.add( new Cache(Constant.INSTRUCTION_CACHE_TYPE));
         //create cores
-        cores.add(new Core(barrier,clock,0,quantum,0,coreContexts));
-        cores.add(new Core(barrier,clock,0,quantum,1,coreContexts));
-        //create cach
-        cacheInst0 = new Cache(Constant.INSTRUCTION_CACHE_TYPE);
-        cacheInst1 = new Cache(Constant.INSTRUCTION_CACHE_TYPE);
-        cacheData0 = new Cache(Constant.DATA_CACHE_TYPE);
-        cacheData1 = new Cache(Constant.DATA_CACHE_TYPE);
+        cores.add(new Core(barrier,clock,pc,quantum,numberOfCore1,coreContexts,this.cacheInst.get(0),this.cacheData,memLocal, memExternal,buses));
+        cores.add(new Core(barrier,clock,pc,quantum,numberOfCore2,coreContexts,this.cacheInst.get(1),this.cacheData,memLocal, memExternal,buses));
     }
 
-    public Processor(int numberOfCore,PhysicalMemory memP){
-        this.memP = memP;
-        registers = new ArrayList<HashMap<String, Integer>>;
+    public Processor(int numberOfCore,PhysicalMemory memLocal, PhysicalMemory memExternal, int quantum , Buses buses, List <Cache> cacheData){
+        this.memLocal = memLocal;
+        this.memExternal= memExternal;
+        this.quantum= quantum;
+        this.cacheData= cacheData;
+        this.buses= buses;
+        registers = new ArrayList<HashMap<String, Integer>>();
         registers.add(new HashMap<String, Integer>());
         cores = new ArrayList<Core>();
         coreContexts = new Queue<Context>;
+        //create cache
+        cacheInst= new ArrayList<Caches>();
+        cacheInst.add(new Cache(Constant.INSTRUCTION_CACHE_TYPE));
         //create context
-        cores.add(new Core(barrier,clock,0,quantum,2,coreContexts));
-        //create cach
-        cacheInst2 = new Cache(Constant.INSTRUCTION_CACHE_TYPE);
-        cacheData2 = new Cache(Constant.DATA_CACHE_TYPE);
+        cores.add(new Core(barrier,clock,pc,quantum,numberOfCore,coreContexts,this.cacheInst.get(2),this.cacheData,memLocal, memExternal,buses));//pasa la cache de instrucciones 2
     }
 
-    /*open each instruction file in a folder, read each  file truncating every 4 lines to store it in memory of instructions
-    */
+
+    /**
+     * open each instruction file in a folder, read each  file truncating every 4 lines to store it in memory of instructions
+     * @param path is the direction of folder that contains the files for the'hilillos'
+     */
     public void bootUp(String path){
         //Tomar un directorio y tomar todos los archivos de ese directorio como hilillos a subir.
         //Subir a los hilillos a memoria de intruciones
@@ -87,7 +101,7 @@ public class Processor {
       }
 
       public void runCore(int numberOfCore){
-        //cargar bloque
+        //correr bloque
         cores.get(numberOfCore).run();
 
       }

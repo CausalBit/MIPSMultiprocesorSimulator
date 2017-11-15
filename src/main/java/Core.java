@@ -5,27 +5,35 @@ import java.util.concurrent.Semaphore;
 
 /**
  * Created by irvin on 11/12/17.
+ * modified by tonyViquez
  */
 public class Core implements Runnable {
+    private Buses buses;
     private int clock;
     private int quantum;
-
     private int pc;
     private int numberOfCoresSystem;
+    private PhysicalMemory memLocal;
+    private PhysicalMemory memExternal;
     private boolean running;
     Semaphore barrier;
     HashMap<String, Integer> registers;
     Queue<Context> coreContexts;
+    Cache cacheInst;
+    List <Cache> cacheData;
 
 
-
-    public Core(Semaphore barrier, int clock, int pc, int quantum, int numberOfCoresSystem, Queue<Context> coreContexts) {
+    public Core(Semaphore barrier, int clock, int pc, int quantum, int numberOfCoresSystem, Queue<Context> coreContexts, Cache cacheInst,List <Cache> cacheData, PhysicalMemory memLocal, PhysicalMemory memExternal, Buses buses ) {
         this.barrier = barrier;
         this.clock = clock;
         this.pc = pc;
         this.quantum = quantum;
         this.numberOfCoresSystem = numberOfCoresSystem;
-
+        this.cacheData=cacheData;
+        this.cacheInst= cacheInst;
+        this.memLocal= memLocal;
+        this.memExternal= memExternal;
+        this.buses=buses;
         this.running = true;
 
         registers = new HashMap<String, Integer>();
@@ -36,7 +44,6 @@ public class Core implements Runnable {
 
         this.coreContexts = coreContexts;
 
-        //TODO Ademas de tener copias de la cola de contexto, aquí se carga
         /*circle queue, poll head of queue then insert again, this insert se realizara al final*/
         Context temp = coreContexts.poll(0);
         this.pc= temp.getPc;
@@ -55,8 +62,11 @@ public class Core implements Runnable {
             if(instructionDuration == 0) {
 
                 //Cuando se hace fetch, intructionIsFinished se = false;
-                //El PC indica si se avanza o no!
-                //Se hace usando la clase Instruction
+                Instruction currentInstruction = new Instruction(this.pc, this.registers,buses, cacheInst, cacheData, memLocal, memExternal);
+                //TODO actualizar el pc a +4 se hace en el fetch
+                instructionDuration =+ currentInstruction.fetchInstruction(this.pc);
+                pc=pc+4;
+                currentInstruction.
                 //instructionDuration = lo que dura el fetch.
                 //Fetch recibe el Pc que es la instruccion que se quiere hacer 
                 //TODO hacer fetch en instruction class , este retorna duracion para restarselo a quantum, el fecth en caso de abortar modifica el pc en -4

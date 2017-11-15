@@ -7,12 +7,21 @@ public class System {
         //Aquí se van a crear todos las partes simuladas del sistema. Como es la memoria, buses, etc.
         //TODO cola de semaphore general para el barrier para los 3 cores
         //pide quantum
+        //es necesario crearlas cachesdata aqui ya que se deben compartir para cada procesador , se pueden compartir en algun momento
+        List <Cache> cacheData;
+        int pc;
+        cacheData = new ArrayList<Cache>();
+        cacheData.add(new Cache(Constant.DATA_CACHE_TYPE));
+        cacheData.add(new Cache(Constant.DATA_CACHE_TYPE));
+        cacheData.add(new Cache(Constant.DATA_CACHE_TYPE));
+        int quantum;
         PhysicalMemory memP0 = new PhysicalMemory(16,0,24,0);
         PhysicalMemory memP1 = new PhysicalMemory(8,16,16,24);
         Buses buses= new Buses();
-        Processor p1 = new Processor(0,1,memP0);//aqui se crean los nucleos, las caches I D y los directorios
+        //TODO averiguar path del directorio donde estoy
+        Processor p1 = new Processor(0,1,memP0,memP1,quantum,buses, cacheData);//aqui se crean los nucleos, las caches I D y los directorios
         p1.bootUp("Path");
-        Processor p2 = new Processor(2,memP1);
+        Processor p2 = new Processor(2,memP1,memP0, quantum,buses,cacheData);
         p2.bootUp("Path");
         //run cores
         p1.runCore(0);
