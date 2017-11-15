@@ -58,6 +58,12 @@ public final class Constant {
     public static final String SHARED_DATA_MEMORY_0 = "DMemory0";
     public static final String SHARED_DATA_MEMORY_1 = "DMemory1";
 
+    //Duration of accesses to memories
+    public static final int LOCAL_DIRECTORY_ACCESS = 1;
+    public static final int REMOTE_DIRECTORY_ACCESS = 5;
+    public static final int LOCAL_MEMORY_ACCESS = 16;
+    public static final int REMOTE_MEMORY_ACCESS = 40;
+
     private Constant(){
     }
 }
