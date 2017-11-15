@@ -55,9 +55,10 @@ public class DataViewerWindow extends JFrame {
 	 * Create the frame.
 	 */
 	public DataViewerWindow() {
+		setResizable(false);
 		setTitle("Data Viewer");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1068, 860);
+		setBounds(100, 100, 1057, 842);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -66,7 +67,7 @@ public class DataViewerWindow extends JFrame {
 		JPanel panelProcessor0 = new JPanel();
 		panelProcessor0.setBounds(10, 11, 676, 458);
 		contentPane.add(panelProcessor0);
-		panelProcessor0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Procesor 0", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelProcessor0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 0", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelProcessor0.setLayout(null);
 		
 		JPanel panelCore0 = new JPanel();
@@ -76,7 +77,7 @@ public class DataViewerWindow extends JFrame {
 		panelCore0.setLayout(null);
 		
 		JPanel panelCache0 = new JPanel();
-		panelCache0.setBorder(new TitledBorder(null, "Data Cache", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelCache0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Data cache", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelCache0.setBounds(10, 70, 146, 347);
 		panelCore0.add(panelCache0);
 		panelCache0.setLayout(null);
@@ -142,16 +143,17 @@ public class DataViewerWindow extends JFrame {
 		dinLblCycle0.setBounds(103, 21, 46, 14);
 		panelCore0.add(dinLblCycle0);
 		
-		JPanel panelRegisters00 = new JPanel();
-		panelRegisters00.setBounds(166, 11, 146, 406);
-		panelCore0.add(panelRegisters00);
-		panelRegisters00.setBorder(new TitledBorder(null, "CPU Registers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelRegisters00.setLayout(null);
+		JPanel panelRegisters0 = new JPanel();
+		panelRegisters0.setBounds(166, 11, 146, 406);
+		panelCore0.add(panelRegisters0);
+		panelRegisters0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core registers", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelRegisters0.setLayout(null);
 		
 		tableRegisters0 = new JTable();
+		tableRegisters0.setRowHeight(19);
 		tableRegisters0.setBorder(new LineBorder(new Color(0, 0, 0)));
-		tableRegisters0.setBounds(10, 139, 126, 256);
-		panelRegisters00.add(tableRegisters0);
+		tableRegisters0.setBounds(10, 91, 126, 304);
+		panelRegisters0.add(tableRegisters0);
 		tableRegisters0.setModel(new DefaultTableModel(
 			new Object[][] {
 				{null, null},
@@ -184,13 +186,13 @@ public class DataViewerWindow extends JFrame {
 		});
 		tableRegisters0.getColumnModel().getColumn(1).setResizable(false);
 		
-		JLabel lblPcRegister0 = new JLabel("PC Register:");
+		JLabel lblPcRegister0 = new JLabel("PC register:");
 		lblPcRegister0.setBounds(10, 33, 71, 14);
-		panelRegisters00.add(lblPcRegister0);
+		panelRegisters0.add(lblPcRegister0);
 		
 		JLabel dinLblPc0 = new JLabel("<pc>");
 		dinLblPc0.setBounds(90, 33, 46, 14);
-		panelRegisters00.add(dinLblPc0);
+		panelRegisters0.add(dinLblPc0);
 		
 		JPanel panelCore1 = new JPanel();
 		panelCore1.setLayout(null);
@@ -198,17 +200,17 @@ public class DataViewerWindow extends JFrame {
 		panelCore1.setBounds(343, 21, 323, 428);
 		panelProcessor0.add(panelCore1);
 		
-		JPanel panelCache01 = new JPanel();
-		panelCache01.setLayout(null);
-		panelCache01.setBorder(new TitledBorder(null, "Data Cache", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelCache01.setBounds(10, 70, 146, 347);
-		panelCore1.add(panelCache01);
+		JPanel panelCache1 = new JPanel();
+		panelCache1.setLayout(null);
+		panelCache1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Data cache", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelCache1.setBounds(10, 70, 146, 347);
+		panelCore1.add(panelCache1);
 		
 		JScrollPane scrollCache1 = new JScrollPane();
 		scrollCache1.setWheelScrollingEnabled(false);
 		scrollCache1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		scrollCache1.setBounds(10, 21, 126, 315);
-		panelCache01.add(scrollCache1);
+		panelCache1.add(scrollCache1);
 		
 		tableCache1 = new JTable();
 		tableCache1.setModel(new DefaultTableModel(
@@ -265,21 +267,22 @@ public class DataViewerWindow extends JFrame {
 		dinLblCycle1.setBounds(103, 21, 46, 14);
 		panelCore1.add(dinLblCycle1);
 		
-		JPanel panelRegisters01 = new JPanel();
-		panelRegisters01.setLayout(null);
-		panelRegisters01.setBorder(new TitledBorder(null, "CPU Registers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelRegisters01.setBounds(166, 11, 146, 406);
-		panelCore1.add(panelRegisters01);
+		JPanel panelRegisters1 = new JPanel();
+		panelRegisters1.setLayout(null);
+		panelRegisters1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core registers", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelRegisters1.setBounds(166, 11, 146, 406);
+		panelCore1.add(panelRegisters1);
 		
-		JLabel lblPcRegister1 = new JLabel("PC Register:");
+		JLabel lblPcRegister1 = new JLabel("PC register:");
 		lblPcRegister1.setBounds(10, 33, 71, 14);
-		panelRegisters01.add(lblPcRegister1);
+		panelRegisters1.add(lblPcRegister1);
 		
 		JLabel dinLblPc1 = new JLabel("<pc>");
 		dinLblPc1.setBounds(91, 33, 46, 14);
-		panelRegisters01.add(dinLblPc1);
+		panelRegisters1.add(dinLblPc1);
 		
 		tableRegisters1 = new JTable();
+		tableRegisters1.setRowHeight(19);
 		tableRegisters1.setModel(new DefaultTableModel(
 			new Object[][] {
 				{null, null},
@@ -313,24 +316,24 @@ public class DataViewerWindow extends JFrame {
 		tableRegisters1.getColumnModel().getColumn(0).setResizable(false);
 		tableRegisters1.getColumnModel().getColumn(1).setResizable(false);
 		tableRegisters1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		tableRegisters1.setBounds(10, 139, 126, 256);
-		panelRegisters01.add(tableRegisters1);
+		tableRegisters1.setBounds(10, 91, 126, 304);
+		panelRegisters1.add(tableRegisters1);
 		
 		JPanel panelProcesor1 = new JPanel();
 		panelProcesor1.setBounds(696, 11, 345, 458);
 		contentPane.add(panelProcesor1);
 		panelProcesor1.setLayout(null);
-		panelProcesor1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Procesor 1", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelProcesor1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 1", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		
 		JPanel panelCore2 = new JPanel();
 		panelCore2.setLayout(null);
-		panelCore2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core 0", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelCore2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core 2", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelCore2.setBounds(10, 21, 323, 426);
 		panelProcesor1.add(panelCore2);
 		
 		JPanel panelCache2 = new JPanel();
 		panelCache2.setLayout(null);
-		panelCache2.setBorder(new TitledBorder(null, "Data Cache", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelCache2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Data cache", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelCache2.setBounds(10, 70, 146, 345);
 		panelCore2.add(panelCache2);
 		
@@ -397,15 +400,14 @@ public class DataViewerWindow extends JFrame {
 		
 		JPanel panelRegisters2 = new JPanel();
 		panelRegisters2.setLayout(null);
-		panelRegisters2.setBorder(new TitledBorder(null, "CPU Registers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelRegisters2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core registers", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelRegisters2.setBounds(166, 11, 146, 404);
 		panelCore2.add(panelRegisters2);
 		
 		tableRegisters2 = new JTable();
+		tableRegisters2.setRowHeight(19);
 		tableRegisters2.setModel(new DefaultTableModel(
 			new Object[][] {
-				{null, null},
-				{null, null},
 				{null, null},
 				{null, null},
 				{null, null},
@@ -437,10 +439,10 @@ public class DataViewerWindow extends JFrame {
 		tableRegisters2.getColumnModel().getColumn(0).setResizable(false);
 		tableRegisters2.getColumnModel().getColumn(1).setResizable(false);
 		tableRegisters2.setBorder(new LineBorder(new Color(0, 0, 0)));
-		tableRegisters2.setBounds(10, 105, 126, 288);
+		tableRegisters2.setBounds(10, 89, 126, 304);
 		panelRegisters2.add(tableRegisters2);
 		
-		JLabel lblPcRegister2 = new JLabel("PC Register:");
+		JLabel lblPcRegister2 = new JLabel("PC register:");
 		lblPcRegister2.setBounds(10, 33, 71, 14);
 		panelRegisters2.add(lblPcRegister2);
 		
@@ -449,14 +451,14 @@ public class DataViewerWindow extends JFrame {
 		panelRegisters2.add(dinLblPc2);
 		
 		JButton btnStop = new JButton("Stop");
-		btnStop.setBounds(952, 788, 89, 23);
+		btnStop.setBounds(952, 780, 89, 23);
 		contentPane.add(btnStop);
 		
 		JPanel panelDirectory1 = new JPanel();
 		panelDirectory1.setBounds(167, 480, 147, 187);
 		contentPane.add(panelDirectory1);
 		panelDirectory1.setLayout(null);
-		panelDirectory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Procesor 1 Directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelDirectory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 1 directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		
 		JScrollPane scrollDirectory1 = new JScrollPane();
 		scrollDirectory1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -496,7 +498,7 @@ public class DataViewerWindow extends JFrame {
 		panelMemory1.setBounds(687, 480, 354, 187);
 		contentPane.add(panelMemory1);
 		panelMemory1.setLayout(null);
-		panelMemory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Shared data memory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelMemory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 1 shared data memory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		
 		tableMemory1 = new JTable();
 		tableMemory1.setModel(new DefaultTableModel(
@@ -533,7 +535,7 @@ public class DataViewerWindow extends JFrame {
 		JPanel panelSharedMemory = new JPanel();
 		panelSharedMemory.setBounds(10, 678, 1031, 99);
 		contentPane.add(panelSharedMemory);
-		panelSharedMemory.setBorder(new TitledBorder(null, "Shared memory area", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelSharedMemory.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Full shared memory area", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelSharedMemory.setLayout(null);
 		
 		tableSharedMemory = new JTable();
@@ -587,7 +589,7 @@ public class DataViewerWindow extends JFrame {
 		panelMemory0.setBounds(324, 480, 354, 187);
 		contentPane.add(panelMemory0);
 		panelMemory0.setLayout(null);
-		panelMemory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Procesor 0 shared data memory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelMemory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 0 shared data memory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		
 		tableMemory0 = new JTable();
 		tableMemory0.setRowHeight(19);
@@ -626,7 +628,7 @@ public class DataViewerWindow extends JFrame {
 		JPanel panelDirectory0 = new JPanel();
 		panelDirectory0.setBounds(10, 480, 147, 187);
 		contentPane.add(panelDirectory0);
-		panelDirectory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Procesor 0 Directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelDirectory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 0 directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelDirectory0.setLayout(null);
 		
 		JScrollPane scrollDirectory0 = new JScrollPane();
