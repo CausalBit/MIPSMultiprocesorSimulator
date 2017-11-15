@@ -88,7 +88,7 @@ public class Processor {
                 int remainingWords = numberOfWords%Constant.WORDS_IN_BLOCK;
                 int totalFullBlocks = ( ( numberOfWords - remainingWords ) / Constant.WORDS_IN_BLOCK );
                 int fullBlocktoWrite [] = new int[Constant.INSTRUCTION_EMPTY_BLOCK.length];
-                
+
                 int instructionNumberToRead=0;
                 for(int b = 0; b < totalFullBlocks; b++){
                     for(int w = 0; w < Constant.WORDS_IN_BLOCK; w++){//guardar una instruccion
