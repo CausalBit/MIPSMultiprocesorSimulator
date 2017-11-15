@@ -1,18 +1,22 @@
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by J.A Rodriguez on 13/11/2017.
  */
-public class Buses {
+public class Bus {
     private HashMap<String, Lock> buses;
+    private Map<String, Processor> processors;
 
     /**
      * Creates a bus structure. It has an entry to every cache, memory and directories in the architecture. Each entry will
      * be available to be requested and locked by a core.
      */
-    public Buses(){
+    public Bus(Map<String, Processor> processors){
+        buses = new HashMap<String, Lock>();
         buses.put(Constant.DATA_CACHE_0, new ReentrantLock());
         buses.put(Constant.INSTRUCTIONS_CACHE_0, new ReentrantLock());
         buses.put(Constant.DATA_CACHE_1, new ReentrantLock());
@@ -25,6 +29,7 @@ public class Buses {
         buses.put(Constant.INSTRUCTIONS_MEMORY_1, new ReentrantLock());
         buses.put(Constant.SHARED_DATA_MEMORY_0, new ReentrantLock());
         buses.put(Constant.SHARED_DATA_MEMORY_1, new ReentrantLock());
+        this.processors = processors;
     }
 
     /**
@@ -42,5 +47,9 @@ public class Buses {
      */
     public void setFree(String busToSetFree){
         buses.get(busToSetFree).unlock();
+    }
+
+    public Processor getProcessor(String processodId){
+        return processors.get(processodId);
     }
 }

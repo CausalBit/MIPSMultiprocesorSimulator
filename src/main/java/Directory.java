@@ -11,7 +11,9 @@ public class Directory {
 
     public Directory(int numberOfBlocksInDirectory, int initialBlock ){
         this.initBlock = initialBlock;
+        directory = new ArrayList<int[]>();
         initializeDictionary(numberOfBlocksInDirectory);
+
     }
 
     /**
@@ -21,6 +23,7 @@ public class Directory {
     public void initializeDictionary(int numberOfBlocksInDirectory){
         for(int i = 0; i < numberOfBlocksInDirectory; i++){
             int[] stateAndProcessorIds = {Constant.U, 0,0,0}; //Uncached state.
+
             directory.add(i, stateAndProcessorIds);
         }
     }
@@ -49,7 +52,7 @@ public class Directory {
         Preconditions.checkArgument(blockNumber >= initBlock || blockNumber < initBlock+directory.size(),
                 "The block number \""+blockNumber+"\" does not belong to this Directory. Initial Block Number in Directory: "+initBlock);
 
-        Preconditions.checkArgument(processorId == Constant.PROCESSOR_1 || processorId == Constant.PROCESSOR_2 || processorId == Constant.PROCESSOR_3, "The processor id \""+processorId+"\" is not identified." );
+        Preconditions.checkArgument(processorId == Constant.CORE_0 || processorId == Constant.CORE_1 || processorId == Constant.CORE_2, "The processor id \""+processorId+"\" is not identified." );
 
         int actualIndex = blockNumber - initBlock;
         return directory.get(actualIndex)[processorId] == Constant.ON ? true: false;
@@ -60,7 +63,7 @@ public class Directory {
         Preconditions.checkArgument(blockNumber >= initBlock || blockNumber < initBlock+directory.size(),
                 "The block number \""+blockNumber+"\" does not belong to this Directory. Initial Block Number in Directory: "+initBlock);
 
-        Preconditions.checkArgument(processorId == Constant.PROCESSOR_1 || processorId == Constant.PROCESSOR_2 || processorId == Constant.PROCESSOR_3, "The processor id \""+processorId+"\" is not identified." );
+        Preconditions.checkArgument(processorId == Constant.CORE_0 || processorId == Constant.CORE_1 || processorId == Constant.CORE_2, "The processor id \""+processorId+"\" is not identified." );
 
         Preconditions.checkArgument(existenceInProcessor == Constant.ON || existenceInProcessor == Constant.OFF, "The value for processor existence \""+existenceInProcessor+"\" is not recognized.");
 

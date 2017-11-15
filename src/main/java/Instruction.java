@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -8,27 +9,21 @@ public class Instruction {
     int pc;
     private int block;
     private int word;
-    int positionInCache
+    int positionInCache;
     HashMap<String, Integer> registers;
-    Cache cacheInst;
-    List <Cache> cacheData;
-    Buses buses;
+    Bus bus;
+    Cache myCacheInst;
     PhysicalMemory memLocal;
-    PhysicalMemory memExternal;
-    //TODO
-
 
     /*
     constructor of class
     */
-    public Instruction(int pc, HashMap<String, Integer> registers, Buses buses, Cache inst, List <Cache> cacheData, PhysicalMemory memLocal, PhysicalMemory memExternal) {
+    public Instruction(int pc, HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst) {
         this.pc = pc;
         this.registers = registers;
-        this.cacheData=cacheData;
-        this.cacheInst= cacheInst;
-        this.buses = buses;
-        this.memExternal= memExternal;
-        this.memLocal=memLocal;
+        this.bus = bus;
+        this.myCacheInst = (bus.getProcessor(proccesor).getCaches().get(cacheInst));
+        this.memLocal = (bus.getProcessor(proccesor).getLocalPhysicalMemory());
     }
 
     /**
@@ -37,53 +32,54 @@ public class Instruction {
      */
     public int decodeAndExecute(){
         int duration = 0;
-        ArrayList<int[]> blockOfCache = cacheInst.getCorrespondingColumn(positionInCache);
+        ArrayList<int[]> blockOfCache = myCacheInst.getCorrespondingColumn(positionInCache);
         int[] wordOfCacheBlock = blockOfCache.get(this.word);
-        int codOp= wordOfCacheBlock[0]; // the first position is the cod operation
+        int codOP= wordOfCacheBlock[0]; // the first position is the cod operation
         int reg1 = wordOfCacheBlock[1];
         int reg2orRd = wordOfCacheBlock[2];
         int RDorImmediate = wordOfCacheBlock[3];
         //read instruction
 
         switch(codOP){
-            case 1: codOP = Constant.CODOP_DADDI;
-                DADDI(reg2orRd,reg1,immediate);
+            case Constant.CODOP_DADDI:
+                DADDI(reg2orRd,reg1,RDorImmediate);
                 break;
-            case 2: codOP = Constant.CODOP_DADD;
+            case Constant.CODOP_DADD:
                 DADDI(RDorImmediate,reg1,reg2orRd);
                 break;
-            case 3: codOP = Constant.CODOP_DSUB;
+            case Constant.CODOP_DSUB:
                 DSUB(RDorImmediate,reg1,reg2orRd);
                 break;
-            case 4: codOP = Constant.CODOP_DMUL;
+            case Constant.CODOP_DMUL:
                 DMUL(RDorImmediate,reg1,reg2orRd);
                 break;
-            case 5: codOP = Constant.CODOP_DDIV;
+            case Constant.CODOP_DDIV:
                 DDIV(RDorImmediate,reg1,reg2orRd);
                 break;
-            case 6: codOP = Constant.CODOP_BEQZ;
-                BEQZ(reg1,immediate);
+            case Constant.CODOP_BEQZ:
+                BEQZ(reg1,RDorImmediate);
                 break;
-            case 7: codOP = Constant.CODOP_BNEQZ;
-                BNEQZ(reg1,immediate);
+            case Constant.CODOP_BNEQZ:
+                BNEQZ(reg1,RDorImmediate);
                 break;
-            case 8: codOP = Constant.CODOP_JAL;
-                JAL(immediate);
+            case Constant.CODOP_JAL:
+                JAL(RDorImmediate);
                 break;
-            case 9: codOP = Constant.CODOP_JR;
+            case Constant.CODOP_JR:
                 JR(reg1);
                 break;
-            case 10: codOP = Constant.CODOP_LW;
+            case Constant.CODOP_LW:
                 //
                 break;
-            case 11: codOP = Constant.CODOP_SW;
+            case Constant.CODOP_SW:
                 //
                 break;
-            case 12: codOP = Constant.CODOP_FIN;
+            case Constant.CODOP_FIN:
                 //
                 break;
 
         }
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
         //switch.
         //calcular la cantidad de cicles que se llevo en la instrucción (aunque no haya terminaod).
         return duration;
@@ -101,27 +97,25 @@ public class Instruction {
      * return duration
      * @param address is the instruction number that the Core wants to read
     * */
-    private int fetchInstruction(int address){
+    public int fetchInstruction(int address) throws Exception{
         int duration = 0;
         this.block = getBlockNumber(address);
         this.word = getWordNumber(address);
         this.positionInCache = getPositionInCache(address);
-        int [] blockOfMem;
+
         //find out if this a hit or miss
-        bool hit = isAHit(block, positionInCache);
-        duration+=//TODO
+        boolean hit = isAHit(block, positionInCache);
+        duration += Constant.ACCESS_TO_CACHE;
         if(!hit){
-            duration+=//TODO hacer sumas correctas
-            blockofMem = memLocal.readInstructionMemory(block); //TODO cargar de mem a cache
+            duration += Constant.LOCAL_MEMORY_ACCESS;
+            int [] blockOfMem = memLocal.readInstructionMemory(block); //cargar de mem a cache
             //copiar de 4 en 4
             for(int i = 0; i <Constant.INSTRUCTION_CACHE_REAL_WORD_SIZE ; i++){
-                int oount= 4*i;
-                int [] wordData;
-                wordData = new int {blockOfMem[count+0],blockOfMem[count+1],blockOfMem[count+2],blockOfMem[count+3] }
-                cacheInst.writeWordOnCache (positionInCache, i, wordData);
+                int count= 4*i;
+                int [] wordData = {blockOfMem[count+0],blockOfMem[count+1],blockOfMem[count+2],blockOfMem[count+3] };
+                myCacheInst.writeWordOnCache (positionInCache, i, wordData);
             }
         }
-        //ejecutar instruccion
         return duration;
     }
 
@@ -129,11 +123,11 @@ public class Instruction {
      * return true if is a hit
      * @param blockNumber number of block of the instruction that the Core wants to read
      * @param positionInCache cache position from where the instruction should read
-     * @return
+     * @return hit
      */
-    private bool isAHit(int blockNumber, int positionInCache){
-        bool hit = true;
-        if(blockNumber != cacheInst.getBlockState(positionInCache)){
+    private boolean isAHit(int blockNumber, int positionInCache){
+        boolean hit = true;
+        if(blockNumber != myCacheInst.getBlockState(positionInCache)){
             hit = false;
         }
         return hit;
@@ -153,7 +147,7 @@ public class Instruction {
      * @param address is the instruction number that the Core wants to read
      */
     public int getWordNumber(int address){
-        int wordPlacement = address/16 - Math.floor(address/16);
+        int wordPlacement = (int) (address/16 - Math.floor(address/16));
         return 4*(wordPlacement/16);
     }
 
@@ -169,34 +163,32 @@ public class Instruction {
 
     //---------------------------------------------------------------------------------------------instruction type ALU-------------------------------------------------------------------------------------//
 
-    private int  DADDI(int regTarget, int regSource ,int num) {
+    private void  DADDI(int regTarget, int regSource ,int num) {
         registers.put(Integer.toString( regTarget) , registers.get(regSource)+num);
-        pc=pc+1; //TODO la pc se actualiza a la hora de leer insturcción en la clase core, para
-        //TODO abortar entonces se quita -4.
-
-        return 1; //TODO hacer que retorne enteros de cantidades de ciclos que se tomó.
+        //pc=pc+1;
+        //return 1; //TODO hacer que retorne enteros de cantidades de ciclos que se tomó.
     }
 
     private void DADD ( int regTarget, int regSource1, int regSource2){
         registers.put(Integer.toString(regTarget), registers.get(regSource1)+registers.get(regSource2));
-        pc=pc+1;
+        //pc=pc+1;
     }
 
 
     private void DSUB( int regTarget, int regSource1, int regSource2){
         registers.put(Integer.toString(regTarget), (registers.get(regSource1)-registers.get(regSource2)) );
-        pc=pc+1;
+        //pc=pc+1;
     }
 
 
     public void DMUL( int regTarget, int regSource1, int regSource2){
         registers.put(Integer.toString(regTarget) ,( registers.get(regSource1)*registers.get(regSource2)));
-        pc++;
+     //   pc++;
     }
 
     private void DDIV( int regTarget, int regSource1, int regSource2){
         registers.put(Integer.toString(regTarget) ,( registers.get(regSource1) / registers.get(regSource2)));
-        pc++;
+     //   pc++;
     }
 
 
@@ -204,7 +196,7 @@ public class Instruction {
         if(registers.get(regTarget) == 0 ){
             pc= etiqueta;
         }else{
-            pc++;
+  //          pc++;
         }
     }
 
@@ -213,7 +205,7 @@ public class Instruction {
         if (registers.get(regTarget) != 0){
             pc= etiqueta;
         }else{
-            pc++;
+//            pc++;
         }
 
     }

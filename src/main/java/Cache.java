@@ -15,7 +15,7 @@ public class Cache {
     int[] tags;
     int[] blockNumbers;
 
-    int cacheType;
+    int cacheType=0;
     int realWordSize;
 
 
@@ -28,6 +28,10 @@ public class Cache {
         Preconditions.checkArgument(cacheType == Constant.INSTRUCTION_CACHE_TYPE || cacheType == Constant.DATA_CACHE_TYPE, "Cache type \""+cacheType+"\" is not recognized.");
         this.cacheType = cacheType;
         this.realWordSize = cacheType == Constant.INSTRUCTION_CACHE_TYPE? Constant.INSTRUCTION_CACHE_REAL_WORD_SIZE: Constant.DATA_CACHE_REAL_WORD_SIZE;
+        columnZero = new ArrayList<int[]>();
+        columnOne = new ArrayList<int[]>();
+        columnThree = new ArrayList<int[]>();
+        columnTwo= new ArrayList<int[]>();
         initializeCache(cacheType);
 
     }
@@ -137,7 +141,7 @@ public class Cache {
      * @param position indicating the column in the cache.
      * @return the actual data structure that simulates the column in a cache.
      */
-    private ArrayList<int[]> getCorrespondingColumn(int position){
+    public ArrayList<int[]> getCorrespondingColumn(int position){
         switch(position){
             case 0:
                 return columnZero;

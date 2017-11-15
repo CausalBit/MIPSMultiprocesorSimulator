@@ -1,66 +1,51 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.*;
 
 /**
  * Created by irvin on 11/13/17.
  */
 public class Processor {
-    List<Core> cores;
-    List<HashMap<String, Integer>> registers;
-    List <Cache> cacheData;
-    Lsit<Cache>  cacheInst;
-    PhysicalMemory memLocal;
-    PhysicalMemory memExternal;
-    Queue<Context> coreContexts;
-    int quantum;
-    int pc;
-    int clock;
-    Semaphore barrier;
-    Buses buses;
+    private Map<String, Cache> caches;
+    private PhysicalMemory localPhysicalMemory;
+    private Directory localDirectory;
+    private Queue<Context> coreContext;
+    private String programFilesPath;
 
-    public Processor(int numberOfCore1, int numberOfCore2, PhysicalMemory memLocal, PhysicalMemory memExternal, int quantum , Buses buses, List <Cache> cacheData){
-        this.memLocal = memLocal;
-        this.memExternal= memExternal;
-        this.quantum=quantum;
-        this.cacheData= cacheData;
-        this.Buses= buses;
-        registers = new ArrayList<HashMap<String, Integer>>();
-        registers.add(new HashMap<String, Integer>());
-        registers.add(new HashMap<String, Integer>());
-        cores = new ArrayList<Core>();
-        coreContexts = new Queue<Context>();
-        //create cache inst
-        cacheInst = cacheInst= new ArrayList<Caches>();
-        cacheInst.add( new Cache(Constant.INSTRUCTION_CACHE_TYPE));
-        cacheInst.add( new Cache(Constant.INSTRUCTION_CACHE_TYPE));
-        //create cores
-        cores.add(new Core(barrier,clock,pc,quantum,numberOfCore1,coreContexts,this.cacheInst.get(0),this.cacheData,memLocal, memExternal,buses));
-        cores.add(new Core(barrier,clock,pc,quantum,numberOfCore2,coreContexts,this.cacheInst.get(1),this.cacheData,memLocal, memExternal,buses));
+
+
+  public Processor(Map<String, Cache> caches, PhysicalMemory localPhysicalMemory,
+                   Directory localDirectory, String programFilesPath){
+      this.caches = caches;
+      this.localPhysicalMemory = localPhysicalMemory;
+      this.localDirectory = localDirectory;
+      this.programFilesPath = programFilesPath;
+      this.coreContext = new LinkedList<Context>();
+  }
+
+    public Map<String, Cache> getCaches() {
+        return caches;
     }
 
-    public Processor(int numberOfCore,PhysicalMemory memLocal, PhysicalMemory memExternal, int quantum , Buses buses, List <Cache> cacheData){
-        this.memLocal = memLocal;
-        this.memExternal= memExternal;
-        this.quantum= quantum;
-        this.cacheData= cacheData;
-        this.buses= buses;
-        registers = new ArrayList<HashMap<String, Integer>>();
-        registers.add(new HashMap<String, Integer>());
-        cores = new ArrayList<Core>();
-        coreContexts = new Queue<Context>;
-        //create cache
-        cacheInst= new ArrayList<Caches>();
-        cacheInst.add(new Cache(Constant.INSTRUCTION_CACHE_TYPE));
-        //create context
-        cores.add(new Core(barrier,clock,pc,quantum,numberOfCore,coreContexts,this.cacheInst.get(2),this.cacheData,memLocal, memExternal,buses));//pasa la cache de instrucciones 2
+    public PhysicalMemory getLocalPhysicalMemory() {
+        return localPhysicalMemory;
     }
 
+    public Directory getLocalDirectory() {
+        return localDirectory;
+    }
+
+    public Queue<Context> getCoreContext() {
+        return coreContext;
+    }
 
     /**
      * open each instruction file in a folder, read each  file truncating every 4 lines to store it in memory of instructions
-     * @param path is the direction of folder that contains the files for the'hilillos'
+     *  is the direction of folder that contains the files for the'hilillos'
      */
-    public void bootUp(String path){
+    public void bootUp() throws Exception {
         //Tomar un directorio y tomar todos los archivos de ese directorio como hilillos a subir.
         //Subir a los hilillos a memoria de intruciones
         //para cada hilillo.
@@ -68,41 +53,94 @@ public class Processor {
         //Cada dirección en la memoria de instruciones donde inicia un hilillo, es el PC inicial un contexto
         //inicial de la cola.
         //String path= "C:\Users\Tony\Desktop\p1MIPS";//path of files for a specific core
-        File folder = new File(path);//take folder
+
+
+        File folder = new File(programFilesPath);//take folder
         File[] listOfFiles = folder.listFiles(); //list of files for a specific core
-        int instMemBlockNumber=0;
-        int p=0;
+        String line;
+        int currentPC = 0;
 
-        for (int i = 0; i < listOfFiles.length; i++){//for each file
-            coreContexts.add(new Context( registers.get(0),instMemBlockNumber));//context for each file
-            if (listOfFiles[i].isFile()){
-                files = listOfFiles[i].getName();
-                FileReader f = new FileReader(listOfFiles[i].getAbsolutePath());//get path of file
-                BufferedReader b = new BufferedReader(f);
-                int wordNumber=0;
-                int blockInst [] = new int [Constant.INSTRUCTION_EMPTY_BLOCK.length];//its size is of 16 words for block ie  4 lines of file
-                while((line = b.readLine())!=null) {
-                    String[] tokens = line.split(" ");
-                    //TODO RECORDAR GUARDAR CUATRO LINEAS POR BLOQUE
-                    for(int i =0 ; i < Constant.INSTRUCTION_EMPTY_WORD.length; i++){//read a line of instruction file
-                      blockInst[wordNumber] = Integer.parseInt(tokens[i]) ;
-                      wordNumber++;
+        for (int i = 0; i < listOfFiles.length; i++) {//for each file
+            File currentFile = listOfFiles[i];
+
+            int numberOfWords = 0;
+            ArrayList<int[]> instructions = new ArrayList<int[]>();
+
+            if (currentFile.isFile()) {
+
+                try{
+                    BufferedReader file = new BufferedReader(new FileReader(currentFile));
+                    line = file.readLine();
+
+                    while(line != null){
+                        numberOfWords++;
+                        String[] tokens = line.split(" ");
+                        int[] instruction = lexicalAnalysis(tokens); //instrucion == word.
+                        instructions.add(instruction);
+
+                        line = file.readLine();
                     }
-                    p++;
-                    if(p==4){
-                      memP.writeInstructionMemory(instMemBlockNumber,blockInst);
-                      instMemBlockNumber=+16;
-                      p=0;
-                    }
+                }catch(Exception e){
+                    e.printStackTrace();
                 }
-                b.close();
-              }
-          }
-      }
 
-      public void runCore(int numberOfCore){
-        //correr bloque
-        cores.get(numberOfCore).run();
+                //int totalBlocks = (int) Math.ceil(numberOfWords/Constant.WORDS_IN_BLOCK);
+                int remainingWords = numberOfWords%Constant.WORDS_IN_BLOCK;
+                int totalFullBlocks = ( ( numberOfWords - remainingWords ) / Constant.WORDS_IN_BLOCK );
+                int fullBlocktoWrite [] = new int[Constant.INSTRUCTION_EMPTY_BLOCK.length];
+                
+                int instructionNumberToRead=0;
+                for(int b = 0; b < totalFullBlocks; b++){
+                    for(int w = 0; w < Constant.WORDS_IN_BLOCK; w++){//guardar una instruccion
+                        fullBlocktoWrite[4*w+0] = instructions.get(instructionNumberToRead)[0];
+                        fullBlocktoWrite[4*w+1] = instructions.get(instructionNumberToRead)[1];
+                        fullBlocktoWrite[4*w+2] = instructions.get(instructionNumberToRead)[2];
+                        fullBlocktoWrite[4*w+3] = instructions.get(instructionNumberToRead)[3];
+                        instructionNumberToRead++;
+                    }
+                    localPhysicalMemory.writeInstructionMemory(currentPC+b, fullBlocktoWrite);
+                }
+                //instrucciones sobrantes
+                if( (numberOfWords - (totalFullBlocks*4)) > 0) {
+                    int blocktoWrite []= new int[Constant.INSTRUCTION_EMPTY_BLOCK.length];
+                    for (int n = 0; n < numberOfWords - (totalFullBlocks * 4); n++) {
+                        //instructions.get(instructionNumberToRead)[0];
+                        blocktoWrite[(4 * n) + 0] = instructions.get(instructionNumberToRead)[0];
+                        blocktoWrite[4 * n + 1] = instructions.get(instructionNumberToRead)[1];
+                        blocktoWrite[4 * n + 2] = instructions.get(instructionNumberToRead)[2];
+                        blocktoWrite[4 * n + 3] = instructions.get(instructionNumberToRead)[3];
+                    }
+                    localPhysicalMemory.writeInstructionMemory(currentPC + totalFullBlocks, blocktoWrite);
+                }
+                coreContext.add(new Context(getNewEmptyRegistersSet(), currentPC));//context for each file
+                currentPC += totalFullBlocks;
+            }
+        }
 
-      }
+
+    }
+
+
+    public HashMap<String, Integer> getNewEmptyRegistersSet(){
+        HashMap<String, Integer> registers = new HashMap<String, Integer>();
+        registers.put("0", Constant.REGISTER_ZERO);
+        for (int i = 1; i < Constant.NUMBER_OF_REGISTERS_PER_CORE; i++) {
+            registers.put(Integer.toString(i), Constant.REGISTER_NULL_VALUE);
+        }
+        return registers;
+    }
+
+    public int[] lexicalAnalysis(String[] stringTokes ){
+        int size = stringTokes.length;
+        int[] result  = new int[size];
+
+        for(int i = 0; i < size; i++){
+            result[i] = Integer.parseInt(stringTokes[i]);
+        }
+        return result;
+    }
+
+
+
+
 }
