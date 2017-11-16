@@ -1,6 +1,9 @@
-import java.util.ArrayList;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+
+
 import java.util.HashMap;
 import java.lang.System;
+
 
 /**
  * Created by irvin on 11/13/17.
@@ -14,6 +17,7 @@ public class Instruction {
     private HashMap<String, Integer> registers;
     private Bus bus;
     private Cache myCacheInst;
+    private Cache myCacheData;
     private PhysicalMemory memLocal;
     private boolean progIsFinished;
     private int duration;
@@ -30,6 +34,7 @@ public class Instruction {
         this.memLocal = (bus.getProcessor(proccesor).getLocalPhysicalMemory());
         this.cacheIns= cacheInst;
         this.duration = 0;
+
     }
 
     /**
@@ -75,7 +80,7 @@ public class Instruction {
                 JR(reg1);
                 break;
             case Constant.CODOP_LW:
-                //
+               // LW(reg1, reg2orRd, RDorImmediate);
                 break;
             case Constant.CODOP_SW:
                 //
@@ -151,6 +156,11 @@ public class Instruction {
             hit = false;
         }
         return hit;
+    }
+
+    private boolean isADataHit(int blockNumber, int positionInCache)
+    {
+        return blockNumber == myCacheData.getBlockNumberInCachePosition(positionInCache);
     }
 
     /**

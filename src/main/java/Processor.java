@@ -29,6 +29,8 @@ public class Processor {
         return caches;
     }
 
+    public Directory getDirectory() { return localDirectory; }
+
     public PhysicalMemory getLocalPhysicalMemory() {
         return localPhysicalMemory;
     }
