@@ -20,6 +20,7 @@ public class Core implements Runnable {
     private int clock;
     private int myCoreNumber;
     private String myNameCache;
+    private String myDataCacheName;
     private Instruction currentInstruction;
 
     private boolean currentProgramIsFinished;
@@ -33,7 +34,7 @@ public class Core implements Runnable {
                 AtomicInteger numberActiveCores,
                 Bus bus,
                 int myCoreNumber,
-                String myNameCache) {
+                String myNameCache, String myDataCacheName) {
 
         this.barrier = barrier;
         this.bus = bus;
@@ -44,6 +45,7 @@ public class Core implements Runnable {
         this.myCoreNumber = myCoreNumber;
         this.myNameCache = myNameCache;
         this.pc = 0;
+        this.myDataCacheName = myDataCacheName;
 
         this.currentProgramIsFinished = false;
         this.currentProgramDuration = 0;
@@ -59,7 +61,7 @@ public class Core implements Runnable {
 
         setInitialContext();
 
-        this.currentInstruction = new Instruction(this.pc, this.registers, bus, parentProcessorId,myNameCache);
+        this.currentInstruction = new Instruction(this.pc, this.registers, bus, parentProcessorId,myNameCache, myDataCacheName);
 
     }
 
@@ -116,6 +118,8 @@ public class Core implements Runnable {
             } catch (Exception ex) {
 
             }
+
+
         }
     }
 

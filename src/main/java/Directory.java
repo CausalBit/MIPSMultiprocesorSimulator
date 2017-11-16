@@ -28,6 +28,24 @@ public class Directory {
         }
     }
 
+    public int getModifiedCache(int blockNumber){
+        Preconditions.checkArgument(blockNumber >= initBlock || blockNumber < initBlock+directory.size(),
+                "The block number \""+blockNumber+"\" does not belong to this Directory. Initial Block Number in Directory: "+initBlock);
+
+        int actualIndex = blockNumber - initBlock;
+
+        int cache = 0;
+
+        for(int i = 1; i < directory.get(actualIndex).length; i++){
+            if(directory.get(actualIndex)[i] == 1){
+                cache = i;
+                break;
+            }
+        }
+
+        return cache;
+    }
+
     public int getBlockState(int blockNumber) throws IllegalArgumentException {
 
         Preconditions.checkArgument(blockNumber >= initBlock || blockNumber < initBlock+directory.size(),

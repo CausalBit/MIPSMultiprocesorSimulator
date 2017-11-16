@@ -1,6 +1,10 @@
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.lang.System;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by irvin on 11/13/17.
@@ -14,20 +18,26 @@ public class Instruction {
     private HashMap<String, Integer> registers;
     private Bus bus;
     private Cache myCacheInst;
+    private Cache myCacheData;
     private PhysicalMemory memLocal;
     private boolean progIsFinished;
+    private List<Directory> directories;
 //
     private String cacheIns;
     /*
     constructor of class
     */
-    public Instruction(int pc, HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst ) {
+    public Instruction(int pc, HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst, String cacheData) {
         this.pc = pc;
         this.registers = registers;
         this.bus = bus;
         this.myCacheInst = (bus.getProcessor(proccesor).getCaches().get(cacheInst));
         this.memLocal = (bus.getProcessor(proccesor).getLocalPhysicalMemory());
         this.cacheIns= cacheInst;
+        this.myCacheData = (bus.getProcessor(proccesor).getCaches().get(cacheData));
+        this.directories = new ArrayList<Directory>();
+        this.directories.add(bus.getProcessor(Constant.PROCESSOR_0).getDirectory());
+        this.directories.add(bus.getProcessor(Constant.PROCESSOR_1).getDirectory());
     }
 
     /**
@@ -74,7 +84,7 @@ public class Instruction {
                 JR(reg1);
                 break;
             case Constant.CODOP_LW:
-                //
+                LW(reg1, reg2orRd, RDorImmediate);
                 break;
             case Constant.CODOP_SW:
                 //
@@ -147,6 +157,11 @@ public class Instruction {
             hit = false;
         }
         return hit;
+    }
+
+    private boolean isADataHit(int blockNumber, int positionInCache)
+    {
+        return blockNumber == myCacheData.getBlockNumberInCachePosition(positionInCache);
     }
 
     /**
@@ -232,5 +247,222 @@ public class Instruction {
     private void FIN(){
         this.progIsFinished = true;
         java.lang.System.out.println("terminado");
+    }
+
+    //---------------------------------------------------------------------------------------------Load (LW)-------------------------------------------------------------------------------------//
+
+    private void LW(int reg, int reg2, int address){
+        int blockNumber = this.getBlockNumber(address);
+        int wordNumber = this.getWordNumber(address);
+        List<String> lockedList = new LinkedList<String>();
+
+        //Se bloquea caché?
+        if(cacheIns.equals(Constant.INSTRUCTIONS_CACHE_0)){
+            if(bus.request(Constant.DATA_CACHE_0)){
+                lockedList.add(Constant.DATA_CACHE_0);
+            }
+        }else if(cacheIns.equals(Constant.INSTRUCTIONS_CACHE_1)){
+            if(bus.request(Constant.DATA_CACHE_1)){
+                lockedList.add(Constant.DATA_CACHE_1);
+            }
+        }else{
+            if(bus.request(Constant.INSTRUCTIONS_CACHE_2)){
+                lockedList.add(Constant.DATA_CACHE_2);
+            }
+        }
+
+        int positionInCache = getPositionInCache(address);
+
+        if(lockedList.size() == 1){
+            //Es miss?
+
+            //No
+            if(isADataHit(blockNumber, positionInCache)){
+                //Agregar a registros
+                bus.setFree(lockedList.remove(0));
+
+            //Sí
+            }else{
+                int victimDirectory = -1;
+
+                //El bloque en caché está en I?
+                if(myCacheData.getBlockState(positionInCache) != Constant.I){
+
+                    //No
+
+                    //Averigua el directorio víctima
+                    for(int i = 0; i < 2; i++){
+                        if(this.directories.get(i).getExistenceInProcesor(blockNumber, i)){
+                            victimDirectory = i;
+                            break;
+                        }
+                    }
+
+                    switch (victimDirectory){
+                        case 0:
+                            if(bus.request(Constant.DIRECTORY_0)){
+                                lockedList.add(Constant.DIRECTORY_0);
+                            }
+                            break;
+                        case 1:
+                            if(bus.request(Constant.DIRECTORY_1)){
+                                lockedList.add(Constant.DIRECTORY_1);
+                            }
+                            break;
+                    }
+
+                    //Se puede bloquear el directotio víctima?
+
+                    //No
+                    if(lockedList.size() != 2){
+                        bus.setFree(lockedList.remove(1));
+                        bus.setFree(lockedList.remove(0));
+
+                    //Sí
+                    }else{
+
+                        //El bloque víctima en directorio está en M?
+
+                        //Sí
+                        if(this.directories.get(victimDirectory).getBlockState(blockNumber) == Constant.M){
+                            //Guardar bloque víctima en memoria
+
+                            //Cambiar el bloque a U y modificar los bits.
+                            this.directories.get(victimDirectory).setBlockState(blockNumber, Constant.U);
+                            //Cambiar los bits a 0 todos
+
+                        //No
+                        }else{
+                            //Cambiar los bits y a partir de ello cambiar el estado
+                        }
+                        bus.setFree(lockedList.remove(1));
+                        //Obtener caché en la cual se encuentra el bloque e invalidarlo en ella
+                    }
+                }
+                int sourceDirectory = -1;
+                for(int i = 0; i < 2; i++){
+                    if(this.directories.get(i).getExistenceInProcesor(blockNumber, i)){
+                        sourceDirectory = i;
+                        break;
+                    }
+                }
+
+                //Obtiene el directorio fuente
+                switch (sourceDirectory){
+                    case 0:
+                        if(bus.request(Constant.DIRECTORY_0)){
+                            lockedList.add(Constant.DIRECTORY_0);
+                        }
+                        break;
+                    case 1:
+                        if(bus.request(Constant.DIRECTORY_1)){
+                            lockedList.add(Constant.DIRECTORY_1);
+                        }
+                        break;
+                }
+
+                //Se puede bloquear el directorio fuente?
+
+                //No
+                if(lockedList.size() != 2){
+                    bus.setFree(lockedList.remove(1));
+                    bus.setFree(lockedList.remove(0));
+
+                //Sí
+                }else{
+
+                    //El bloque en el directorio está en M?
+
+                    //Sí
+                    if(this.directories.get(sourceDirectory).getBlockState(blockNumber) == Constant.M){
+                        //Bloquear bus a memoria y almacenar el bloque modificado
+
+                        int sourceCacheID = this.directories.get(sourceDirectory).getModifiedCache(blockNumber);
+                        String processorName = "";
+                        String sourceCacheName = "";
+                        switch (sourceCacheID){
+                            case 0:
+                                if(bus.request(Constant.DATA_CACHE_0)){
+                                    lockedList.add(Constant.DATA_CACHE_0);
+                                    processorName = Constant.PROCESSOR_0;
+                                    sourceCacheName = Constant.DATA_CACHE_0;
+                                }
+                                break;
+                            case 1:
+                                if(bus.request(Constant.DATA_CACHE_1)){
+                                    lockedList.add(Constant.DATA_CACHE_1);
+                                    processorName = Constant.PROCESSOR_0;
+                                    sourceCacheName = Constant.DATA_CACHE_1;
+                                }
+                                break;
+                            case 2:
+                                if(bus.request(Constant.DATA_CACHE_2)){
+                                    processorName = Constant.PROCESSOR_1;
+                                    lockedList.add(Constant.DATA_CACHE_2);
+                                    sourceCacheName = Constant.DATA_CACHE_2;
+                                }
+                                break;
+                        }
+
+                        Cache sourceCache = bus.getProcessor(processorName).getCaches().get(sourceCacheName);
+
+                        int fullBlocktoWrite [] ;
+                        fullBlocktoWrite = new int[Constant.DATA_EMPTY_BLOCK.length];
+
+                        ArrayList<int[]> data = sourceCache.getCorrespondingColumn(positionInCache);
+                        fullBlocktoWrite[0] = data.get(0)[0];
+                        fullBlocktoWrite[1] = data.get(1)[0];
+                        fullBlocktoWrite[2] = data.get(2)[0];
+                        fullBlocktoWrite[3] = data.get(3)[0];
+
+                        try{
+                            this.memLocal.writeSharedMemory(blockNumber, fullBlocktoWrite);
+                        }catch(Exception e){
+
+                        }
+
+                        for(int i = 0; i < 4; i++) {
+                            myCacheData.writeWordOnCache(blockNumber, i, data.get(i));
+                        }
+
+                        //Actualizar el estado del directorio
+                        this.directories.get(sourceDirectory).setBlockState(blockNumber, Constant.C);
+                        //Actualizar los bits
+
+                    //No
+                    }else{
+                        //El bloque en el directorio está en C?
+
+                        //Sí
+                        if(this.directories.get(sourceDirectory).getBlockState(blockNumber) == Constant.C){
+                            //Actualizar bits
+
+                        //No
+                        }else{
+                            this.directories.get(sourceDirectory).setBlockState(blockNumber, Constant.C);
+                            //Actualizar bit
+                        }
+                        //Cargar de memoria a caché
+                        int[] memoryData;
+                        memoryData = new int[Constant.DATA_EMPTY_BLOCK.length];
+                        try {
+                            memoryData = this.memLocal.readSharedMemory(blockNumber);
+                        }catch(Exception e){
+
+                        }
+
+                        this.myCacheData.writeWordOnCache(blockNumber, wordNumber, memoryData);
+                    }
+                }
+                //Estado C en caché víctima
+                this.myCacheData.setBlockState(blockNumber, Constant.C);
+
+                bus.setFree(lockedList.remove(1));
+                bus.setFree(lockedList.remove(0));
+
+                //Enviar a registros lo cargado en caché
+                //registers.put()
+            }
+        }
     }
 }

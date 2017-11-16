@@ -1,10 +1,10 @@
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 /**
  * Created by irvin on 11/12/17.
@@ -82,12 +82,10 @@ public class System {
         java.lang.System.out.println("memoria fisica1 \n"+w);
         Bus bus = new Bus(processors);
 
+        Core core0 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, 0,Constant.INSTRUCTIONS_CACHE_0, Constant.DATA_CACHE_0);
+        Core core1 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, 1,Constant.INSTRUCTIONS_CACHE_1, Constant.DATA_CACHE_1);
+        Core core2 = new Core(Constant.PROCESSOR_1, barrier, clock, quantum, numberActiveCores, bus, 2,Constant.INSTRUCTIONS_CACHE_2, Constant.DATA_CACHE_2);
 
-        Core core0 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, 0,Constant.INSTRUCTIONS_CACHE_0);
-        Core core1 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, 1,Constant.INSTRUCTIONS_CACHE_1);
-        Core core2 = new Core(Constant.PROCESSOR_1, barrier, clock, quantum, numberActiveCores, bus, 2,Constant.INSTRUCTIONS_CACHE_2);
-
-        //if(processor0.getCoreContext().size()>0 && processor1.getCoreContext().size()>0){
             Thread runningCore0 = new Thread(core0);
             Thread runningCore1 = new Thread(core1);
             Thread runningCore2 = new Thread(core2);
@@ -99,14 +97,5 @@ public class System {
 
         //También es la entrada del toda las simulación.
         //Después de crear estas, se puede hacer el boot up.
-
-
-
-
     }
-
-
-
-
-
 }
