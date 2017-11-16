@@ -58,8 +58,8 @@ public class Processor {
         File folder = new File(programFilesPath);//take folder
         File[] listOfFiles = folder.listFiles(); //list of files for a specific core
         String line;
-        int currentPC = this.localPhysicalMemory.localInstMemInitBlock;//inicia en 0 para p1 y en 16 para p0 segun el enunciado
-        int address = 0;
+        int currentPC = this.localPhysicalMemory.getLocalInstMemInitAddress();//inicia en 0 para p1 y en 16 para p0 segun el enunciado
+
         for (int i = 0; i < listOfFiles.length; i++) {//for each file
             File currentFile = listOfFiles[i];
 
@@ -87,37 +87,40 @@ public class Processor {
                 //int totalBlocks = (int) Math.ceil(numberOfWords/Constant.WORDS_IN_BLOCK);
                 int remainingWords = numberOfWords%Constant.WORDS_IN_BLOCK;
                 int totalFullBlocks = ( ( numberOfWords - remainingWords ) / Constant.WORDS_IN_BLOCK );
-                int fullBlocktoWrite [] ;
+                int totalBlocksToWrite = 0;
 
+                int fullBlocktoWrite [];
                 int instructionNumberToRead=0;
                 for(int b = 0; b < totalFullBlocks; b++){
                     fullBlocktoWrite  = new int[Constant.INSTRUCTION_EMPTY_BLOCK.length];//total de full bloques
                     for(int w = 0; w < Constant.WORDS_IN_BLOCK; w++){//guardar una instruccion
-                        fullBlocktoWrite[4*w+0] = instructions.get(instructionNumberToRead)[0];
-                        fullBlocktoWrite[4*w+1] = instructions.get(instructionNumberToRead)[1];
-                        fullBlocktoWrite[4*w+2] = instructions.get(instructionNumberToRead)[2];
-                        fullBlocktoWrite[4*w+3] = instructions.get(instructionNumberToRead)[3];
-                        instructionNumberToRead++;
+                        fullBlocktoWrite[Constant.INSTRUCTION_EMPTY_WORD.length*w+0] = instructions.get(b*4+w)[0];
+                        fullBlocktoWrite[Constant.INSTRUCTION_EMPTY_WORD.length*w+1] = instructions.get(b*4+w)[1];
+                        fullBlocktoWrite[Constant.INSTRUCTION_EMPTY_WORD.length*w+2] = instructions.get(b*4+w)[2];
+                        fullBlocktoWrite[Constant.INSTRUCTION_EMPTY_WORD.length*w+3] = instructions.get(b*4+w)[3];
+
                     }
-                    localPhysicalMemory.writeInstructionMemory((currentPC+b), fullBlocktoWrite);
+                    int blockNumber = localPhysicalMemory.getLocalInstMemBlockNumber(currentPC+(b*Constant.INSTRUCTION_EMPTY_BLOCK.length));
+                    localPhysicalMemory.writeBlockInstructionMemory(blockNumber, fullBlocktoWrite);
                 }
                 //instrucciones sobrantes
-                if( (numberOfWords - (totalFullBlocks*4)) > 0) {
+                if( remainingWords > 0) {
                     int blocktoWrite []= new int[Constant.INSTRUCTION_EMPTY_BLOCK.length];//if codop es 63 es fin
-                    for (int n = 0; n < numberOfWords - (totalFullBlocks * 4); n++) {
-                        //instructions.get(instructionNumberToRead)[0];
-                        blocktoWrite[(4 * n) + 0] = instructions.get(instructionNumberToRead)[0];
-                        blocktoWrite[4 * n + 1] = instructions.get(instructionNumberToRead)[1];
-                        blocktoWrite[4 * n + 2] = instructions.get(instructionNumberToRead)[2];
-                        blocktoWrite[4 * n + 3] = instructions.get(instructionNumberToRead)[3];
-                        instructionNumberToRead++;
+                    int subWordIndex = 0;
+                    for (int n = totalFullBlocks*Constant.WORDS_IN_BLOCK; n < totalFullBlocks*Constant.WORDS_IN_BLOCK+remainingWords; n++) {
+                        blocktoWrite[Constant.INSTRUCTION_EMPTY_WORD.length*subWordIndex] = instructions.get(n)[0];
+                        blocktoWrite[Constant.INSTRUCTION_EMPTY_WORD.length*subWordIndex+ 1] = instructions.get(n)[1];
+                        blocktoWrite[Constant.INSTRUCTION_EMPTY_WORD.length*subWordIndex+ 2] = instructions.get(n)[2];
+                        blocktoWrite[Constant.INSTRUCTION_EMPTY_WORD.length*subWordIndex+ 3] = instructions.get(n)[3];
+                        subWordIndex++;
                     }
-                    localPhysicalMemory.writeInstructionMemory(currentPC + (totalFullBlocks), blocktoWrite);
+                    int blockNumber = localPhysicalMemory.getLocalInstMemBlockNumber(currentPC+(totalFullBlocks*Constant.INSTRUCTION_EMPTY_BLOCK.length));
+                    localPhysicalMemory.writeBlockInstructionMemory(blockNumber, blocktoWrite);
+                    totalBlocksToWrite++;
                 }
-
-                coreContext.add(new Context(getNewEmptyRegistersSet(), address*16));//context for each file
-                address += totalFullBlocks;
-                currentPC += totalFullBlocks;
+                totalBlocksToWrite += totalFullBlocks;
+                coreContext.add(new Context(getNewEmptyRegistersSet(), currentPC));//context for each file
+                currentPC += totalBlocksToWrite*Constant.INSTRUCTION_EMPTY_BLOCK.length;
             }
         }
 

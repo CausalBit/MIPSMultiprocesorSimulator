@@ -26,7 +26,7 @@ public class System {
 
 
         PhysicalMemory P0memory = new PhysicalMemory(16,0,24,16);
-        PhysicalMemory P1memory = new PhysicalMemory(8,16,16,0);
+        PhysicalMemory P1memory = new PhysicalMemory(8,16,16,8);
 
         Cache cacheD0 = new Cache(Constant.DATA_CACHE_TYPE);
         Cache cacheD1 = new Cache(Constant.DATA_CACHE_TYPE);
@@ -65,21 +65,10 @@ public class System {
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        String s= ""; String w= "";
-        for(int q=0; q < 24; q++){
-            for(int col =0 ; col <16 ; col++){
-                s+="\t"+P0memory.localInstMem.get(q)[col];
-            }
-            s+="\n";
-        }
-        for(int e=0; e < 16; e++){
-            for(int col =0 ; col <16 ; col++){
-                w+="\t"+P1memory.localInstMem.get(e)[col];
-            }
-            w+="\n";
-        }
-        java.lang.System.out.println("memoria fisica1 \n"+s);
-        java.lang.System.out.println("memoria fisica1 \n"+w);
+
+        P0memory.printInstMem();
+        P1memory.printInstMem();
+
         Bus bus = new Bus(processors);
 
 

@@ -16,33 +16,33 @@ public class Instruction {
     private Cache myCacheInst;
     private PhysicalMemory memLocal;
     private boolean progIsFinished;
+    private int duration;
 //
     private String cacheIns;
     /*
     constructor of class
     */
-    public Instruction(int pc, HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst ) {
-        this.pc = pc;
+    public Instruction( HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst ) {
+        this.pc = 0;
         this.registers = registers;
         this.bus = bus;
         this.myCacheInst = (bus.getProcessor(proccesor).getCaches().get(cacheInst));
         this.memLocal = (bus.getProcessor(proccesor).getLocalPhysicalMemory());
         this.cacheIns= cacheInst;
+        this.duration = 0;
     }
 
     /**
      *
      * @return clock cycles that the instruction lasts
      */
-    public int decodeAndExecute(){
-        int duration = 0;
-        ArrayList<int[]> blockOfCache = myCacheInst.getCorrespondingColumn(positionInCache);
-        int[] wordOfCacheBlock = blockOfCache.get(this.word);
-        int codOP= wordOfCacheBlock[0]; // the first position is the cod operation
+    public void decodeAndExecute(int[] instruction){
+
+        int codOP= instruction[0]; // the first position is the cod operation
         System.out.println(cacheIns+"  codop+"+codOP+"wordtoREad "+word);
-        int reg1 = wordOfCacheBlock[1];
-        int reg2orRd = wordOfCacheBlock[2];
-        int RDorImmediate = wordOfCacheBlock[3];
+        int reg1 = instruction[1];
+        int reg2orRd = instruction[2];
+        int RDorImmediate = instruction[3];
         //read instruction
 
         switch(codOP){
@@ -63,6 +63,7 @@ public class Instruction {
                 break;
             case Constant.CODOP_BEQZ:
                 BEQZ(reg1,RDorImmediate);
+
                 break;
             case Constant.CODOP_BNEQZ:
                 BNEQZ(reg1,RDorImmediate);
@@ -85,10 +86,8 @@ public class Instruction {
                 break;
 
         }
-        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
-        //switch.
+        //duration += Constant.DURATION_OF_INSTRUCTION_ALU;
         //calcular la cantidad de cicles que se llevo en la instrucción (aunque no haya terminaod).
-        return duration;
     }
 
     /**
@@ -104,46 +103,51 @@ public class Instruction {
      * and load it, then calculate the word number to read for that block. remember that the instruction block has 16 words
      * then TODO
      * return duration
-     * @param address is the instruction number that the Core wants to read
     * */
-    public int fetchInstruction(int address) throws Exception{
-        int duration = 0;
-        this.block = getBlockNumber(address);
-        this.word = getWordNumber(address);/*word is instruction*/
-        this.positionInCache = getPositionInCache(address);
+    public int[] fetchInstruction() throws Exception{
+        progIsFinished = false;
+        duration = 0;
+        int block = memLocal.getLocalInstMemBlockNumber(pc);
+        int word = getWordNumber(pc);/*word is instruction*/
 
         //find out if this a hit or miss
-        boolean hit = isAHit(block, positionInCache);
+        boolean hit = isAHit(block);
         duration += Constant.ACCESS_TO_CACHE;
         if(!hit){
             duration += Constant.LOCAL_MEMORY_ACCESS;
-            int blockOfMem[] = memLocal.readInstructionMemory(block+memLocal.localInstMemInitBlock); //cargar bloque
+            //TODO usar bus para tener acceso a
+            int realBlockNumber = block;
+            int blockOfMem[] = memLocal.readBlockInstructionMemory(block); //cargar bloque
+
             String s= "";
             for(int t = 0; t <16;t++){
                 s+=" "+blockOfMem[t];
             }
             System.out.println("bloque de metodo:"+block+"\tinst :: "+cacheIns+"\t"+s);
+
             //copiar de 4 en 4
             myCacheInst.setBlockNumberInCachePosition(block);
+            myCacheInst.setBlockState(block, Constant.C);
+
             for(int i = 0; i <Constant.INSTRUCTION_CACHE_REAL_WORD_SIZE ; i++){
-                int count= 4*i;
+                int numberWord= Constant.WORDS_IN_BLOCK*i;
                 int wordDatatoWrite[] = new int[Constant.WORDS_IN_BLOCK];
-                java.lang.System.arraycopy(blockOfMem, count,  wordDatatoWrite, 0, 4);//sacar una palabra del bloque
+                java.lang.System.arraycopy(blockOfMem, numberWord,  wordDatatoWrite, 0, 4);//sacar una palabra del bloque
                 myCacheInst.writeWordOnCache (block, i, wordDatatoWrite);//escribir palabra
             }
         }
-        return duration;
+        pc += 4;
+        return myCacheInst.readWordFromCache(block, word);
     }
 
     /**
      * return true if is a hit
      * @param blockNumber number of block of the instruction that the Core wants to read
-     * @param positionInCache cache position from where the instruction should read
      * @return hit
      */
-    private boolean isAHit(int blockNumber, int positionInCache){
+    private boolean isAHit(int blockNumber){
         boolean hit = true;
-        if(blockNumber != myCacheInst.getBlockNumberInCachePosition(positionInCache)){
+        if(blockNumber != myCacheInst.getBlockNumberInCachePosition(blockNumber)){
             hit = false;
         }
         return hit;
@@ -163,8 +167,6 @@ public class Instruction {
      * @param address is the instruction number that the Core wants to read
      */
     public int getWordNumber(int address){
-        int wordPlacement = (int) (address/16 - Math.floor(address/16));
-        //return 4*(wordPlacement/16);
         return ((address%16)/4);
     }
 
@@ -181,56 +183,77 @@ public class Instruction {
     //---------------------------------------------------------------------------------------------instruction type ALU-------------------------------------------------------------------------------------//
 
     private void  DADDI(int regTarget, int regSource ,int num) {
-        registers.put(Integer.toString( regTarget) , registers.get(""+regSource)+num);
+        registers.put(Integer.toString( regTarget) , registers.get(Integer.toString(regSource))+num);
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
     }
 
     private void DADD ( int regTarget, int regSource1, int regSource2){
-        registers.put(Integer.toString(regTarget), registers.get(""+regSource1)+registers.get(""+regSource2));
+        registers.put(Integer.toString(regTarget), registers.get(Integer.toString(regSource1))+registers.get(Integer.toString(regSource2)));
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
     }
 
 
     private void DSUB( int regTarget, int regSource1, int regSource2){
-        registers.put(Integer.toString(regTarget), (registers.get(""+regSource1)-registers.get(""+regSource2)) );
+        registers.put(Integer.toString(regTarget), (registers.get(Integer.toString(regSource1))-registers.get(Integer.toString(regSource2))) );
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
     }
 
 
     public void DMUL( int regTarget, int regSource1, int regSource2){
-        registers.put(Integer.toString(regTarget) ,( registers.get(""+regSource1)*registers.get(""+regSource2)));
+        registers.put(Integer.toString(regTarget) ,( registers.get(Integer.toString(regSource1))*registers.get(Integer.toString(regSource2))));
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
     }
 
     private void DDIV( int regTarget, int regSource1, int regSource2){
-        registers.put(Integer.toString(regTarget) ,( registers.get(""+regSource1) / registers.get(""+regSource2)));
+        registers.put(Integer.toString(regTarget) ,( registers.get(Integer.toString(regSource1)) / registers.get(Integer.toString(regSource2))));
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
     }
 
 
-    private void BEQZ ( int regTarget, int etiqueta){
-        if(registers.get(""+regTarget) == 0 ){
-            pc= etiqueta;
+    private void BEQZ ( int regTarget, int tag){
+        if(registers.get(Integer.toString(regTarget) ) == 0 ){
+            pc += (tag)*4;
         }
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU; //TODO revisar con la profe sobre.
     }
 
 
-    private void BNEQZ ( int regTarget,  int etiqueta){
-        if (registers.get(""+regTarget) != 0){
-            pc= etiqueta;
+    private void BNEQZ( int regTarget,  int tag){
+        if (registers.get(Integer.toString(regTarget)) != 0){
+           pc+= (tag)*4;
         }
-
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU; //TODO revisar con la profe sobre.
     }
 
 
-    private void JAL(int etiqueta){
-        registers.put(Integer.toString(31), pc+1);
-        pc= etiqueta;
+    private void JAL(int immediate){
+        registers.put(Integer.toString(31), pc);
+        pc +=immediate;
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU; //TODO revisar con la profe sobre.
     }
 
 
     private void JR (int regSource){
-        pc= registers.get(""+regSource);
+        pc= registers.get(Integer.toString(regSource));
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU; //TODO revisar con la profe sobre.
     }
 
 
     private void FIN(){
         this.progIsFinished = true;
         java.lang.System.out.println("terminado");
+    }
+
+    public void setPC(int pc){
+        this.pc = pc;
+    }
+
+    public int getPC(){
+        return this.pc;
+    }
+
+
+    public int getDuration(){
+        return this.duration;
     }
 }

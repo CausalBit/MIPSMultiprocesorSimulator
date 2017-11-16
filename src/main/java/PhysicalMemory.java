@@ -1,16 +1,18 @@
 import com.google.common.base.Preconditions;
 
+import java.lang.System;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by irvin on 11/9/17.
  */
 public class PhysicalMemory {
-    ArrayList<int[]> localInstMem;
-    ArrayList<int[]> sharedDataMem;
+    private ArrayList<int[]> localInstMem;
+    private ArrayList<int[]> sharedDataMem;
 
-    int sharedDataInitBlock;
-    int localInstMemInitBlock;
+    private int sharedDataInitBlock;
+    private int localInstMemInitBlock;
 
 
     public PhysicalMemory(int sharedDataMemTotalBlocks, int sharedDataInitBlock,
@@ -44,9 +46,8 @@ public class PhysicalMemory {
 
     }
 
-    public int[] readInstructionMemory(int blockNumber) throws Exception{
+    public int[] readBlockInstructionMemory(int blockNumber) throws Exception{
         checkPrecontionsBlockNumber(blockNumber, Constant.INSTRUCTION_MEMORY_TYPE);
-
         int actualIndex = blockNumber - localInstMemInitBlock;
         return localInstMem.get(actualIndex);
     }
@@ -58,7 +59,7 @@ public class PhysicalMemory {
         return sharedDataMem.get(actualIndex);
     }
 
-    public void writeInstructionMemory(int blockNumber, int[] block) throws Exception{
+    public void writeBlockInstructionMemory(int blockNumber, int[] block) throws Exception{
         Preconditions.checkArgument(block.length == Constant.INSTRUCTION_EMPTY_BLOCK.length, "Error: Trying to write a block with a different real size of 4 integers in Instruction Memory.");
         checkPrecontionsBlockNumber(blockNumber, Constant.INSTRUCTION_MEMORY_TYPE);
 
@@ -73,6 +74,30 @@ public class PhysicalMemory {
         int actualIndex = blockNumber - sharedDataInitBlock;
         sharedDataMem.set(actualIndex,block);
     }
+
+    public int getSharedDataInitBlock(){
+        return sharedDataInitBlock;
+    }
+
+
+
+    public int getLocalInstMemInitBlock(){
+        return localInstMemInitBlock;
+    }
+
+    public int getLocalInstMemInitAddress(){
+        return localInstMemInitBlock*Constant.INSTRUCTION_EMPTY_BLOCK.length;
+    }
+
+    public int getLocalInstMemBlockNumber(int address ){
+        return address/16;
+    }
+
+
+    public int getSharedDataInitAddress(){
+        return sharedDataInitBlock*Constant.DATA_EMPTY_BLOCK.length;
+    }
+
 
     /**
      * Checks if the block number is a valid block number for the PhysicalMemory instance.
@@ -96,6 +121,15 @@ public class PhysicalMemory {
         }else{
             Preconditions.checkArgument(false, "Unknown memory type \""+type+"\" for memory." );
         }
+    }
+
+
+    public void printInstMem(){
+        String memoryDump = "Instructions Memory: \n";
+        for(int i = 0; i < localInstMem.size(); i++){
+            memoryDump += "Block #"+i+": "+ Arrays.toString(localInstMem.get(i))+"\n";
+        }
+        System.out.println(memoryDump);
     }
 
 }

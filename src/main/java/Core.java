@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.CyclicBarrier;
@@ -20,7 +21,7 @@ public class Core implements Runnable {
     private int clock;
     private int myCoreNumber;
     private String myNameCache;
-    private Instruction currentInstruction;
+    private Instruction instruction;
 
     private boolean currentProgramIsFinished;
     private int currentProgramDuration = 0;
@@ -59,7 +60,7 @@ public class Core implements Runnable {
 
         setInitialContext();
 
-        this.currentInstruction = new Instruction(this.pc, this.registers, bus, parentProcessorId,myNameCache);
+        this.instruction = new Instruction( this.registers, bus, parentProcessorId,myNameCache);
 
     }
 
@@ -74,14 +75,18 @@ public class Core implements Runnable {
 
                    java.lang.System.out.println("pc de inst: "+this.pc+", "+parentProcessorId+", core: "+myCoreNumber);
 
+                   instruction.setPC(pc);
                     try {
-                        instructionDuration += currentInstruction.fetchInstruction(this.pc);
+                        int[] currentIntruction = instruction.fetchInstruction();
+                        System.out.println("INSTRUCTION "+ Arrays.toString(currentIntruction));
+                        instruction.decodeAndExecute(currentIntruction);//retorna una duracion
+                        instructionDuration = instruction.getDuration();
                     }catch(Exception ex){
                         ex.printStackTrace();
                     }
-                    pc = pc + 4;
-                    instructionDuration += currentInstruction.decodeAndExecute();//retorna una duracion
-                    currentProgramIsFinished = currentInstruction.programIsFinished();
+                    pc = instruction.getPC();
+                    currentProgramIsFinished = instruction.programIsFinished();
+
                }
                 //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
 
@@ -95,7 +100,18 @@ public class Core implements Runnable {
                     if(!currentProgramIsFinished){//Store the current context if program is not finished (current instruction is not FIN).
                         java.lang.System.out.println("------------no acabo programa------------");
                         coreContexts.add(new Context(registers,pc));
+                    }else{
+                        //Imprimir registros
+                        String finalRegisters = "";
+                        for(HashMap.Entry<String, Integer> entry: registers.entrySet()){
+                            if(entry.getValue() != -1){
+                                finalRegisters+=" R"+entry.getKey()+": "+entry.getValue()+", ";
+                            }
+
+                        }
+                        System.out.println("Core: "+myCoreNumber+"  Registers :"+finalRegisters);
                     }
+
                     if(coreContexts.isEmpty()){//If the next context is null, then the core shuts down.
                         java.lang.System.out.println("------------context vacio------------");
                         numberActiveCores.decrementAndGet();//The shut down implies decreasing the numberActiveCores by one. :D
@@ -116,6 +132,7 @@ public class Core implements Runnable {
             } catch (Exception ex) {
 
             }
+
         }
     }
 
