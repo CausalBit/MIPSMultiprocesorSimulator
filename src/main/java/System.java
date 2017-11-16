@@ -1,6 +1,9 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -16,8 +19,11 @@ public class System {
         //es necesario crearlas cachesdata aqui ya que se deben compartir para cada procesador , se pueden compartir en algun momento
         int clock = 0;
         int quantum = 40;
-        int totalNumberOfCores = 3;
-        final CyclicBarrier barrier = new CyclicBarrier(3);
+
+        AtomicInteger numberActiveCores = new AtomicInteger(3);
+
+        CyclicBarrier barrier = new CyclicBarrier(3);
+
 
         PhysicalMemory P0memory = new PhysicalMemory(16,0,24,16);
         PhysicalMemory P1memory = new PhysicalMemory(8,16,16,0);
@@ -77,11 +83,11 @@ public class System {
         Bus bus = new Bus(processors);
 
 
-        Core core0 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, totalNumberOfCores, bus, 0,Constant.INSTRUCTIONS_CACHE_0);
-        Core core1 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, totalNumberOfCores, bus, 1,Constant.INSTRUCTIONS_CACHE_1);
-        Core core2 = new Core(Constant.PROCESSOR_1, barrier, clock, quantum, totalNumberOfCores, bus, 2,Constant.INSTRUCTIONS_CACHE_2);
+        Core core0 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, 0,Constant.INSTRUCTIONS_CACHE_0);
+        Core core1 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, 1,Constant.INSTRUCTIONS_CACHE_1);
+        Core core2 = new Core(Constant.PROCESSOR_1, barrier, clock, quantum, numberActiveCores, bus, 2,Constant.INSTRUCTIONS_CACHE_2);
 
-        if(processor0.getCoreContext().size()>0 && processor1.getCoreContext().size()>0){
+        //if(processor0.getCoreContext().size()>0 && processor1.getCoreContext().size()>0){
             Thread runningCore0 = new Thread(core0);
             Thread runningCore1 = new Thread(core1);
             Thread runningCore2 = new Thread(core2);
@@ -89,7 +95,7 @@ public class System {
             runningCore0.start();
             runningCore1.start();
             runningCore2.start();
-        }
+        //}
 
         //También es la entrada del toda las simulación.
         //Después de crear estas, se puede hacer el boot up.
