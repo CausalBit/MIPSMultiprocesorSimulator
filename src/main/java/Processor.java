@@ -13,7 +13,7 @@ public class Processor {
     private Directory localDirectory;
     private Queue<Context> coreContext;
     private String programFilesPath;
-
+    private int currentPC;
 
 
   public Processor(Map<String, Cache> caches, PhysicalMemory localPhysicalMemory,
@@ -58,8 +58,8 @@ public class Processor {
         File folder = new File(programFilesPath);//take folder
         File[] listOfFiles = folder.listFiles(); //list of files for a specific core
         String line;
-        int currentPC = 0;
-
+        int currentPC = this.localPhysicalMemory.localInstMemInitBlock;//inicia en 0 para p1 y en 16 para p0 segun el enunciado
+        int address = 0;
         for (int i = 0; i < listOfFiles.length; i++) {//for each file
             File currentFile = listOfFiles[i];
 
@@ -68,11 +68,11 @@ public class Processor {
 
             if (currentFile.isFile()) {
 
-                try{
+                try {
                     BufferedReader file = new BufferedReader(new FileReader(currentFile));
                     line = file.readLine();
 
-                    while(line != null){
+                    while (line != null) {
                         numberOfWords++;
                         String[] tokens = line.split(" ");
                         int[] instruction = lexicalAnalysis(tokens); //instrucion == word.
@@ -80,17 +80,18 @@ public class Processor {
 
                         line = file.readLine();
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-
+            /*iniciar carga a bloque de instrucciones*/
                 //int totalBlocks = (int) Math.ceil(numberOfWords/Constant.WORDS_IN_BLOCK);
                 int remainingWords = numberOfWords%Constant.WORDS_IN_BLOCK;
                 int totalFullBlocks = ( ( numberOfWords - remainingWords ) / Constant.WORDS_IN_BLOCK );
-                int fullBlocktoWrite [] = new int[Constant.INSTRUCTION_EMPTY_BLOCK.length];
+                int fullBlocktoWrite [] ;
 
                 int instructionNumberToRead=0;
                 for(int b = 0; b < totalFullBlocks; b++){
+                    fullBlocktoWrite  = new int[Constant.INSTRUCTION_EMPTY_BLOCK.length];//total de full bloques
                     for(int w = 0; w < Constant.WORDS_IN_BLOCK; w++){//guardar una instruccion
                         fullBlocktoWrite[4*w+0] = instructions.get(instructionNumberToRead)[0];
                         fullBlocktoWrite[4*w+1] = instructions.get(instructionNumberToRead)[1];
@@ -98,21 +99,24 @@ public class Processor {
                         fullBlocktoWrite[4*w+3] = instructions.get(instructionNumberToRead)[3];
                         instructionNumberToRead++;
                     }
-                    localPhysicalMemory.writeInstructionMemory(currentPC+b, fullBlocktoWrite);
+                    localPhysicalMemory.writeInstructionMemory((currentPC+b), fullBlocktoWrite);
                 }
                 //instrucciones sobrantes
                 if( (numberOfWords - (totalFullBlocks*4)) > 0) {
-                    int blocktoWrite []= new int[Constant.INSTRUCTION_EMPTY_BLOCK.length];
+                    int blocktoWrite []= new int[Constant.INSTRUCTION_EMPTY_BLOCK.length];//if codop es 63 es fin
                     for (int n = 0; n < numberOfWords - (totalFullBlocks * 4); n++) {
                         //instructions.get(instructionNumberToRead)[0];
                         blocktoWrite[(4 * n) + 0] = instructions.get(instructionNumberToRead)[0];
                         blocktoWrite[4 * n + 1] = instructions.get(instructionNumberToRead)[1];
                         blocktoWrite[4 * n + 2] = instructions.get(instructionNumberToRead)[2];
                         blocktoWrite[4 * n + 3] = instructions.get(instructionNumberToRead)[3];
+                        instructionNumberToRead++;
                     }
-                    localPhysicalMemory.writeInstructionMemory(currentPC + totalFullBlocks, blocktoWrite);
+                    localPhysicalMemory.writeInstructionMemory(currentPC + (totalFullBlocks), blocktoWrite);
                 }
-                coreContext.add(new Context(getNewEmptyRegistersSet(), currentPC));//context for each file
+
+                coreContext.add(new Context(getNewEmptyRegistersSet(), address*16));//context for each file
+                address += totalFullBlocks;
                 currentPC += totalFullBlocks;
             }
         }

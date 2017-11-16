@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.lang.System;
 
 /**
  * Created by irvin on 11/13/17.
@@ -9,21 +10,24 @@ public class Instruction {
     int pc;
     private int block;
     private int word;
-    int positionInCache;
-    HashMap<String, Integer> registers;
-    Bus bus;
-    Cache myCacheInst;
-    PhysicalMemory memLocal;
-
+    private int positionInCache;
+    private HashMap<String, Integer> registers;
+    private Bus bus;
+    private Cache myCacheInst;
+    private PhysicalMemory memLocal;
+    private boolean progIsFinished;
+//
+    private String cacheIns;
     /*
     constructor of class
     */
-    public Instruction(int pc, HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst) {
+    public Instruction(int pc, HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst ) {
         this.pc = pc;
         this.registers = registers;
         this.bus = bus;
         this.myCacheInst = (bus.getProcessor(proccesor).getCaches().get(cacheInst));
         this.memLocal = (bus.getProcessor(proccesor).getLocalPhysicalMemory());
+        this.cacheIns= cacheInst;
     }
 
     /**
@@ -35,6 +39,7 @@ public class Instruction {
         ArrayList<int[]> blockOfCache = myCacheInst.getCorrespondingColumn(positionInCache);
         int[] wordOfCacheBlock = blockOfCache.get(this.word);
         int codOP= wordOfCacheBlock[0]; // the first position is the cod operation
+        System.out.println(cacheIns+"  codop+"+codOP+"wordtoREad "+word);
         int reg1 = wordOfCacheBlock[1];
         int reg2orRd = wordOfCacheBlock[2];
         int RDorImmediate = wordOfCacheBlock[3];
@@ -76,6 +81,7 @@ public class Instruction {
                 break;
             case Constant.CODOP_FIN:
                 //
+                FIN();
                 break;
 
         }
@@ -85,9 +91,12 @@ public class Instruction {
         return duration;
     }
 
-    /*
-    */
-
+    /**
+     * @return if the last instruction of program that was read is FIN is true
+     */
+    public boolean programIsFinished( ) {
+        return progIsFinished;
+    }
     /**
      * Find out if the instruction block is a hit or miss.
      * in case of hit:
@@ -100,7 +109,7 @@ public class Instruction {
     public int fetchInstruction(int address) throws Exception{
         int duration = 0;
         this.block = getBlockNumber(address);
-        this.word = getWordNumber(address);
+        this.word = getWordNumber(address);/*word is instruction*/
         this.positionInCache = getPositionInCache(address);
 
         //find out if this a hit or miss
@@ -108,12 +117,19 @@ public class Instruction {
         duration += Constant.ACCESS_TO_CACHE;
         if(!hit){
             duration += Constant.LOCAL_MEMORY_ACCESS;
-            int [] blockOfMem = memLocal.readInstructionMemory(block); //cargar de mem a cache
+            int blockOfMem[] = memLocal.readInstructionMemory(block+memLocal.localInstMemInitBlock); //cargar bloque
+            String s= "";
+            for(int t = 0; t <16;t++){
+                s+=" "+blockOfMem[t];
+            }
+            System.out.println("bloque de metodo:"+block+"\tinst :: "+cacheIns+"\t"+s);
             //copiar de 4 en 4
+            myCacheInst.setBlockNumberInCachePosition(block);
             for(int i = 0; i <Constant.INSTRUCTION_CACHE_REAL_WORD_SIZE ; i++){
                 int count= 4*i;
-                int [] wordData = {blockOfMem[count+0],blockOfMem[count+1],blockOfMem[count+2],blockOfMem[count+3] };
-                myCacheInst.writeWordOnCache (positionInCache, i, wordData);
+                int wordDatatoWrite[] = new int[Constant.WORDS_IN_BLOCK];
+                java.lang.System.arraycopy(blockOfMem, count,  wordDatatoWrite, 0, 4);//sacar una palabra del bloque
+                myCacheInst.writeWordOnCache (block, i, wordDatatoWrite);//escribir palabra
             }
         }
         return duration;
@@ -127,7 +143,7 @@ public class Instruction {
      */
     private boolean isAHit(int blockNumber, int positionInCache){
         boolean hit = true;
-        if(blockNumber != myCacheInst.getBlockState(positionInCache)){
+        if(blockNumber != myCacheInst.getBlockNumberInCachePosition(positionInCache)){
             hit = false;
         }
         return hit;
@@ -148,7 +164,8 @@ public class Instruction {
      */
     public int getWordNumber(int address){
         int wordPlacement = (int) (address/16 - Math.floor(address/16));
-        return 4*(wordPlacement/16);
+        //return 4*(wordPlacement/16);
+        return ((address%16)/4);
     }
 
     /**
@@ -164,48 +181,38 @@ public class Instruction {
     //---------------------------------------------------------------------------------------------instruction type ALU-------------------------------------------------------------------------------------//
 
     private void  DADDI(int regTarget, int regSource ,int num) {
-        registers.put(Integer.toString( regTarget) , registers.get(regSource)+num);
-        //pc=pc+1;
-        //return 1; //TODO hacer que retorne enteros de cantidades de ciclos que se tomó.
+        registers.put(Integer.toString( regTarget) , registers.get(""+regSource)+num);
     }
 
     private void DADD ( int regTarget, int regSource1, int regSource2){
-        registers.put(Integer.toString(regTarget), registers.get(regSource1)+registers.get(regSource2));
-        //pc=pc+1;
+        registers.put(Integer.toString(regTarget), registers.get(""+regSource1)+registers.get(""+regSource2));
     }
 
 
     private void DSUB( int regTarget, int regSource1, int regSource2){
-        registers.put(Integer.toString(regTarget), (registers.get(regSource1)-registers.get(regSource2)) );
-        //pc=pc+1;
+        registers.put(Integer.toString(regTarget), (registers.get(""+regSource1)-registers.get(""+regSource2)) );
     }
 
 
     public void DMUL( int regTarget, int regSource1, int regSource2){
-        registers.put(Integer.toString(regTarget) ,( registers.get(regSource1)*registers.get(regSource2)));
-     //   pc++;
+        registers.put(Integer.toString(regTarget) ,( registers.get(""+regSource1)*registers.get(""+regSource2)));
     }
 
     private void DDIV( int regTarget, int regSource1, int regSource2){
-        registers.put(Integer.toString(regTarget) ,( registers.get(regSource1) / registers.get(regSource2)));
-     //   pc++;
+        registers.put(Integer.toString(regTarget) ,( registers.get(""+regSource1) / registers.get(""+regSource2)));
     }
 
 
     private void BEQZ ( int regTarget, int etiqueta){
-        if(registers.get(regTarget) == 0 ){
+        if(registers.get(""+regTarget) == 0 ){
             pc= etiqueta;
-        }else{
-  //          pc++;
         }
     }
 
 
     private void BNEQZ ( int regTarget,  int etiqueta){
-        if (registers.get(regTarget) != 0){
+        if (registers.get(""+regTarget) != 0){
             pc= etiqueta;
-        }else{
-//            pc++;
         }
 
     }
@@ -218,12 +225,12 @@ public class Instruction {
 
 
     private void JR (int regSource){
-        pc= registers.get(regSource);
+        pc= registers.get(""+regSource);
     }
 
 
     private void FIN(){
-        //saveContext();
-        //running = false;
+        this.progIsFinished = true;
+        java.lang.System.out.println("terminado");
     }
 }

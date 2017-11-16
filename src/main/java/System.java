@@ -1,11 +1,13 @@
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.CyclicBarrier;
+
 
 /**
  * Created by irvin on 11/12/17.
  */
 public class System {
+
 
     public static void main(String [ ] args) {
         //Aquí se van a crear todos las partes simuladas del sistema. Como es la memoria, bus, etc.
@@ -15,10 +17,10 @@ public class System {
         int clock = 0;
         int quantum = 40;
         int totalNumberOfCores = 3;
-        Semaphore barrier = new Semaphore(totalNumberOfCores, true);
+        final CyclicBarrier barrier = new CyclicBarrier(3);
 
-        PhysicalMemory P0memory = new PhysicalMemory(16,0,24,0);
-        PhysicalMemory P1memory = new PhysicalMemory(8,16,16,24);
+        PhysicalMemory P0memory = new PhysicalMemory(16,0,24,16);
+        PhysicalMemory P1memory = new PhysicalMemory(8,16,16,0);
 
         Cache cacheD0 = new Cache(Constant.DATA_CACHE_TYPE);
         Cache cacheD1 = new Cache(Constant.DATA_CACHE_TYPE);
@@ -53,28 +55,31 @@ public class System {
             processor0.bootUp();
             processor1.bootUp();
             //prueba
-            for(int i = 0; i < P0memory.localInstMem.size()*4;i++){
-                java.lang.System.out.println("Linea 1\n");
 
-                java.lang.System.out.println(", "+P0memory.localInstMem.get(i)[0]);
-
-                java.lang.System.out.println(", "+P0memory.localInstMem.get(i)[1]);
-
-                java.lang.System.out.println(", "+P0memory.localInstMem.get(i)[0]);
-
-                java.lang.System.out.println(", "+P0memory.localInstMem.get(i)[0]+"\n");
-            }
         }catch(Exception ex){
             ex.printStackTrace();
         }
-
-
+        String s= ""; String w= "";
+        for(int q=0; q < 24; q++){
+            for(int col =0 ; col <16 ; col++){
+                s+="\t"+P0memory.localInstMem.get(q)[col];
+            }
+            s+="\n";
+        }
+        for(int e=0; e < 16; e++){
+            for(int col =0 ; col <16 ; col++){
+                w+="\t"+P1memory.localInstMem.get(e)[col];
+            }
+            w+="\n";
+        }
+        java.lang.System.out.println("memoria fisica1 \n"+s);
+        java.lang.System.out.println("memoria fisica1 \n"+w);
         Bus bus = new Bus(processors);
 
 
-        Core core0 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, totalNumberOfCores, bus);
-        Core core1 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, totalNumberOfCores, bus);
-        Core core2 = new Core(Constant.PROCESSOR_1, barrier, clock, quantum, totalNumberOfCores, bus);
+        Core core0 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, totalNumberOfCores, bus, 0,Constant.INSTRUCTIONS_CACHE_0);
+        Core core1 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, totalNumberOfCores, bus, 1,Constant.INSTRUCTIONS_CACHE_1);
+        Core core2 = new Core(Constant.PROCESSOR_1, barrier, clock, quantum, totalNumberOfCores, bus, 2,Constant.INSTRUCTIONS_CACHE_2);
 
         if(processor0.getCoreContext().size()>0 && processor1.getCoreContext().size()>0){
             Thread runningCore0 = new Thread(core0);

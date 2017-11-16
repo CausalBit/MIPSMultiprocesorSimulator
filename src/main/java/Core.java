@@ -1,7 +1,9 @@
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Queue;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.lang.System;
 
 /**
  * Created by irvin on 11/12/17.
@@ -13,16 +15,16 @@ public class Core implements Runnable {
     private int pc;
     private int numberOfCoresSystem;
     private boolean running;
-    private Semaphore barrier;
+    private CyclicBarrier barrier;
     private HashMap<String, Integer> registers;
     private Queue<Context> coreContexts;
     private String parentProcessorId;
     private int clock;
-
-
-    public Core(String parentProcessorId, Semaphore barrier,
+    private int myCoreNumber;
+    private String myNameCache;
+    public Core(String parentProcessorId, CyclicBarrier barrier,
                 int clock, int quantum,
-                int numberOfCoresSystem, Bus bus) {
+                int numberOfCoresSystem, Bus bus, int myCoreNumber, String myNameCache) {
 
         this.barrier = barrier;
         this.bus = bus;
@@ -30,8 +32,10 @@ public class Core implements Runnable {
         this.numberOfCoresSystem = numberOfCoresSystem;
         this.parentProcessorId = parentProcessorId;
         this.clock = clock;
-
+        this.myCoreNumber = myCoreNumber;
+        this.myNameCache = myNameCache;
         this.running = true;
+        this.pc = 0;
 
         registers = new HashMap<String, Integer>();
         registers.put("0", Constant.REGISTER_ZERO);
@@ -45,58 +49,56 @@ public class Core implements Runnable {
     public void run() {
 
         setInitialContext();
-
         int currentProgramDuration = 0;
         int instructionDuration = 0; //Cuando finaliza una instrucción, esta se modifica.
-
+        boolean currentProgramIsFinished = false;
         while (running) {
-
-            String nameCache="";
-            Instruction currentInstruction = new Instruction(this.pc, this.registers, bus, parentProcessorId,nameCache);
-            if (instructionDuration == 0) {
-
-                //Cuando se hace fetch, intructionIsFinished es = false;
-                //TODO averiguar nombre de cache;
-                //TODO actualizar el pc a +4 se hace en el fetch
+            /*fecth new and decodeAndExceute*/
+           if (instructionDuration == 0) {
+               java.lang.System.out.println("pc de inst: "+this.pc+", "+parentProcessorId+", core: "+myCoreNumber);
+                String nameCache="";
+                Instruction currentInstruction = new Instruction(this.pc, this.registers, bus, parentProcessorId,myNameCache);
                 try {
                     instructionDuration += currentInstruction.fetchInstruction(this.pc);
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
                 pc = pc + 4;
-            }
-
-            if (instructionDuration == 0) {
-
-                //Instrucción corre aquí.
-                instructionDuration = currentInstruction.decodeAndExecute();//retorna una duracion
-
-            }
-
-            //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
-            clock++;
-            currentProgramDuration++;
-            instructionDuration--;
-
+                instructionDuration += currentInstruction.decodeAndExecute();//retorna una duracion
+               currentProgramIsFinished = currentInstruction.programIsFinished();
+           }
+                //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
+                clock++;
+                currentProgramDuration++;
+                instructionDuration--;
             //La barrera va aquí para que sea necesario correr otro ciclo si ya no hay quantum.
-            if (barrier.getQueueLength() == numberOfCoresSystem - 1) {
-                //es el último en llegar a la barrera, liberar todos.
-                barrier.release(numberOfCoresSystem - 1);
-            } else {
-                try {
-                    barrier.acquire();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            try {
+             this.barrier.await();
             }
+            catch ( Exception ex) {
+
+            }
+            this.barrier.reset();
+
             //La verificación del cuantum está aquí.
-            if (instructionDuration == 0 && currentProgramDuration >= quantum) {
-                //Store the current context if program is not finished (current instruction is not FIN).
-                //Take the next context from the queue.
-                //If the next context is null, then the core shuts down.
-                //The shut down implies decreasing the numberOfCoresSystem by one. :D
-                coreContexts.add(new Context(registers,pc));
-            }
+           if (instructionDuration == 0 && currentProgramDuration >= quantum) {//aqui va quauntum TODO
+               java.lang.System.out.println("------------quantum acabado------------");
+                if(! currentProgramIsFinished){//Store the current context if program is not finished (current instruction is not FIN).
+                    java.lang.System.out.println("------------no acabo programa------------");
+                    coreContexts.add(new Context(registers,pc));
+                }
+                if(coreContexts.isEmpty()){//If the next context is null, then the core shuts down.
+                    java.lang.System.out.println("------------context vacio------------");
+                    numberOfCoresSystem --;//The shut down implies decreasing the numberOfCoresSystem by one. :D
+                    running=false;
+                }else{  //Take the next context from the queue.
+                    Context initialContext = coreContexts.poll();
+                    currentProgramIsFinished = false; //update state of program
+                    this.pc = initialContext.getPc();
+                    this.registers = initialContext.getRegisters();
+                    currentProgramDuration = 0;
+                }
+           }
         }
     }
 
