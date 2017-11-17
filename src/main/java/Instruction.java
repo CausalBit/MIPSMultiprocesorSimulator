@@ -44,7 +44,7 @@ public class Instruction {
     public void decodeAndExecute(int[] instruction){
 
         int codOP= instruction[0]; // the first position is the cod operation
-        System.out.println(cacheIns+"  codop+"+codOP+"wordtoREad "+word);
+        //System.out.println(cacheIns+"  codop+"+codOP+"wordtoREad "+word);
         int reg1 = instruction[1];
         int reg2orRd = instruction[2];
         int RDorImmediate = instruction[3];
@@ -71,6 +71,10 @@ public class Instruction {
 
                 break;
             case Constant.CODOP_BNEQZ:
+
+                //if(reg1==24){
+
+                //}
                 BNEQZ(reg1,RDorImmediate);
                 break;
             case Constant.CODOP_JAL:
@@ -128,7 +132,7 @@ public class Instruction {
             for(int t = 0; t <16;t++){
                 s+=" "+blockOfMem[t];
             }
-            System.out.println("bloque de metodo:"+block+"\tinst :: "+cacheIns+"\t"+s);
+           // System.out.println("bloque de metodo:"+block+"\tinst :: "+cacheIns+"\t"+s);
 
             //copiar de 4 en 4
             myCacheInst.setBlockNumberInCachePosition(block);
@@ -229,6 +233,7 @@ public class Instruction {
 
 
     private void BNEQZ( int regTarget,  int tag){
+        System.out.println("\tel reg "+regTarget+" es : "+registers.get(Integer.toString(regTarget)));
         if (registers.get(Integer.toString(regTarget)) != 0){
            pc+= (tag)*4;
         }
@@ -251,7 +256,6 @@ public class Instruction {
 
     private void FIN(){
         this.progIsFinished = true;
-        java.lang.System.out.println("terminado");
     }
 
     public void setPC(int pc){

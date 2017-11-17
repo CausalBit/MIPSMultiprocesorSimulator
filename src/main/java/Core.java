@@ -77,12 +77,17 @@ public class Core implements Runnable {
 
                if (instructionDuration == 0) {
 
-                   java.lang.System.out.println("pc de inst: "+this.pc+", "+parentProcessorId+", core: "+myCoreNumber);
-
+                   //java.lang.System.out.println("pc de inst: "+this.pc+", "+parentProcessorId+", core: "+myCoreNumber);
+                    //solo core 1
+                   if(myCoreNumber==2){
+                       System.out.println("PC: "+this.pc);
+                   }
                    instruction.setPC(pc);
                     try {
                         int[] currentIntruction = instruction.fetchInstruction();
-                        System.out.println("INSTRUCTION "+ Arrays.toString(currentIntruction));
+                        if(myCoreNumber==2){
+                            System.out.println("INSTRUCTION "+ Arrays.toString(currentIntruction));
+                        }
                         instruction.decodeAndExecute(currentIntruction);//retorna una duracion
                         instructionDuration = instruction.getDuration();
                     }catch(Exception ex){
@@ -90,7 +95,11 @@ public class Core implements Runnable {
                     }
                     pc = instruction.getPC();
                     currentProgramIsFinished = instruction.programIsFinished();
+                    try {
+                        Thread.sleep(0);
+                    }catch(Exception ex){
 
+                    }
                }
                 //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
 
@@ -102,10 +111,12 @@ public class Core implements Runnable {
                 if (instructionDuration == 0 && currentProgramDuration >= quantum || currentProgramIsFinished) {//aqui va quauntum TODO
                     //java.lang.System.out.println("------------quantum acabado------------");
                     if(!currentProgramIsFinished){//Store the current context if program is not finished (current instruction is not FIN).
-                        java.lang.System.out.println("------------no acabo programa------------");
+                        java.lang.System.out.println("------------no acabo programa------------ del core :"+myCoreNumber);
                         coreContexts.add(new Context(registers,pc));
                     }else{
                         //Imprimir registros
+
+                        java.lang.System.out.println("termino un programFile del core: "+myCoreNumber);
                         String finalRegisters = "";
                         for(HashMap.Entry<String, Integer> entry: registers.entrySet()){
                             if(entry.getValue() != -1){
@@ -117,7 +128,7 @@ public class Core implements Runnable {
                     }
 
                     if(coreContexts.isEmpty()){//If the next context is null, then the core shuts down.
-                        java.lang.System.out.println("------------context vacio------------");
+                        java.lang.System.out.println("------------context vacio------------ core: "+myCoreNumber);
                         numberActiveCores.decrementAndGet();//The shut down implies decreasing the numberActiveCores by one. :D
                         coreFinished = true;
                     }else{  //Take the next context from the queue.
@@ -145,12 +156,15 @@ public class Core implements Runnable {
     public void setInitialContext() {
         //Set up the fist conte
         this.coreContexts = bus.getProcessor(parentProcessorId).getCoreContext();
-
-        /*circle queue, poll head of queue then insert again, this insert se realizara al final*/
-        Context initialContext = coreContexts.poll();
-        this.pc = initialContext.getPc();
-        this.registers = initialContext.getRegisters();
-
+        if(coreContexts.isEmpty()){// if only exit
+            numberActiveCores.decrementAndGet();
+            coreFinished=true;
+        }else {
+            /*circle queue, poll head of queue then insert again, this insert se realizara al final*/
+            Context initialContext = coreContexts.poll();
+            this.pc = initialContext.getPc();
+            this.registers = initialContext.getRegisters();
+        }
     }
 
 
