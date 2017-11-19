@@ -30,27 +30,13 @@ public class ResultsWindow extends JFrame {
 	private JLabel dinLblEnd;
 	private JLabel dinLblCycles;
 	private JComboBox comboBoxThread;
-
-	/**
-	 * Launch the application.
-	 */
-	/*public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ResultsWindow frame = new ResultsWindow();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}*/
+	private HashMap<String, int[]> registersContent;
 
 	/**
 	 * Create the frame.
 	 */
 	public ResultsWindow() {
+		registersContent = new HashMap<String, int[]>();
 
 		setTitle("Results");
 		setResizable(false);
@@ -367,6 +353,18 @@ public class ResultsWindow extends JFrame {
 		panelRegisters.add(dinLblPc);
 
 		comboBoxThread = new JComboBox();
+		comboBoxThread.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int selected = comboBoxThread.getSelectedIndex();
+				if((selected != 0)){
+					fillRegistersTable(comboBoxThread.getItemAt(selected).toString());
+				}else{
+					clearRegistersTable();
+				}
+			}
+		});
+
+
 		comboBoxThread.setBounds(10, 21, 128, 20);
 		panelThreads.add(comboBoxThread);
 
@@ -418,5 +416,65 @@ public class ResultsWindow extends JFrame {
 		});
 		btnOk.setBounds(813, 404, 89, 23);
 		contentPane.add(btnOk);
+	}
+
+	public void saveFinalRegisters(HashMap<String,int[]> registers){
+		this.registersContent = registers;
+		this.fillNamesComboBox();
+	}
+
+	private void fillNamesComboBox(){
+		String[] names = new String[registersContent.size()+1];
+		names[0] = "Select a thread (program)";
+		int index = 1;
+		for(Map.Entry<String, int[]> entry : registersContent.entrySet()){
+			names[index] = entry.getKey();
+			index++;
+		}
+		this.comboBoxThread.setModel(new DefaultComboBoxModel(names));
+	}
+
+	private void fillRegistersTable(String name){
+		int[] register = registersContent.get(name);
+
+		int index = 0;
+
+		for(int i = 0; i < this.tableRegisters.getRowCount(); i++){
+			for(int j = 0; j < this.tableRegisters.getColumnCount(); j++){
+				if(register[index] != -1) {
+					this.tableRegisters.setValueAt(register[index], i, j);
+				}else{
+					this.tableRegisters.setValueAt(" ", i, j);
+				}
+				index++;
+			}
+		}
+
+		this.dinLblPc.setText(""+register[32]);
+		this.dinLblCore.setText(""+register[33]);
+		this.dinLblCycles.setText(""+register[34]);
+		this.dinLblEnd.setText(""+register[35]);
+		this.dinLblStart.setText(""+(register[35]-register[34]));
+
+		if((register[33] == 0) || (register[33] == 1)){
+			this.dinLblProcessor.setText("0");
+		}else{
+			this.dinLblProcessor.setText("1");
+		}
+	}
+
+	private void clearRegistersTable() {
+		for (int i = 0; i < this.tableRegisters.getRowCount(); i++) {
+			for (int j = 0; j < this.tableRegisters.getColumnCount(); j++) {
+				this.tableRegisters.setValueAt(" ", i, j);
+			}
+		}
+
+		this.dinLblPc.setText("N/A");
+		this.dinLblCore.setText("N/A");
+		this.dinLblCycles.setText("N/A");
+		this.dinLblEnd.setText("N/A");
+		this.dinLblStart.setText("N/A");
+		this.dinLblProcessor.setText("N/A");
 	}
 }

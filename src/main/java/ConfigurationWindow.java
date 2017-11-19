@@ -16,6 +16,7 @@ public class ConfigurationWindow extends JFrame {
 	private JPanel contentPane;
 	private JTextField txtProgramFiles;
 	private JTextField txtQuantum;
+	private JButton btnRun;
 
 	/**
 	 * Create the frame.
@@ -72,13 +73,18 @@ public class ConfigurationWindow extends JFrame {
 		panelParameters.add(txtQuantum);
 		txtQuantum.setColumns(10);
 
-		JButton btnRun = new JButton("Run!");
+		btnRun = new JButton("Run!");
 		btnRun.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
 				dispose();
 			}
 		});
 		btnRun.setBounds(345, 181, 89, 23);
 		contentPane.add(btnRun);
+	}
+
+	public int getQuantum(){
+		return Integer.parseInt(this.txtQuantum.getText());
 	}
 }
