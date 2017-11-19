@@ -111,7 +111,7 @@ public class Core implements Runnable {
                 if (instructionDuration == 0 && currentProgramDuration >= quantum || currentProgramIsFinished) {//aqui va quauntum TODO
                     //java.lang.System.out.println("------------quantum acabado------------");
                     if(!currentProgramIsFinished){//Store the current context if program is not finished (current instruction is not FIN).
-                        java.lang.System.out.println("------------no acabo programa------------ del core :"+myCoreNumber);
+                       // java.lang.System.out.println("------------no acabo programa------------ del core :"+myCoreNumber);
                         coreContexts.add(new Context(registers,pc));
                     }else{
                         //Imprimir registros
@@ -136,6 +136,7 @@ public class Core implements Runnable {
                         currentProgramIsFinished = false; //update state of program
                         this.pc = initialContext.getPc();
                         this.registers = initialContext.getRegisters();
+                        instruction.setRegisters(this.registers);
                         currentProgramDuration = 0;
                     }
                 }

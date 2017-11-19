@@ -34,6 +34,10 @@ public class Instruction {
 
     }
 
+    public void setRegisters( HashMap<String, Integer> registers){
+        this.registers = registers;
+    }
+
     /**
      *
      * @return clock cycles that the instruction lasts
