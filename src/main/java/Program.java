@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.lang.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -59,6 +60,8 @@ public class Program {
         //Thread runningSimulation = new Thread(simulation);
         //runningSimulation.start();
 
+        //Dummy para agregar registros
+
         /*int[] reg1 = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,256,0,87,87};
         int[] reg2 = {-1,-1,-1,-1,-1,5,9,8,7,41,1,2,5,4,6,1,-1,-1,-1,-1,-1,-1,-1,0,1,2,40,0,0,0,0,7,348,1,45,200};
         int[] reg3 = {0,0,0,0,5,5,7,89,9,6,3,1,-1,-1,-1,-1,5,4,-1,-1,-1,-1,-1,98,7,5,2,0,3,-1,-1,0,490,2,40,300};
@@ -66,6 +69,18 @@ public class Program {
         registersPerThread.put("1", reg1);
         registersPerThread.put("2", reg2);
         registersPerThread.put("3", reg3);*/
+
+        //Dummy para agregar memoria
+
+        /*for(int i = 0; i < 16; i++){
+            int[] array = {i,i+1,i+2,i+3};
+            procesor0SharedMem.add(array);
+        }
+
+        for(int i = 0; i < 8; i++){
+            int[] array = {i,i+20,i+20,i+20};
+            procesor1SharedMem.add(array);
+        }*/
 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -80,5 +95,6 @@ public class Program {
         });
 
         rw.saveFinalRegisters(registersPerThread);
+        rw.writeMemoryData(procesor0SharedMem, procesor1SharedMem);
     }
 }

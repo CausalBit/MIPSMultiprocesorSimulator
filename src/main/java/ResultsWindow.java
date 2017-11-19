@@ -7,10 +7,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -476,5 +473,31 @@ public class ResultsWindow extends JFrame {
 		this.dinLblEnd.setText("N/A");
 		this.dinLblStart.setText("N/A");
 		this.dinLblProcessor.setText("N/A");
+	}
+
+	public void writeMemoryData(ArrayList<int[]> p0Memory, ArrayList<int[]> p1Memory){
+		int[] fullMemory = new int[96];
+		int index = 0;
+		this.setFullMemory(p0Memory, fullMemory, index);
+		index = 64;
+		this.setFullMemory(p1Memory, fullMemory, index);
+
+		index = 0;
+		for(int i = 0; i < this.tableSharedMemory.getRowCount(); i++){
+			for(int j = 0; j < this.tableSharedMemory.getColumnCount(); j++){
+				this.tableSharedMemory.setValueAt(fullMemory[index], i, j);
+				index++;
+			}
+		}
+	}
+
+	private void setFullMemory(ArrayList<int[]> pMemory, int[] fullMemory, int index){
+		for(int i = 0; i < pMemory.size(); i++){
+			int[] currentArray = pMemory.get(i);
+			for(int j = 0; j < currentArray.length; j++){
+				fullMemory[index] = currentArray[j];
+				index++;
+			}
+		}
 	}
 }
