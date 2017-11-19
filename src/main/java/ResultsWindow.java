@@ -176,21 +176,17 @@ public class ResultsWindow extends JFrame {
 		JPanel panelDirectory0 = new JPanel();
 		panelDirectory0.setLayout(null);
 		panelDirectory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 0 directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelDirectory0.setBounds(517, 11, 147, 187);
+		panelDirectory0.setBounds(517, 11, 147, 121);
 		contentPane.add(panelDirectory0);
 
 		JScrollPane scrollDirectory0 = new JScrollPane();
 		scrollDirectory0.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollDirectory0.setBounds(10, 22, 127, 154);
+		scrollDirectory0.setBounds(10, 22, 127, 89);
 		panelDirectory0.add(scrollDirectory0);
 
 		tableDirectory0 = new JTable();
 		tableDirectory0.setModel(new DefaultTableModel(
 				new Object[][] {
-						{null, null, null, null},
-						{null, null, null, null},
-						{null, null, null, null},
-						{null, null, null, null},
 						{null, null, null, null},
 						{null, null, null, null},
 						{null, null, null, null},
@@ -216,21 +212,17 @@ public class ResultsWindow extends JFrame {
 		JPanel panelDirectory1 = new JPanel();
 		panelDirectory1.setLayout(null);
 		panelDirectory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 1 directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelDirectory1.setBounds(517, 203, 147, 187);
+		panelDirectory1.setBounds(517, 229, 147, 121);
 		contentPane.add(panelDirectory1);
 
 		JScrollPane scrollDirectory1 = new JScrollPane();
 		scrollDirectory1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollDirectory1.setBounds(10, 22, 126, 154);
+		scrollDirectory1.setBounds(10, 22, 126, 90);
 		panelDirectory1.add(scrollDirectory1);
 
 		tableDirectory1 = new JTable();
 		tableDirectory1.setModel(new DefaultTableModel(
 				new Object[][] {
-						{null, null, null, null},
-						{null, null, null, null},
-						{null, null, null, null},
-						{null, null, null, null},
 						{null, null, null, null},
 						{null, null, null, null},
 						{null, null, null, null},
@@ -496,6 +488,135 @@ public class ResultsWindow extends JFrame {
 			int[] currentArray = pMemory.get(i);
 			for(int j = 0; j < currentArray.length; j++){
 				fullMemory[index] = currentArray[j];
+				index++;
+			}
+		}
+	}
+
+	public void writeCacheData(ArrayList<ArrayList<int[]>> cache0, ArrayList<ArrayList<int[]>> cache1,
+							   ArrayList<ArrayList<int[]>> cache2, int[][] states){
+
+		this.writeSpecificCache(this.getFlatCache(cache0, states[0]), 0);
+		this.writeSpecificCache(this.getFlatCache(cache1, states[1]), 1);
+		this.writeSpecificCache(this.getFlatCache(cache2, states[2]), 2);
+	}
+
+	private void writeSpecificCache(int[] cacheData, int id){
+		JTable cacheTable = null;
+
+		switch (id){
+			case 0:
+				cacheTable = this.tableCache0;
+				break;
+			case 1:
+				cacheTable = this.tableCache1;
+				break;
+			case 2:
+				cacheTable = this.tableCache2;
+				break;
+		}
+
+		int index = 0;
+		for(int j = 0; j < cacheTable.getColumnCount(); j++){
+			for(int k = 0; k < cacheTable.getRowCount()-2; k++){
+				cacheTable.setValueAt(cacheData[index],k,j);
+				index++;
+			}
+
+			if(cacheData[index] == -1){
+				cacheTable.setValueAt("N/A", cacheTable.getRowCount()-2, j);
+			}else{
+				cacheTable.setValueAt(cacheData[index], cacheTable.getRowCount()-2, j);
+			}
+			index++;
+
+			char state = '0';
+			switch (cacheData[index]){
+				case Constant.I:
+					state = 'I';
+					break;
+				case Constant.M:
+					state = 'M';
+					break;
+				case Constant.C:
+					state = 'C';
+					break;
+			}
+			cacheTable.setValueAt(state, cacheTable.getRowCount()-1, j);
+			index++;
+		}
+	}
+
+	private int[] getFlatCache(ArrayList<ArrayList<int[]>> cache, int[] states){
+		int[] cacheData = new int[24];
+		int index = 0;
+		int info = 0;
+
+		for(int i = 0; i < cache.size(); i++){
+			for(int j = 0; j < cache.get(i).size(); j++){
+				for(int k = 0; k < cache.get(i).get(j).length; k++){
+					cacheData[index] = cache.get(i).get(j)[k];
+					index++;
+				}
+			}
+			cacheData[index] = states[info];
+			cacheData[index+1] = states[info+1];
+			index += 2;
+			info+=2;
+		}
+		return cacheData;
+	}
+
+	public void writeDirectories(ArrayList<int[]> directory0, ArrayList<int[]> directory1){
+		this.writeSpecificDirectory(this.getFlatDirectory(directory0), 0);
+		this.writeSpecificDirectory(this.getFlatDirectory(directory1), 1);
+	}
+
+	private int[] getFlatDirectory(ArrayList<int[]> directory){
+		int[] directoryData = new int[16];
+		int index = 0;
+
+		for(int i = 0; i < directory.size(); i++){
+			int[] directoryRow = directory.get(i);
+			for(int j = 0; j < directoryRow.length; j++){
+				directoryData[index] = directoryRow[j];
+				index++;
+			}
+		}
+
+		return directoryData;
+	}
+
+	private void writeSpecificDirectory(int[] directory, int id){
+		JTable directoryTable = null;
+
+		switch (id){
+			case 0:
+				directoryTable = this.tableDirectory0;
+				break;
+			case 1:
+				directoryTable = this.tableDirectory1;
+				break;
+		}
+
+		int index = 0;
+		for(int i = 0; i < directoryTable.getRowCount(); i++){
+			char state = '0';
+			switch (directory[index]){
+				case Constant.U:
+					state = 'U';
+					break;
+				case Constant.M:
+					state = 'M';
+					break;
+				case Constant.C:
+					state = 'C';
+					break;
+			}
+			directoryTable.setValueAt(state, i, 0);
+			index++;
+			for(int j = 1; j < directoryTable.getColumnCount(); j++){
+				directoryTable.setValueAt(directory[index],i,j);
 				index++;
 			}
 		}
