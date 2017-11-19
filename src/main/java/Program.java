@@ -143,7 +143,7 @@ public class Program {
         //-------------------Methods to call in rw to fill the tables and labels:-------------------
 
         rw.saveFinalRegisters(registersPerThread);
-        //rw.writeMemoryData(procesor0SharedMem, procesor1SharedMem);
+        rw.writeMemoryData(procesor0SharedMem, procesor1SharedMem);
         rw.writeCacheData(dataCache0, dataCache1, dataCache2, allCacheStates);
         rw.writeDirectories(directory0, directory1);
     }

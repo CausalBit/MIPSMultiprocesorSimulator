@@ -517,20 +517,54 @@ public class ResultsWindow extends JFrame {
 		this.dinLblProcessor.setText("N/A");
 	}
 
-	public void writeMemoryData(ArrayList<int[]> p0Memory, ArrayList<int[]> p1Memory){
-		int[] fullMemory = new int[96];
-		int index = 0;
-		this.setFullMemory(p0Memory, fullMemory, index);
-		index = 64;
-		this.setFullMemory(p1Memory, fullMemory, index);
+	public void writeMemoryData(ArrayList<int[]> p0Memory, ArrayList<int[]> p1Memory) {
+		this.writeSpecificMemory(this.getFlatMemory(p0Memory, 0), 0);
+		this.writeSpecificMemory(this.getFlatMemory(p1Memory, 1), 1);
+	}
 
-		index = 0;
-		for(int i = 0; i < this.tableSharedMemory0.getRowCount(); i++){
-			for(int j = 0; j < this.tableSharedMemory0.getColumnCount(); j++){
-				this.tableSharedMemory0.setValueAt(fullMemory[index], i, j);
+	private void writeSpecificMemory(int[] memory, int id){
+		JTable memoryTable = null;
+
+		switch (id){
+			case 0:
+				memoryTable = this.tableSharedMemory0;
+				break;
+			case 1:
+				memoryTable = this.tableSharedMemory1;
+				break;
+		}
+
+		int index = 0;
+		for(int i = 0; i < memoryTable.getRowCount(); i++){
+			for(int j = 0; j < memoryTable.getColumnCount(); j++){
+				memoryTable.setValueAt(memory[index],i,j);
 				index++;
 			}
 		}
+	}
+
+	private int[] getFlatMemory(ArrayList<int[]> memory, int id){
+		int size = 0;
+		switch (id){
+			case 0:
+				size = 64;
+				break;
+			case 1:
+				size = 32;
+				break;
+		}
+		int[] memoryData = new int[size];
+		int index = 0;
+
+		for(int i = 0; i < memory.size(); i++){
+			int[] memoryRow = memory.get(i);
+			for(int j = 0; j < memoryRow.length; j++){
+				memoryData[index] = memoryRow[j];
+				index++;
+			}
+		}
+
+		return memoryData;
 	}
 
 	private void setFullMemory(ArrayList<int[]> pMemory, int[] fullMemory, int index){
