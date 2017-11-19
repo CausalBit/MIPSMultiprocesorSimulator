@@ -518,8 +518,8 @@ public class ResultsWindow extends JFrame {
 	}
 
 	public void writeMemoryData(ArrayList<int[]> p0Memory, ArrayList<int[]> p1Memory) {
-		this.writeSpecificMemory(this.getFlatMemory(p0Memory, 0), 0);
-		this.writeSpecificMemory(this.getFlatMemory(p1Memory, 1), 1);
+		this.writeSpecificMemory(this.getFlatMemoryOrDirectory(p0Memory, 0), 0);
+		this.writeSpecificMemory(this.getFlatMemoryOrDirectory(p1Memory, 1), 1);
 	}
 
 	private void writeSpecificMemory(int[] memory, int id){
@@ -543,7 +543,7 @@ public class ResultsWindow extends JFrame {
 		}
 	}
 
-	private int[] getFlatMemory(ArrayList<int[]> memory, int id){
+	private int[] getFlatMemoryOrDirectory(ArrayList<int[]> structure, int id){
 		int size = 0;
 		switch (id){
 			case 0:
@@ -553,28 +553,18 @@ public class ResultsWindow extends JFrame {
 				size = 32;
 				break;
 		}
-		int[] memoryData = new int[size];
+		int[] structureData = new int[size];
 		int index = 0;
 
-		for(int i = 0; i < memory.size(); i++){
-			int[] memoryRow = memory.get(i);
-			for(int j = 0; j < memoryRow.length; j++){
-				memoryData[index] = memoryRow[j];
+		for(int i = 0; i < structure.size(); i++){
+			int[] structureRow = structure.get(i);
+			for(int j = 0; j < structureRow.length; j++){
+				structureData[index] = structureRow[j];
 				index++;
 			}
 		}
 
-		return memoryData;
-	}
-
-	private void setFullMemory(ArrayList<int[]> pMemory, int[] fullMemory, int index){
-		for(int i = 0; i < pMemory.size(); i++){
-			int[] currentArray = pMemory.get(i);
-			for(int j = 0; j < currentArray.length; j++){
-				fullMemory[index] = currentArray[j];
-				index++;
-			}
-		}
+		return structureData;
 	}
 
 	public void writeCacheData(ArrayList<ArrayList<int[]>> cache0, ArrayList<ArrayList<int[]>> cache1,
@@ -652,32 +642,8 @@ public class ResultsWindow extends JFrame {
 	}
 
 	public void writeDirectories(ArrayList<int[]> directory0, ArrayList<int[]> directory1){
-		this.writeSpecificDirectory(this.getFlatDirectory(directory0, 0), 0);
-		this.writeSpecificDirectory(this.getFlatDirectory(directory1, 1), 1);
-	}
-
-	private int[] getFlatDirectory(ArrayList<int[]> directory, int id){
-		int size = 0;
-		switch (id){
-			case 0:
-				size = 64;
-				break;
-			case 1:
-				size = 32;
-				break;
-		}
-		int[] directoryData = new int[size];
-		int index = 0;
-
-		for(int i = 0; i < directory.size(); i++){
-			int[] directoryRow = directory.get(i);
-			for(int j = 0; j < directoryRow.length; j++){
-				directoryData[index] = directoryRow[j];
-				index++;
-			}
-		}
-
-		return directoryData;
+		this.writeSpecificDirectory(this.getFlatMemoryOrDirectory(directory0, 0), 0);
+		this.writeSpecificDirectory(this.getFlatMemoryOrDirectory(directory1, 1), 1);
 	}
 
 	private void writeSpecificDirectory(int[] directory, int id){
