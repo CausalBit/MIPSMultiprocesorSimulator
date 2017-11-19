@@ -20,7 +20,12 @@ public class Program {
         //
         // Poseen el siguiente formato:
         // String: nombre del hilillo, es decir, el nombre del archivo.
-        // int[]: un arreglo con los 32 registros para ese hilillo.
+        // int[]: un arreglo que contiene lo siguiente:
+        // Posiciones 0 - 31 posiciones son los registros
+        // Posición 32: registro PC
+        // Posición 33: número de core en el cual corrión el hilillo
+        // Posición 34: total de ciclos que duró el hilillo
+        // Posición 35: ciclo en el cual terminó el hilillo
         HashMap<String, int[]> registersPerThread = new HashMap<String, int[]>();
 
         // Para la memoria compartida se recibe un array donde cada posición contiene el vector
