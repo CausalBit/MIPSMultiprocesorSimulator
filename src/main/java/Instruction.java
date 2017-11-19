@@ -11,9 +11,6 @@ import java.lang.System;
  */
 public class Instruction {
     int pc;
-    private int block;
-    private int word;
-    private int positionInCache;
     private HashMap<String, Integer> registers;
     private Bus bus;
     private Cache myCacheInst;
@@ -55,7 +52,7 @@ public class Instruction {
                 DADDI(reg2orRd,reg1,RDorImmediate);
                 break;
             case Constant.CODOP_DADD:
-                DADDI(RDorImmediate,reg1,reg2orRd);
+                DADD(RDorImmediate,reg1,reg2orRd);
                 break;
             case Constant.CODOP_DSUB:
                 DSUB(RDorImmediate,reg1,reg2orRd);
@@ -233,7 +230,7 @@ public class Instruction {
 
 
     private void BNEQZ( int regTarget,  int tag){
-        System.out.println("\tel reg "+regTarget+" es : "+registers.get(Integer.toString(regTarget)));
+     //   System.out.println("\tel reg "+regTarget+" es : "+registers.get(Integer.toString(regTarget)));
         if (registers.get(Integer.toString(regTarget)) != 0){
            pc+= (tag)*4;
         }

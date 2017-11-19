@@ -80,13 +80,13 @@ public class Core implements Runnable {
                    //java.lang.System.out.println("pc de inst: "+this.pc+", "+parentProcessorId+", core: "+myCoreNumber);
                     //solo core 1
                    if(myCoreNumber==2){
-                       System.out.println("PC: "+this.pc);
+                       //System.out.println("PC: "+this.pc);
                    }
                    instruction.setPC(pc);
                     try {
                         int[] currentIntruction = instruction.fetchInstruction();
                         if(myCoreNumber==2){
-                            System.out.println("INSTRUCTION "+ Arrays.toString(currentIntruction));
+                            //System.out.println("INSTRUCTION "+ Arrays.toString(currentIntruction));
                         }
                         instruction.decodeAndExecute(currentIntruction);//retorna una duracion
                         instructionDuration = instruction.getDuration();
