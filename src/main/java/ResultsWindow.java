@@ -17,7 +17,7 @@ public class ResultsWindow extends JFrame {
 	private JTable tableCache0;
 	private JTable tableCache1;
 	private JTable tableCache2;
-	private JTable tableSharedMemory;
+	private JTable tableSharedMemory0;
 	private JTable tableDirectory0;
 	private JTable tableDirectory1;
 	private JLabel dinLblPc;
@@ -28,6 +28,7 @@ public class ResultsWindow extends JFrame {
 	private JLabel dinLblCycles;
 	private JComboBox comboBoxThread;
 	private HashMap<String, int[]> registersContent;
+	private JTable tableSharedMemory1;
 
 	/**
 	 * Create the frame.
@@ -38,7 +39,7 @@ public class ResultsWindow extends JFrame {
 		setTitle("Results");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 918, 466);
+		setBounds(100, 100, 918, 586);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -176,17 +177,29 @@ public class ResultsWindow extends JFrame {
 		JPanel panelDirectory0 = new JPanel();
 		panelDirectory0.setLayout(null);
 		panelDirectory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 0 directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelDirectory0.setBounds(517, 11, 147, 121);
+		panelDirectory0.setBounds(517, 11, 147, 315);
 		contentPane.add(panelDirectory0);
 
 		JScrollPane scrollDirectory0 = new JScrollPane();
 		scrollDirectory0.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollDirectory0.setBounds(10, 22, 127, 89);
+		scrollDirectory0.setBounds(10, 22, 127, 282);
 		panelDirectory0.add(scrollDirectory0);
 
 		tableDirectory0 = new JTable();
 		tableDirectory0.setModel(new DefaultTableModel(
 				new Object[][] {
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
 						{null, null, null, null},
 						{null, null, null, null},
 						{null, null, null, null},
@@ -212,17 +225,21 @@ public class ResultsWindow extends JFrame {
 		JPanel panelDirectory1 = new JPanel();
 		panelDirectory1.setLayout(null);
 		panelDirectory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Processor 1 directory", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelDirectory1.setBounds(517, 229, 147, 121);
+		panelDirectory1.setBounds(517, 337, 147, 187);
 		contentPane.add(panelDirectory1);
 
 		JScrollPane scrollDirectory1 = new JScrollPane();
 		scrollDirectory1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollDirectory1.setBounds(10, 22, 126, 90);
+		scrollDirectory1.setBounds(10, 22, 126, 154);
 		panelDirectory1.add(scrollDirectory1);
 
 		tableDirectory1 = new JTable();
 		tableDirectory1.setModel(new DefaultTableModel(
 				new Object[][] {
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
+						{null, null, null, null},
 						{null, null, null, null},
 						{null, null, null, null},
 						{null, null, null, null},
@@ -245,60 +262,56 @@ public class ResultsWindow extends JFrame {
 		tableDirectory1.getColumnModel().getColumn(3).setResizable(false);
 		scrollDirectory1.setViewportView(tableDirectory1);
 
-		JPanel panelSharedMemory = new JPanel();
-		panelSharedMemory.setLayout(null);
-		panelSharedMemory.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Full shared memory area", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelSharedMemory.setBounds(10, 229, 500, 161);
-		contentPane.add(panelSharedMemory);
+		JPanel panelSharedMemory0 = new JPanel();
+		panelSharedMemory0.setLayout(null);
+		panelSharedMemory0.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Full shared memory area", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelSharedMemory0.setBounds(10, 209, 500, 161);
+		contentPane.add(panelSharedMemory0);
 
-		tableSharedMemory = new JTable();
-		tableSharedMemory.setModel(new DefaultTableModel(
+		tableSharedMemory0 = new JTable();
+		tableSharedMemory0.setModel(new DefaultTableModel(
 				new Object[][] {
-						{null, null, null, null, null, null, null, null, null, null, null, null},
-						{null, null, null, null, null, null, null, null, null, null, null, null},
-						{null, null, null, null, null, null, null, null, null, null, null, null},
-						{null, null, null, null, null, null, null, null, null, null, null, null},
-						{null, null, null, null, null, null, null, null, null, null, null, null},
-						{null, null, null, null, null, null, null, null, null, null, null, null},
-						{null, null, null, null, null, null, null, null, null, null, null, null},
-						{null, null, null, null, null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
 				},
 				new String[] {
-						"New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column"
+						"New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column"
 				}
 		) {
 			boolean[] columnEditables = new boolean[] {
-					false, false, false, false, false, false, false, false, false, false, false, false
+					false, false, false, false, false, false, false, false
 			};
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
 		});
-		tableSharedMemory.getColumnModel().getColumn(0).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(1).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(2).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(3).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(4).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(5).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(6).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(7).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(8).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(9).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(10).setResizable(false);
-		tableSharedMemory.getColumnModel().getColumn(11).setResizable(false);
-		tableSharedMemory.setBorder(new LineBorder(new Color(0, 0, 0)));
-		tableSharedMemory.setBounds(10, 21, 480, 128);
-		panelSharedMemory.add(tableSharedMemory);
+		tableSharedMemory0.getColumnModel().getColumn(0).setResizable(false);
+		tableSharedMemory0.getColumnModel().getColumn(1).setResizable(false);
+		tableSharedMemory0.getColumnModel().getColumn(2).setResizable(false);
+		tableSharedMemory0.getColumnModel().getColumn(3).setResizable(false);
+		tableSharedMemory0.getColumnModel().getColumn(4).setResizable(false);
+		tableSharedMemory0.getColumnModel().getColumn(5).setResizable(false);
+		tableSharedMemory0.getColumnModel().getColumn(6).setResizable(false);
+		tableSharedMemory0.getColumnModel().getColumn(7).setResizable(false);
+		tableSharedMemory0.setBorder(new LineBorder(new Color(0, 0, 0)));
+		tableSharedMemory0.setBounds(10, 21, 480, 128);
+		panelSharedMemory0.add(tableSharedMemory0);
 
-		JPanel panelThreads = new JPanel();
-		panelThreads.setBorder(new TitledBorder(null, "Threads information", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelThreads.setBounds(674, 11, 229, 379);
-		contentPane.add(panelThreads);
-		panelThreads.setLayout(null);
+		JPanel panelProgramFiles = new JPanel();
+		panelProgramFiles.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Program files information", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelProgramFiles.setBounds(674, 11, 229, 379);
+		contentPane.add(panelProgramFiles);
+		panelProgramFiles.setLayout(null);
 
 		JPanel panelRegisters = new JPanel();
 		panelRegisters.setBounds(10, 177, 210, 191);
-		panelThreads.add(panelRegisters);
+		panelProgramFiles.add(panelRegisters);
 		panelRegisters.setLayout(null);
 		panelRegisters.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Core registers", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 
@@ -355,47 +368,47 @@ public class ResultsWindow extends JFrame {
 
 
 		comboBoxThread.setBounds(10, 21, 128, 20);
-		panelThreads.add(comboBoxThread);
+		panelProgramFiles.add(comboBoxThread);
 
 		JLabel lblExecutedInProcessor = new JLabel("Executed in processor No.:");
 		lblExecutedInProcessor.setBounds(10, 77, 130, 14);
-		panelThreads.add(lblExecutedInProcessor);
+		panelProgramFiles.add(lblExecutedInProcessor);
 
 		JLabel lblStaringClockValue = new JLabel("Staring clock value:");
 		lblStaringClockValue.setBounds(10, 127, 128, 14);
-		panelThreads.add(lblStaringClockValue);
+		panelProgramFiles.add(lblStaringClockValue);
 
 		JLabel lblEndingClockValue = new JLabel("Ending clock value:");
 		lblEndingClockValue.setBounds(10, 152, 128, 14);
-		panelThreads.add(lblEndingClockValue);
+		panelProgramFiles.add(lblEndingClockValue);
 
 		dinLblProcessor = new JLabel("N/A");
 		dinLblProcessor.setBounds(150, 77, 70, 14);
-		panelThreads.add(dinLblProcessor);
+		panelProgramFiles.add(dinLblProcessor);
 
 		dinLblStart = new JLabel("N/A");
 		dinLblStart.setBounds(150, 127, 57, 14);
-		panelThreads.add(dinLblStart);
+		panelProgramFiles.add(dinLblStart);
 
 		dinLblEnd = new JLabel("N/A");
 		dinLblEnd.setBounds(150, 152, 72, 14);
-		panelThreads.add(dinLblEnd);
+		panelProgramFiles.add(dinLblEnd);
 
 		JLabel lblExecutedInCore = new JLabel("Executed in core No.:");
 		lblExecutedInCore.setBounds(10, 102, 130, 14);
-		panelThreads.add(lblExecutedInCore);
+		panelProgramFiles.add(lblExecutedInCore);
 
 		dinLblCore = new JLabel("N/A");
 		dinLblCore.setBounds(150, 102, 70, 14);
-		panelThreads.add(dinLblCore);
+		panelProgramFiles.add(dinLblCore);
 
 		JLabel lblTotalCycles = new JLabel("Total cycles");
 		lblTotalCycles.setBounds(10, 52, 128, 14);
-		panelThreads.add(lblTotalCycles);
+		panelProgramFiles.add(lblTotalCycles);
 
 		dinLblCycles = new JLabel("N/A");
 		dinLblCycles.setBounds(150, 52, 72, 14);
-		panelThreads.add(dinLblCycles);
+		panelProgramFiles.add(dinLblCycles);
 
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
@@ -403,8 +416,45 @@ public class ResultsWindow extends JFrame {
 				dispose();
 			}
 		});
-		btnOk.setBounds(813, 404, 89, 23);
+		btnOk.setBounds(813, 524, 89, 23);
 		contentPane.add(btnOk);
+
+		JPanel panelSharedMemory1 = new JPanel();
+		panelSharedMemory1.setLayout(null);
+		panelSharedMemory1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Full shared memory area", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelSharedMemory1.setBounds(10, 428, 500, 96);
+		contentPane.add(panelSharedMemory1);
+
+		tableSharedMemory1 = new JTable();
+		tableSharedMemory1.setModel(new DefaultTableModel(
+				new Object[][] {
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+						{null, null, null, null, null, null, null, null},
+				},
+				new String[] {
+						"New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column"
+				}
+		) {
+			boolean[] columnEditables = new boolean[] {
+					false, false, false, false, false, false, false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		tableSharedMemory1.getColumnModel().getColumn(0).setResizable(false);
+		tableSharedMemory1.getColumnModel().getColumn(1).setResizable(false);
+		tableSharedMemory1.getColumnModel().getColumn(2).setResizable(false);
+		tableSharedMemory1.getColumnModel().getColumn(3).setResizable(false);
+		tableSharedMemory1.getColumnModel().getColumn(4).setResizable(false);
+		tableSharedMemory1.getColumnModel().getColumn(5).setResizable(false);
+		tableSharedMemory1.getColumnModel().getColumn(6).setResizable(false);
+		tableSharedMemory1.getColumnModel().getColumn(7).setResizable(false);
+		tableSharedMemory1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		tableSharedMemory1.setBounds(10, 21, 480, 64);
+		panelSharedMemory1.add(tableSharedMemory1);
 	}
 
 	public void saveFinalRegisters(HashMap<String,int[]> registers){
@@ -414,7 +464,7 @@ public class ResultsWindow extends JFrame {
 
 	private void fillNamesComboBox(){
 		String[] names = new String[registersContent.size()+1];
-		names[0] = "Select a thread (program)";
+		names[0] = "Select a program file";
 		int index = 1;
 		for(Map.Entry<String, int[]> entry : registersContent.entrySet()){
 			names[index] = entry.getKey();
@@ -475,9 +525,9 @@ public class ResultsWindow extends JFrame {
 		this.setFullMemory(p1Memory, fullMemory, index);
 
 		index = 0;
-		for(int i = 0; i < this.tableSharedMemory.getRowCount(); i++){
-			for(int j = 0; j < this.tableSharedMemory.getColumnCount(); j++){
-				this.tableSharedMemory.setValueAt(fullMemory[index], i, j);
+		for(int i = 0; i < this.tableSharedMemory0.getRowCount(); i++){
+			for(int j = 0; j < this.tableSharedMemory0.getColumnCount(); j++){
+				this.tableSharedMemory0.setValueAt(fullMemory[index], i, j);
 				index++;
 			}
 		}
@@ -568,12 +618,21 @@ public class ResultsWindow extends JFrame {
 	}
 
 	public void writeDirectories(ArrayList<int[]> directory0, ArrayList<int[]> directory1){
-		this.writeSpecificDirectory(this.getFlatDirectory(directory0), 0);
-		this.writeSpecificDirectory(this.getFlatDirectory(directory1), 1);
+		this.writeSpecificDirectory(this.getFlatDirectory(directory0, 0), 0);
+		this.writeSpecificDirectory(this.getFlatDirectory(directory1, 1), 1);
 	}
 
-	private int[] getFlatDirectory(ArrayList<int[]> directory){
-		int[] directoryData = new int[16];
+	private int[] getFlatDirectory(ArrayList<int[]> directory, int id){
+		int size = 0;
+		switch (id){
+			case 0:
+				size = 64;
+				break;
+			case 1:
+				size = 32;
+				break;
+		}
+		int[] directoryData = new int[size];
 		int index = 0;
 
 		for(int i = 0; i < directory.size(); i++){
