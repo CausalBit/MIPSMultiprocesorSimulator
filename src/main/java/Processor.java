@@ -121,7 +121,9 @@ public class Processor {
                     totalBlocksToWrite++;
                 }
                 totalBlocksToWrite += totalFullBlocks;
-                coreContext.add(new Context(getNewEmptyRegistersSet(), currentPC));//context for each file
+                Context newContext = new Context(getNewEmptyRegistersSet(), currentPC);
+                newContext.setIdHilillo(currentFile.getName());
+                coreContext.add(newContext);//context for each file
                 currentPC += totalBlocksToWrite*Constant.INSTRUCTION_EMPTY_BLOCK.length;
             }
         }

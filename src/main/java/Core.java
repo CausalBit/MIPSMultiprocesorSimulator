@@ -23,6 +23,8 @@ public class Core implements Runnable {
     private String myNameCache;
     private Instruction instruction;
     private String myDataCacheName;
+    private String programFileId;
+    private int programTime;
 
 
     private boolean currentProgramIsFinished;
@@ -53,6 +55,8 @@ public class Core implements Runnable {
         this.currentProgramDuration = 0;
         this.instructionDuration = 0;
         this.coreFinished = false;
+        this.programFileId = "";
+        this.programTime = 0;
 
 
         registers = new HashMap<String, Integer>();
@@ -112,11 +116,14 @@ public class Core implements Runnable {
                     //java.lang.System.out.println("------------quantum acabado------------");
                     if(!currentProgramIsFinished){//Store the current context if program is not finished (current instruction is not FIN).
                        // java.lang.System.out.println("------------no acabo programa------------ del core :"+myCoreNumber);
-                        coreContexts.add(new Context(registers,pc));
+                        Context contextToSave = new Context(registers,pc);
+                        contextToSave.setIdHilillo(this.programFileId);
+                        contextToSave.setProgramTime(this.programTime+currentProgramDuration);
+                        coreContexts.add(contextToSave);
                     }else{
                         //Imprimir registros
-
-                        java.lang.System.out.println("termino un programFile del core: "+myCoreNumber);
+                        int lastUpdateOneProgramDuration = this.programTime+currentProgramDuration;
+                        java.lang.System.out.println("ProgramFile (Hilillo) finished: "+this.programFileId+" |   Global Clock: "+this.clock+" |   Program Time "+lastUpdateOneProgramDuration);
                         String finalRegisters = "";
                         for(HashMap.Entry<String, Integer> entry: registers.entrySet()){
                             if(entry.getValue() != -1){
@@ -124,11 +131,11 @@ public class Core implements Runnable {
                             }
 
                         }
-                        System.out.println("Core: "+myCoreNumber+"  Registers :"+finalRegisters);
+                        System.out.println("Core: "+myCoreNumber+" |  Registers :"+finalRegisters+"\n");
                     }
 
                     if(coreContexts.isEmpty()){//If the next context is null, then the core shuts down.
-                        java.lang.System.out.println("------------context vacio------------ core: "+myCoreNumber);
+                        java.lang.System.out.println("------------Al programs finished for core: "+myCoreNumber+"------------\n\n");
                         numberActiveCores.decrementAndGet();//The shut down implies decreasing the numberActiveCores by one. :D
                         coreFinished = true;
                     }else{  //Take the next context from the queue.
@@ -136,6 +143,8 @@ public class Core implements Runnable {
                         currentProgramIsFinished = false; //update state of program
                         this.pc = initialContext.getPc();
                         this.registers = initialContext.getRegisters();
+                        this.programFileId = initialContext.getIdHilillo();
+                        this.programTime = initialContext.getProgramTime();
                         instruction.setRegisters(this.registers);
                         currentProgramDuration = 0;
                     }
@@ -165,6 +174,8 @@ public class Core implements Runnable {
             Context initialContext = coreContexts.poll();
             this.pc = initialContext.getPc();
             this.registers = initialContext.getRegisters();
+            this.programFileId = initialContext.getIdHilillo();
+            this.programTime = 0;
         }
     }
 

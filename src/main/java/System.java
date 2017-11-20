@@ -18,7 +18,7 @@ public class System {
         //pide quantum
         //es necesario crearlas cachesdata aqui ya que se deben compartir para cada procesador , se pueden compartir en algun momento
         int clock = 0;
-        int quantum = 40;
+        int quantum = 30;
 
         AtomicInteger numberActiveCores = new AtomicInteger(3);
 

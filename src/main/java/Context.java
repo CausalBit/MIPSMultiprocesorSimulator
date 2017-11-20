@@ -6,6 +6,8 @@ import java.util.HashMap;
 public class Context {
     HashMap<String, Integer> registers;
     private int pc;
+    private String idHilillo;
+    private int programTime;
 
     public Context(HashMap<String, Integer> registers, int pc) {
         this.registers = registers;
@@ -26,5 +28,21 @@ public class Context {
 
     public void setPc(int pc) {
         this.pc = pc;
+    }
+
+    public String getIdHilillo() {
+        return idHilillo;
+    }
+
+    public void setIdHilillo(String idHilillo) {
+        this.idHilillo = idHilillo;
+    }
+
+    public int getProgramTime() {
+        return programTime;
+    }
+
+    public void setProgramTime(int programTime) {
+        this.programTime = programTime;
     }
 }
