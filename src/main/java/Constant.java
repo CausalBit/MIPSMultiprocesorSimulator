@@ -91,6 +91,10 @@ public final class Constant {
     //hit or miss
     public static final int HIT_DATA_CACHE = -2;
 
+    //UnfinishedIntrsuccion;
+    public static final int[] ABORT = {-777};
+    public static final int[] COMPLETED = {-888};
+
 
     private Constant(){
     }

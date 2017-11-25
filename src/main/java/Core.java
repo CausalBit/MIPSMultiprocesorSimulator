@@ -92,12 +92,10 @@ public class Core implements Runnable {
                         if(myCoreNumber==2){
                             //System.out.println("INSTRUCTION "+ Arrays.toString(currentIntruction));
                         }
-                        try {
-                            instruction.decodeAndExecute(currentIntruction);//retorna una duracion
-                            instructionDuration = instruction.getDuration();
-                        }catch(Exception e){
-                            e.printStackTrace();
-                        }
+
+                        instruction.decodeAndExecute(currentIntruction);//retorna una duracion
+                        instructionDuration = instruction.getDuration();
+
                     }catch(Exception ex){
                         ex.printStackTrace();
                     }

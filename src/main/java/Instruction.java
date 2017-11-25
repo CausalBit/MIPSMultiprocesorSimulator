@@ -267,14 +267,16 @@ public class Instruction {
         DataManager dataManagerLW = new DataManager(bus,processorID,myCoreID);
         int block = getBlockNumberInSharedMemory(dataAddress);
         int word = getWordNumber(dataAddress);
-        try {
-            int readWord = dataManagerLW.loadWordProcedure(word, block)[0];
 
-
-        registers.put(Integer.toString(destinationRegister), readWord);
-        }catch(Exception e){
-            e.printStackTrace();
+        int[] result = dataManagerLW.loadWordProcedure(word, block);
+        if(result != Constant.ABORT) {
+            int readWord = result[0];
+            registers.put(Integer.toString(destinationRegister), readWord);
+        }else{
+            pc -= 4;
         }
+        this.duration += dataManagerLW.getDuration();
+
     }
 
 

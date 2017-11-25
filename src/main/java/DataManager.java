@@ -29,11 +29,11 @@ public class DataManager {
        lockedResources = new Stack<String>();
    }
    public int[] loadWordProcedure(int wordNumber, int blockNumber){
-
+        this.duration = 0;
        //Bock the local cache!
        if (!bus.request(cacheLocalId)) {
            releaseAllResources();
-           return null;
+           return Constant.ABORT;
        }
        addLockableResource(cacheLocalId);
        int victimBlock = checkCache(blockNumber, localCache);
@@ -54,7 +54,7 @@ public class DataManager {
            //Now, let's attempt
            if(!bus.request(victimBlockDirectoryId)){
                releaseAllResources();
-               return null; //We couldn't get the resource, so we ABORT!
+               return Constant.ABORT; //We couldn't get the resource, so we ABORT!
            }
            addLockableResource(victimBlockDirectoryId); //Because we are going to secure another secure, we need
            //to add the previous obtain resource in a stack to make sure to free it before aborting.
@@ -66,8 +66,8 @@ public class DataManager {
                     //Save in memory the victim block, before writing on the cache.
                    String victimBlockMemoryId = getIdPhysicalMemory(victimBlock);
                    if(!bus.request(victimBlockMemoryId)){
-                        releaseAllResources();
-                       return null;
+                       releaseAllResources();
+                       return Constant.ABORT;
                    }
                    //We are not going to request any other resource, allow this one memory outside of the resources stack.
                    writeBlockToMemory(victimBlock,getPhysicalMemoryByBlock(victimBlock), localCache);
@@ -100,7 +100,7 @@ public class DataManager {
 
            if(!bus.request(targetDirectory.getDirectoryID())){
                releaseAllResources();
-               return null; //We couldn't get the resource, so we ABORT!
+               return Constant.ABORT; //We couldn't get the resource, so we ABORT!
            }
            addLockableResource(targetDirectory.getDirectoryID());
        }
@@ -108,7 +108,7 @@ public class DataManager {
        PhysicalMemory targetMemory = getPhysicalMemoryByBlock(blockNumber);
        if(!bus.request(targetMemory.getIdSharedMem())){
            releaseAllResources();
-           return null; //We couldn't get the resource, so we ABORT!
+           return Constant.ABORT; //We couldn't get the resource, so we ABORT!
        }
        addLockableResource(targetMemory.getIdSharedMem());
        if(targetDirectory.getBlockState(blockNumber) == Constant.M){
@@ -117,7 +117,7 @@ public class DataManager {
            //TODO precondition with null targetCache
            if(!bus.request(targetCache.getCacheID()) ){
                releaseAllResources();
-               return null;
+               return Constant.ABORT;
            }
 
            writeBlockToMemory(blockNumber, targetMemory, targetCache);
@@ -271,6 +271,9 @@ public class DataManager {
 
     }
 
+    public int getDuration() {
+        return duration;
+    }
 }
 
 
