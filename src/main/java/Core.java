@@ -82,18 +82,12 @@ public class Core implements Runnable {
                if (instructionDuration == 0) {
 
                    //java.lang.System.out.println("pc de inst: "+this.pc+", "+parentProcessorId+", core: "+myCoreNumber);
-                    //solo core 1
-                   if(myCoreNumber==2){
-                       //System.out.println("PC: "+this.pc);
-                   }
+
                    instruction.setPC(pc);
                     try {
                         int[] currentIntruction = instruction.fetchInstruction();
-                        if(myCoreNumber==2){
-                            //System.out.println("INSTRUCTION "+ Arrays.toString(currentIntruction));
-                        }
 
-                        instruction.decodeAndExecute(currentIntruction);//retorna una duracion
+                        instruction.decodeAndExecute(currentIntruction);
                         instructionDuration = instruction.getDuration();
 
                     }catch(Exception ex){
@@ -101,17 +95,16 @@ public class Core implements Runnable {
                     }
                     pc = instruction.getPC();
                     currentProgramIsFinished = instruction.programIsFinished();
-                    try {
-                        Thread.sleep(0);
-                    }catch(Exception ex){
 
-                    }
                }
                 //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
 
                 clock++;
-                currentProgramDuration++;
                 instructionDuration--;
+
+                if(instructionDuration == 0){ //Cuando un instruccion termine en el ciclo acutal, entonces agregar a duracion de tipo quantum
+                    currentProgramDuration++;
+                }
 
                 //La verificación del cuantum está aquí.
                 if (instructionDuration == 0 && currentProgramDuration >= quantum || currentProgramIsFinished) {//aqui va quauntum TODO
@@ -125,7 +118,7 @@ public class Core implements Runnable {
                     }else{
                         //Imprimir registros
                         int lastUpdateOneProgramDuration = this.programTime+currentProgramDuration;
-                        java.lang.System.out.println("ProgramFile (Hilillo) finished: "+this.programFileId+" |   Global Clock: "+this.clock+" |   Program Time "+lastUpdateOneProgramDuration);
+                        java.lang.System.out.println("ProgramFile (Hilillo) finished: "+this.programFileId+" |   Global Clock (cycles): "+this.clock+" |   Program Time "+lastUpdateOneProgramDuration);
                         String finalRegisters = "";
                         for(HashMap.Entry<String, Integer> entry: registers.entrySet()){
                             if(entry.getValue() != -1){
@@ -137,7 +130,7 @@ public class Core implements Runnable {
                     }
 
                     if(coreContexts.isEmpty()){//If the next context is null, then the core shuts down.
-                        java.lang.System.out.println("------------Al programs finished for core: "+myCoreNumber+"------------\n\n");
+                        java.lang.System.out.println("------------All programs finished for core: "+myCoreNumber+"------------\n\n");
                         numberActiveCores.decrementAndGet();//The shut down implies decreasing the numberActiveCores by one. :D
                         coreFinished = true;
                     }else{  //Take the next context from the queue.
