@@ -13,16 +13,16 @@ public class PhysicalMemory {
 
     private int sharedDataInitBlock;
     private int localInstMemInitBlock;
-
+    private String sharedMemId;
 
     public PhysicalMemory(int sharedDataMemTotalBlocks, int sharedDataInitBlock,
-                           int localInstMemTotalBlocks, int localInstMemInitBlock){
+                           int localInstMemTotalBlocks, int localInstMemInitBlock, String sharedMemId){
 
         this.localInstMem = new ArrayList<int[]>();
         this.sharedDataMem = new ArrayList<int[]>();
         this.sharedDataInitBlock = sharedDataInitBlock;
         this.localInstMemInitBlock = localInstMemInitBlock;
-
+        this.sharedMemId = sharedMemId;
         initializeMemorySizeAndValues(sharedDataMemTotalBlocks, localInstMemTotalBlocks);
 
     }
@@ -131,5 +131,13 @@ public class PhysicalMemory {
         }
         System.out.println(memoryDump);
     }
-
+    public String getIdSharedMem(){
+        return sharedMemId;
+    }
+    public boolean getExistenceBlockInSharedMemory(int block){
+        if( (block >= sharedDataInitBlock) && ( block <  (sharedDataInitBlock+sharedDataMem.size()) ) ){
+            return true;
+        }
+        return false;
+    }
 }

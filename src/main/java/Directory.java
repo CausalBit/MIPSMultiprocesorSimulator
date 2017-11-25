@@ -7,9 +7,11 @@ import java.util.ArrayList;
  */
 public class Directory {
     private ArrayList<int[]> directory;
-    int initBlock;
+    private int initBlock;
+    private String directoryID;
 
-    public Directory(int numberOfBlocksInDirectory, int initialBlock ){
+    public Directory(int numberOfBlocksInDirectory, int initialBlock, String directoryID ){
+        this.directoryID = directoryID;
         this.initBlock = initialBlock;
         directory = new ArrayList<int[]>();
         initializeDictionary(numberOfBlocksInDirectory);
@@ -66,27 +68,38 @@ public class Directory {
         directory.get(actualIndex)[Constant.DICTIONARY_STATE] = State;
     }
 
-    public boolean getExistenceInProcesor(int blockNumber, int processorId) throws IllegalArgumentException {
+    public boolean getExistenceInCore(int blockNumber, int coreId) throws IllegalArgumentException {
         Preconditions.checkArgument(blockNumber >= initBlock || blockNumber < initBlock+directory.size(),
                 "The block number \""+blockNumber+"\" does not belong to this Directory. Initial Block Number in Directory: "+initBlock);
 
-        Preconditions.checkArgument(processorId == Constant.CORE_0 || processorId == Constant.CORE_1 || processorId == Constant.CORE_2, "The processor id \""+processorId+"\" is not identified." );
+        Preconditions.checkArgument(coreId == Constant.CORE_0 || coreId == Constant.CORE_1 || coreId == Constant.CORE_2, "The core id \""+coreId+"\" is not identified." );
 
         int actualIndex = blockNumber - initBlock;
-        return directory.get(actualIndex)[processorId] == Constant.ON ? true: false;
+        return directory.get(actualIndex)[coreId] == Constant.ON ? true: false;
 
     }
 
-    public void setExistenceInProcesor(int blockNumber, int processorId, int existenceInProcessor ) throws IllegalArgumentException {
+    public void setExistenceInCore(int blockNumber, int coreId, int existenceInCore ) throws IllegalArgumentException {
         Preconditions.checkArgument(blockNumber >= initBlock || blockNumber < initBlock+directory.size(),
                 "The block number \""+blockNumber+"\" does not belong to this Directory. Initial Block Number in Directory: "+initBlock);
 
-        Preconditions.checkArgument(processorId == Constant.CORE_0 || processorId == Constant.CORE_1 || processorId == Constant.CORE_2, "The processor id \""+processorId+"\" is not identified." );
+        Preconditions.checkArgument(coreId == Constant.CORE_0 || coreId == Constant.CORE_1 || coreId == Constant.CORE_2, "The processor id \""+coreId+"\" is not identified." );
 
-        Preconditions.checkArgument(existenceInProcessor == Constant.ON || existenceInProcessor == Constant.OFF, "The value for processor existence \""+existenceInProcessor+"\" is not recognized.");
+        Preconditions.checkArgument(existenceInCore == Constant.ON || existenceInCore == Constant.OFF, "The value for processor existence \""+existenceInCore+"\" is not recognized.");
 
         int actualIndex = blockNumber - initBlock;
-        directory.get(actualIndex)[processorId] = existenceInProcessor;
+        directory.get(actualIndex)[coreId] = existenceInCore;
 
+    }
+
+    public String getDirectoryID(){
+        return directoryID;
+    }
+
+    public boolean existsInDirectory(int blockNumber){
+        if(blockNumber >= initBlock && blockNumber < initBlock+directory.size()){
+            return true;
+        }
+        return false;
     }
 }

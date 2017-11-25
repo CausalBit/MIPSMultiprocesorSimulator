@@ -18,12 +18,14 @@ public class Instruction {
     private PhysicalMemory memLocal;
     private boolean progIsFinished;
     private int duration;
+    private  String processorID;
+    private int myCoreID;
 //
     private String cacheIns;
     /*
     constructor of class
     */
-    public Instruction( HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst ) {
+    public Instruction( HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst, int myCoreID ) {
         this.pc = 0;
         this.registers = registers;
         this.bus = bus;
@@ -31,6 +33,8 @@ public class Instruction {
         this.memLocal = (bus.getProcessor(proccesor).getLocalPhysicalMemory());
         this.cacheIns= cacheInst;
         this.duration = 0;
+        this.processorID = proccesor;
+        this.myCoreID = myCoreID;
 
     }
 
@@ -85,7 +89,7 @@ public class Instruction {
                 JR(reg1);
                 break;
             case Constant.CODOP_LW:
-               // LW(reg1, reg2orRd, RDorImmediate);
+                LW(reg1, reg2orRd, RDorImmediate);
                 break;
             case Constant.CODOP_SW:
                 //
@@ -176,6 +180,10 @@ public class Instruction {
         return (int) Math.floor( address / 16 );
     }
 
+    public int getBlockNumberInSharedMemory(int dataAddress){
+        return (int) Math.floor ( dataAddress/16);
+    }
+
 
     /**
      * calc word number in a specific block that you must read
@@ -184,6 +192,7 @@ public class Instruction {
     public int getWordNumber(int address){
         return ((address%16)/4);
     }
+
 
     /**
      * Find out  the position in cache block for the specific instruction block
@@ -238,20 +247,34 @@ public class Instruction {
         if (registers.get(Integer.toString(regTarget)) != 0){
            pc+= (tag)*4;
         }
-        duration += Constant.DURATION_OF_INSTRUCTION_ALU; //TODO revisar con la profe sobre.
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
     }
 
 
     private void JAL(int immediate){
         registers.put(Integer.toString(31), pc);
         pc +=immediate;
-        duration += Constant.DURATION_OF_INSTRUCTION_ALU; //TODO revisar con la profe sobre.
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
     }
 
 
     private void JR (int regSource){
         pc= registers.get(Integer.toString(regSource));
-        duration += Constant.DURATION_OF_INSTRUCTION_ALU; //TODO revisar con la profe sobre.
+        duration += Constant.DURATION_OF_INSTRUCTION_ALU;
+    }
+    public void LW(int reg1, int destinationRegister, int immediate){
+        int dataAddress = registers.get(Integer.toString(reg1))+ immediate;
+        DataManager dataManagerLW = new DataManager(bus,processorID,myCoreID);
+        int block = getBlockNumberInSharedMemory(dataAddress);
+        int word = getWordNumber(dataAddress);
+        try {
+            int readWord = dataManagerLW.loadWordProcedure(word, block)[0];
+
+
+        registers.put(Integer.toString(destinationRegister), readWord);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 

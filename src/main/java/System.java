@@ -25,15 +25,15 @@ public class System {
         CyclicBarrier barrier = new CyclicBarrier(3);
 
 
-        PhysicalMemory P0memory = new PhysicalMemory(16,0,24,16);
-        PhysicalMemory P1memory = new PhysicalMemory(8,16,16,8);
+        PhysicalMemory P0memory = new PhysicalMemory(16,0,24,16, Constant.SHARED_DATA_MEMORY_0);
+        PhysicalMemory P1memory = new PhysicalMemory(8,16,16,8, Constant.SHARED_DATA_MEMORY_1);
 
-        Cache cacheD0 = new Cache(Constant.DATA_CACHE_TYPE);
-        Cache cacheD1 = new Cache(Constant.DATA_CACHE_TYPE);
-        Cache cacheD2 = new Cache(Constant.DATA_CACHE_TYPE);
-        Cache cacheI0 = new Cache(Constant.INSTRUCTION_CACHE_TYPE);
-        Cache cacheI1 = new Cache(Constant.INSTRUCTION_CACHE_TYPE);
-        Cache cacheI2 = new Cache(Constant.INSTRUCTION_CACHE_TYPE);
+        Cache cacheD0 = new Cache(Constant.DATA_CACHE_TYPE , Constant.DATA_CACHE_0);
+        Cache cacheD1 = new Cache(Constant.DATA_CACHE_TYPE, Constant.DATA_CACHE_1);
+        Cache cacheD2 = new Cache(Constant.DATA_CACHE_TYPE, Constant.DATA_CACHE_2);
+        Cache cacheI0 = new Cache(Constant.INSTRUCTION_CACHE_TYPE, Constant.INSTRUCTIONS_CACHE_0);
+        Cache cacheI1 = new Cache(Constant.INSTRUCTION_CACHE_TYPE, Constant.INSTRUCTIONS_CACHE_1);
+        Cache cacheI2 = new Cache(Constant.INSTRUCTION_CACHE_TYPE, Constant.INSTRUCTIONS_CACHE_2);
 
         Map<String, Cache> processorOneCaches = new HashMap<String, Cache>();
         processorOneCaches.put(Constant.DATA_CACHE_0, cacheD0);
@@ -45,8 +45,8 @@ public class System {
         processorTwoCaches.put(Constant.DATA_CACHE_2, cacheD2);
         processorTwoCaches.put(Constant.INSTRUCTIONS_CACHE_2, cacheI2);
 
-        Directory directory0 = new Directory(16, 0);
-        Directory directory1 = new Directory(8, 16);
+        Directory directory0 = new Directory(16, 0, Constant.DIRECTORY_0);
+        Directory directory1 = new Directory(8, 16,Constant.DIRECTORY_1);
 
         Processor processor0 = new Processor(processorOneCaches, P0memory, directory0, Constant.PATH_1);
         Processor processor1 = new Processor(processorTwoCaches, P1memory, directory1, Constant.PATH_2);
@@ -71,9 +71,9 @@ public class System {
 
         Bus bus = new Bus(processors);
 
-        Core core0 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, 0,Constant.INSTRUCTIONS_CACHE_0, Constant.DATA_CACHE_0);
-        Core core1 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, 1,Constant.INSTRUCTIONS_CACHE_1, Constant.DATA_CACHE_1);
-        Core core2 = new Core(Constant.PROCESSOR_1, barrier, clock, quantum, numberActiveCores, bus, 2,Constant.INSTRUCTIONS_CACHE_2, Constant.DATA_CACHE_2);
+        Core core0 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, Constant.CORE_0,Constant.INSTRUCTIONS_CACHE_0, Constant.DATA_CACHE_0);
+        Core core1 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, Constant.CORE_1,Constant.INSTRUCTIONS_CACHE_1, Constant.DATA_CACHE_1);
+        Core core2 = new Core(Constant.PROCESSOR_1, barrier, clock, quantum, numberActiveCores, bus, Constant.CORE_2,Constant.INSTRUCTIONS_CACHE_2, Constant.DATA_CACHE_2);
 
             Thread runningCore0 = new Thread(core0);
             Thread runningCore1 = new Thread(core1);

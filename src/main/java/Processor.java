@@ -1,3 +1,5 @@
+import com.google.common.base.Preconditions;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,15 +31,32 @@ public class Processor {
         return caches;
     }
 
-    public Directory getDirectory() { return localDirectory; }
+    public Cache getDataCacheByCoreId(int coreId){
+        String cacheID = getCacheIdbyCoreId( coreId);
+        Preconditions.checkArgument(caches.keySet().contains(cacheID), "Core "+coreId+" does not belong to processor");
+
+        return caches.get(cacheID);
+    }
+    public String getCacheIdbyCoreId(int coreId){
+        String cacheID = Constant.DATA_CACHE_0;
+        switch(coreId){
+            case Constant.CORE_1:
+                cacheID = Constant.DATA_CACHE_1;
+                break;
+            case Constant.CORE_2:
+                cacheID = Constant.DATA_CACHE_2;
+                break;
+        }
+        return cacheID;
+    }
+
+    public Directory getLocalDirectory() { return localDirectory; }
 
     public PhysicalMemory getLocalPhysicalMemory() {
         return localPhysicalMemory;
     }
 
-    public Directory getLocalDirectory() {
-        return localDirectory;
-    }
+    //public String setLocalDirectory() {return caches.get();}
 
     public Queue<Context> getCoreContext() {
         return coreContext;

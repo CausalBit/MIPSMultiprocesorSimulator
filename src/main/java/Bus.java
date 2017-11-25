@@ -52,4 +52,8 @@ public class Bus {
     public Processor getProcessor(String processodId){
         return processors.get(processodId);
     }
+
+    public Processor getProcessorById(String processorId){
+        return processors.get(processorId);
+    }
 }

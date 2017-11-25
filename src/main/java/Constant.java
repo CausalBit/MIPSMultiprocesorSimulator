@@ -35,7 +35,7 @@ public final class Constant {
     public static final int WORDS_IN_BLOCK = 4;
 
     public static final int[] INSTRUCTION_EMPTY_BLOCK = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    public static final int[] DATA_EMPTY_BLOCK = {0,0,0,0};
+    public static final int[] DATA_EMPTY_BLOCK = {1,1,1,1};
 
     public static final int[] INSTRUCTION_EMPTY_WORD = {0,0,0,0};
     public static final int[] DATA_EMPTY_WORD = {0};
@@ -88,6 +88,8 @@ public final class Constant {
     public static final String PATH_1 = "./src/main/threads/t1";
     public static final String PATH_2 = "./src/main/threads/t2";
 
+    //hit or miss
+    public static final int HIT_DATA_CACHE = -2;
 
 
     private Constant(){

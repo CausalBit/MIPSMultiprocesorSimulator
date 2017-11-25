@@ -67,7 +67,7 @@ public class Core implements Runnable {
 
         setInitialContext();
 
-        this.instruction = new Instruction( this.registers, bus, parentProcessorId,myNameCache);
+        this.instruction = new Instruction( this.registers, bus, parentProcessorId,myNameCache, myCoreNumber);
 
 
     }
@@ -92,8 +92,12 @@ public class Core implements Runnable {
                         if(myCoreNumber==2){
                             //System.out.println("INSTRUCTION "+ Arrays.toString(currentIntruction));
                         }
-                        instruction.decodeAndExecute(currentIntruction);//retorna una duracion
-                        instructionDuration = instruction.getDuration();
+                        try {
+                            instruction.decodeAndExecute(currentIntruction);//retorna una duracion
+                            instructionDuration = instruction.getDuration();
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
                     }catch(Exception ex){
                         ex.printStackTrace();
                     }

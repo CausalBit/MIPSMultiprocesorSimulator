@@ -17,6 +17,7 @@ public class Cache {
 
     int cacheType=0;
     int realWordSize;
+    String cacheID;
 
 
     /**
@@ -24,7 +25,7 @@ public class Cache {
      * @param cacheType is the type of cache to build.
      * @throws IllegalArgumentException
      */
-    public Cache(int cacheType) throws IllegalArgumentException {
+    public Cache(int cacheType , String cacheID) throws IllegalArgumentException {
         Preconditions.checkArgument(cacheType == Constant.INSTRUCTION_CACHE_TYPE || cacheType == Constant.DATA_CACHE_TYPE, "Cache type \""+cacheType+"\" is not recognized.");
         this.cacheType = cacheType;
         this.realWordSize = cacheType == Constant.INSTRUCTION_CACHE_TYPE? Constant.INSTRUCTION_CACHE_REAL_WORD_SIZE: Constant.DATA_CACHE_REAL_WORD_SIZE;
@@ -33,7 +34,7 @@ public class Cache {
         columnThree = new ArrayList<int[]>();
         columnTwo= new ArrayList<int[]>();
         initializeCache(cacheType);
-
+        this.cacheID = cacheID;
     }
 
     /**
@@ -154,5 +155,7 @@ public class Cache {
         }
     }
 
-   
+    public String getCacheID() {
+        return cacheID;
+    }
 }
