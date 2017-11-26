@@ -71,7 +71,7 @@ public class DataManagerStore {
                 blockedStructures.add(victimDirectoryName);
 
                 //¿El bloque de la caché víctima no está en U?
-                if (victimDirectory.getBlockState(victimBlock) != Constant.U) {
+                if (victimDirectory.getBlockBit(victimBlock, this.coreID) != 0) {
                     /******************************************/
                     this.resolveOnVictim(victimBlock, victimDirectoryName, victimDirectory);
                     /******************************************/

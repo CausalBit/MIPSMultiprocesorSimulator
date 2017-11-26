@@ -68,9 +68,6 @@ public class Directory {
     }
 
     public void setBlockState(int blockNumber, int State) throws IllegalArgumentException {
-if(blockNumber == 20){
-    int a = 0;
-}
         Preconditions.checkArgument(blockNumber >= initBlock || blockNumber < initBlock+directory.size(),
                 "The block number \""+blockNumber+"\" does not belong to this Directory. Initial Block Number in Directory: "+initBlock);
 

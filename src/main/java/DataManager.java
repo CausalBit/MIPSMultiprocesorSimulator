@@ -29,7 +29,7 @@ public class DataManager {
        lockedResources = new Stack<String>();
    }
    public int[] loadWordProcedure(int wordNumber, int blockNumber){
-        this.duration = 0;
+       this.duration = 0;
        //Bock the local cache!
        if (!bus.request(cacheLocalId)) {
            releaseAllResources();
@@ -113,9 +113,6 @@ public class DataManager {
        }
        addLockableResource(targetMemory.getIdSharedMem());
        if(targetDirectory.getBlockState(blockNumber) == Constant.M){
-if(blockNumber == 20){
-    int a = 0;
-}
            Cache targetCache = getCacheFromDirectoryBlockOnModified(targetDirectory,blockNumber);
            //TODO precondition with null targetCache
            if(!bus.request(targetCache.getCacheID()) ){
@@ -127,6 +124,7 @@ if(blockNumber == 20){
            writeBlockCacheToCache(targetCache,localCache,blockNumber);
            targetDirectory.setBlockState(blockNumber, Constant.C);
            targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.ON);
+           targetCache.setBlockState(blockNumber,Constant.C);
            bus.setFree(targetCache.getCacheID());
 
        }else{//if state of cache is C or I
