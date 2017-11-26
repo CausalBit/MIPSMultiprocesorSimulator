@@ -113,9 +113,9 @@ public class DataManager {
            releaseAllResources();
            return Constant.ABORT; //We couldn't get the resource, so we ABORT!
        }
-       addLockableResource(targetMemory.getIdSharedMem());
-       if(targetDirectory.getBlockState(blockNumber) == Constant.M){
 
+       if(targetDirectory.getBlockState(blockNumber) == Constant.M){
+           addLockableResource(targetMemory.getIdSharedMem());
            Cache targetCache = getCacheFromDirectoryBlockOnModified(targetDirectory,blockNumber);
            //TODO precondition with null targetCache
            if(!bus.request(targetCache.getCacheID()) ){
@@ -136,7 +136,7 @@ public class DataManager {
            }
            targetDirectory.setExistenceInCore(blockNumber, myCoreId, Constant.ON);
            writeFromMemoryToCache(blockNumber, targetMemory,localCache);
-           //bus.setFree(targetMemory.getIdSharedMem());//TODO, duda de si es necesario liberar ya, ya está en la cola y ahi lo libera
+           bus.setFree(targetMemory.getIdSharedMem());//TODO, duda de si es necesario liberar ya, ya está en la cola y ahi lo libera
 
        }
 
@@ -159,7 +159,7 @@ public class DataManager {
        String victimBlockDirectoryId = "";
 
        if(resultCacheCheckBlock != Constant.I){
-        System.out.println("hit\n");
+
            if(resultCacheCheckBlock == Constant.HIT_DATA_CACHE){
 
                Directory targetDirectory = getDirectoryByBlock(blockNumber);
@@ -172,11 +172,13 @@ public class DataManager {
                //Update caches with Shared status.
                int[] updateResult = propateStateInCaches(Constant.I,blockNumber,targetDirectory);
                if(updateResult==Constant.ABORT){
+                   releaseAllResources();
                    return Constant.ABORT;
                }
 
                targetDirectory.setBlockState(blockNumber,Constant.M);
                targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.ON);
+               localCache.setBlockState(blockNumber,Constant.M);
                localCache.writeWordOnCache(blockNumber,wordNumber,data);
                releaseAllResources();
                return Constant.COMPLETED;
@@ -191,6 +193,7 @@ public class DataManager {
            }
            addLockableResource(victimDirectory.getDirectoryID());
            int stateVictimBlock = victimDirectory.getBlockState(victimBlock);
+
            if(stateVictimBlock== Constant.M && victimDirectory.getExistenceInCore(victimBlock,myCoreId)){
                PhysicalMemory memoryVictimBlock = getPhysicalMemoryByBlock(victimBlock);
                if(!bus.request(memoryVictimBlock.getIdSharedMem())){
@@ -199,17 +202,18 @@ public class DataManager {
                }
                    //dont add to stack
                writeBlockToMemory(victimBlock,memoryVictimBlock,localCache);
+               localCache.setBlockState(victimBlock,Constant.I);
                victimDirectory.setBlockState(victimBlock,Constant.U);
                victimDirectory.setExistenceInCore(victimBlock,myCoreId,Constant.OFF);
                bus.setFree(memoryVictimBlock.getIdSharedMem());
 
-           }//victimblock M
-           else{
+           }else{
                victimDirectory.setExistenceInCore(victimBlock,myCoreId,Constant.OFF);
                if(!victimDirectory.getExistenceInCore(victimBlock,Constant.CORE_0) &&
                        !victimDirectory.getExistenceInCore(victimBlock, Constant.CORE_1) &&
                        !victimDirectory.getExistenceInCore(victimBlock,Constant.CORE_2)){
                    victimDirectory.setBlockState(victimBlock,Constant.U);
+
                }
                localCache.setBlockState(victimBlock,Constant.I);
 
@@ -251,7 +255,7 @@ public class DataManager {
            writeBlockToMemory(blockNumber,targetMemory,targetCache);
            writeBlockCacheToCache(targetCache,localCache,blockNumber);
 
-           targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.ON);
+           targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.OFF);
            bus.setFree(targetCache.getCacheID());
        }else{
            //We are C or I
@@ -259,6 +263,7 @@ public class DataManager {
            if(targetDirectory.getBlockState(blockNumber)==Constant.C ) {
                int[] updateResult = propateStateInCaches(Constant.I, blockNumber, targetDirectory);
                if (updateResult == Constant.ABORT) {
+                   releaseAllResources();
                    return Constant.ABORT;
                }
            }
@@ -381,9 +386,11 @@ public class DataManager {
     }
 
     public void writeBlockCacheToCache(Cache originCache, Cache destionationCache, int blockNumber){
+        destionationCache.setBlockNumberInCachePosition(blockNumber);
         for(int word = 0; word < Constant.WORDS_IN_BLOCK; word++){
             destionationCache.writeWordOnCache(blockNumber, word,originCache.readWordFromCache(blockNumber, word));
         }
+
     }
 
     public void writeFromMemoryToCache(int block, PhysicalMemory memory, Cache cache){
@@ -414,7 +421,7 @@ public class DataManager {
 
         for(int i = 0; i < cores.size(); i++) {
             int currentCore = cores.get(i);
-            if(currentCore != myCoreId && targetDirectory.getExistenceInCore(blockNumber, cores.get(i))){
+            if(currentCore != myCoreId && targetDirectory.getExistenceInCore(blockNumber, currentCore)){
                 Cache dataCache;
                 if(currentCore == Constant.CORE_0){
                     dataCache = bus.getProcessorById(Constant.PROCESSOR_0).getDataCacheByCoreId(Constant.CORE_0);
@@ -428,10 +435,11 @@ public class DataManager {
                     releaseAllResources();
                     return Constant.ABORT;
                 }
-                dataCache.setBlockState(blockNumber,state);
+                if(dataCache.existsInCache(blockNumber)) {
+                    dataCache.setBlockState(blockNumber, state);
+                }
                 targetDirectory.setExistenceInCore(blockNumber,currentCore,Constant.OFF);
-
-                bus.setFree(dataCache.getCacheID());
+                addLockableResource(dataCache.getCacheID());
             }
         }
         return Constant.COMPLETED;

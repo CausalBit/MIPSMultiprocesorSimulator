@@ -41,7 +41,10 @@ public class Bus {
     public Boolean request(String busRequested){
         //System.out.println("requesting: "+busRequested);
         boolean wasLocked = buses.get(busRequested).tryLock();
-       // if(wasLocked){System.out.println("locked: "+busRequested);}else{System.out.println("unable to get: "+busRequested);}
+       /*if(wasLocked){
+           System.out.println("locked: "+busRequested);
+       }else{System.out.println("unable to get: "+busRequested);}*/
+
         return wasLocked;
     }
 
@@ -50,7 +53,7 @@ public class Bus {
      * @param busToSetFree is the specified bus' entry key to set free.
      */
     public void setFree(String busToSetFree){
-        //System.out.println("Freeing "+busToSetFree);
+      //  System.out.println("Freeing "+busToSetFree);
         buses.get(busToSetFree).unlock();
     }
 

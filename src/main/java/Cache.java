@@ -79,6 +79,11 @@ public class Cache {
         return blockNumbers[getBlockPositionInCache(incomingBlockNumber)];
     }
 
+    public boolean existsInCache(int blockNumber){
+        int storedBlockNumber = getBlockNumberInCachePosition(blockNumber);
+        return blockNumber == storedBlockNumber;
+    }
+
     /**
      * Sets the state of a block inside the cache.
      * @param blockNumberInCache is the block number of a block inside the cache. Will throw exception if block is not in the cache.
