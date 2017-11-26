@@ -83,9 +83,9 @@ public class DataManager {
                    victimBlockDirectory.setExistenceInCore(victimBlock,myCoreId, Constant.OFF);
                }
                //TODO refactor this boy!
-               if(victimBlockDirectory.getBlockState(Constant.CORE_0)  == Constant.OFF &&
-                       victimBlockDirectory.getBlockState(Constant.CORE_1)  == Constant.OFF &&
-                       victimBlockDirectory.getBlockState(Constant.CORE_2) == Constant.OFF){
+               if(!victimBlockDirectory.getExistenceInCore(victimBlock,Constant.CORE_0) &&
+                       !victimBlockDirectory.getExistenceInCore(victimBlock, Constant.CORE_1) &&
+                       !victimBlockDirectory.getExistenceInCore(victimBlock,Constant.CORE_2)){
                    victimBlockDirectory.setBlockState(victimBlock,Constant.U);
                }
 
@@ -206,10 +206,10 @@ public class DataManager {
            }//victimblock M
            else{
                victimDirectory.setExistenceInCore(victimBlock,myCoreId,Constant.OFF);
-               if(victimDirectory.getBlockState(Constant.CORE_0)  == Constant.OFF &&
-                    victimDirectory.getBlockState(Constant.CORE_1)  == Constant.OFF &&
-                    victimDirectory.getBlockState(Constant.CORE_2) == Constant.OFF){
-                    victimDirectory.setBlockState(victimBlock,Constant.U);
+               if(!victimDirectory.getExistenceInCore(victimBlock,Constant.CORE_0) &&
+                       !victimDirectory.getExistenceInCore(victimBlock, Constant.CORE_1) &&
+                       !victimDirectory.getExistenceInCore(victimBlock,Constant.CORE_2)){
+                   victimDirectory.setBlockState(victimBlock,Constant.U);
                }
                localCache.setBlockState(victimBlock,Constant.I);
 
