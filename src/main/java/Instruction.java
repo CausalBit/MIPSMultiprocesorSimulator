@@ -288,9 +288,7 @@ public class Instruction {
         int block = getBlockNumberInSharedMemory(dataAddress);
         int word = getWordNumber(dataAddress);
         int[] result =  dataManagerSW.storeWordProcedure(word,block,data);
-        if(result != Constant.ABORT) {
-            registers.put(Integer.toString(destinationRegister), data[0]);
-        }else{
+        if(result == Constant.ABORT) {
             pc -= 4;
         }
         this.duration += dataManagerSW.getDuration();
