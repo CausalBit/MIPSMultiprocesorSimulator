@@ -25,11 +25,12 @@ public class Instruction {
     /*
     constructor of class
     */
-    public Instruction( HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst, int myCoreID ) {
+    public Instruction( HashMap<String, Integer> registers, Bus bus, String proccesor , String cacheInst, String cacheData, int myCoreID ) {
         this.pc = 0;
         this.registers = registers;
         this.bus = bus;
         this.myCacheInst = (bus.getProcessor(proccesor).getCaches().get(cacheInst));
+        this.myCacheData = (bus.getProcessor(proccesor).getCaches().get(cacheData));
         this.memLocal = (bus.getProcessor(proccesor).getLocalPhysicalMemory());
         this.cacheIns= cacheInst;
         this.duration = 0;
@@ -92,7 +93,7 @@ public class Instruction {
                 LW(reg1, reg2orRd, RDorImmediate);
                 break;
             case Constant.CODOP_SW:
-                //
+                SW(reg1, reg2orRd, RDorImmediate);
                 break;
             case Constant.CODOP_FIN:
                 //
@@ -279,6 +280,25 @@ public class Instruction {
 
     }
 
+    private void SW(int regSource, int contentReg, int immediate){
+        // immediate tiene la dirección de memoria desde la cual obtener el dato
+
+        // Cálculo de bloque y palabra
+        // Se necesita obtener el contenido del registro según la etiqueta de este
+        int regSourceData = this.registers.get("" + regSource);
+        int dataToWrite = this.registers.get("" + contentReg);
+
+        // regSourceData + immediate brinda la dirección fuente de memoria desde donde se quiere cargar el contenido al registro target
+        int blockRequested = this.getBlockNumber(regSourceData + immediate);
+        int wordRequested = this.getWordNumber(regSourceData + immediate);
+
+        DataManagerStore SWManager = new DataManagerStore(this.bus, this.myCacheData, this.myCoreID, this.memLocal);
+        int did = SWManager.SW(blockRequested, wordRequested, dataToWrite);
+        if(did == -1){
+            pc -= 4;
+        }
+        this.duration += SWManager.getDuration();
+    }
 
     private void FIN(){
         this.progIsFinished = true;

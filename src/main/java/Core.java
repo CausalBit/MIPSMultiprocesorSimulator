@@ -67,7 +67,7 @@ public class Core implements Runnable {
 
         setInitialContext();
 
-        this.instruction = new Instruction( this.registers, bus, parentProcessorId,myNameCache, myCoreNumber);
+        this.instruction = new Instruction( this.registers, bus, parentProcessorId,myNameCache, myDataCacheName, myCoreNumber);
 
 
     }

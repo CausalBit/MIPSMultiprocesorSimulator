@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Created by irvin on 11/12/17.
  */
@@ -83,6 +85,14 @@ public class System {
             runningCore1.start();
             runningCore2.start();
         //}
+        try {
+            sleep(3000);
+        }catch (InterruptedException e){
+
+        }
+
+        P0memory.printDataMem();
+        P1memory.printDataMem();
 
         //También es la entrada del toda las simulación.
         //Después de crear estas, se puede hacer el boot up.

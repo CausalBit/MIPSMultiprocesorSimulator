@@ -41,6 +41,7 @@ public class DataManager {
 
        if (victimBlock == Constant.HIT_DATA_CACHE) {
            int[] resultingWord = localCache.readWordFromCache(blockNumber, wordNumber);
+           releaseAllResources();
            return resultingWord; //return the desired word, because it is a HIT!
        }
 
@@ -80,9 +81,9 @@ public class DataManager {
                    victimBlockDirectory.setExistenceInCore(victimBlock,myCoreId, Constant.OFF);
                }
                //TODO refactor this boy!
-               if(victimBlockDirectory.getBlockState(Constant.CORE_0)  == Constant.OFF &&
-                       victimBlockDirectory.getBlockState(Constant.CORE_1)  == Constant.OFF &&
-                       victimBlockDirectory.getBlockState(Constant.CORE_2) == Constant.OFF){
+               if(victimBlockDirectory.getBlockBit(victimBlock, Constant.CORE_0)  == Constant.OFF &&
+                       victimBlockDirectory.getBlockBit(victimBlock, Constant.CORE_1)  == Constant.OFF &&
+                       victimBlockDirectory.getBlockBit(victimBlock, Constant.CORE_2) == Constant.OFF){
                    victimBlockDirectory.setBlockState(victimBlock,Constant.U);
                }
 
@@ -112,7 +113,9 @@ public class DataManager {
        }
        addLockableResource(targetMemory.getIdSharedMem());
        if(targetDirectory.getBlockState(blockNumber) == Constant.M){
-
+if(blockNumber == 20){
+    int a = 0;
+}
            Cache targetCache = getCacheFromDirectoryBlockOnModified(targetDirectory,blockNumber);
            //TODO precondition with null targetCache
            if(!bus.request(targetCache.getCacheID()) ){
@@ -164,9 +167,9 @@ public class DataManager {
     }
 
    public void releaseAllResources(){
-    for(int resourcesQuantity = 0 ; resourcesQuantity < lockedResources.size(); resourcesQuantity++){
-        bus.setFree(lockedResources.pop());//WARNING
-    }
+        while(lockedResources.size() > 0) {
+            bus.setFree(lockedResources.pop());//WARNING
+        }
    }
 
    public void addLockableResource(String resource){
@@ -251,6 +254,7 @@ public class DataManager {
     }
 
     public void writeBlockCacheToCache(Cache originCache, Cache destionationCache, int blockNumber){
+        destionationCache.setBlockNumberInCachePosition(blockNumber);
         for(int word = 0; word < Constant.WORDS_IN_BLOCK; word++){
             destionationCache.writeWordOnCache(blockNumber, word,originCache.readWordFromCache(blockNumber, word));
         }

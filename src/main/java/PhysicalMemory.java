@@ -140,4 +140,12 @@ public class PhysicalMemory {
         }
         return false;
     }
+
+    public void printDataMem(){
+        String memoryDump = "Instructions Memory: \n";
+        for(int i = 0; i < sharedDataMem.size(); i++){
+            memoryDump += "Block #"+(i+sharedDataInitBlock)+": "+ Arrays.toString(sharedDataMem.get(i))+"\n";
+        }
+        System.out.println(memoryDump);
+    }
 }
