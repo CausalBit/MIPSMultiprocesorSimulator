@@ -91,6 +91,7 @@ public class Core implements Runnable {
                         instructionDuration = instruction.getDuration();
 
                     }catch(Exception ex){
+
                         ex.printStackTrace();
                     }
                     pc = instruction.getPC();

@@ -93,6 +93,7 @@ public class Instruction {
                 break;
             case Constant.CODOP_SW:
                 //
+                SW(reg1, reg2orRd, RDorImmediate);
                 break;
             case Constant.CODOP_FIN:
                 //
@@ -276,6 +277,23 @@ public class Instruction {
             pc -= 4;
         }
         this.duration += dataManagerLW.getDuration();
+
+    }
+
+    public void SW (int destinationRegister, int originRegister, int immediate){
+        int [] data = new int[1];
+        int dataAddress = registers.get(Integer.toString(destinationRegister))+ immediate;
+        data[0]= registers.get(Integer.toString(originRegister));
+        DataManager dataManagerSW = new DataManager(bus,processorID,myCoreID);
+        int block = getBlockNumberInSharedMemory(dataAddress);
+        int word = getWordNumber(dataAddress);
+        int[] result =  dataManagerSW.storeWordProcedure(word,block,data);
+        if(result != Constant.ABORT) {
+            registers.put(Integer.toString(destinationRegister), data[0]);
+        }else{
+            pc -= 4;
+        }
+        this.duration += dataManagerSW.getDuration();
 
     }
 

@@ -3,6 +3,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.lang.System;
 
 /**
  * Created by J.A Rodriguez on 13/11/2017.
@@ -38,7 +39,9 @@ public class Bus {
      * @return true if the bus can be locked, false if not
      */
     public Boolean request(String busRequested){
-        return buses.get(busRequested).tryLock();
+        boolean wasLocked = buses.get(busRequested).tryLock();
+        if(wasLocked){System.out.println("locked: "+busRequested);}
+        return wasLocked;
     }
 
     /**
@@ -46,6 +49,7 @@ public class Bus {
      * @param busToSetFree is the specified bus' entry key to set free.
      */
     public void setFree(String busToSetFree){
+        System.out.println("Freeing "+busToSetFree);
         buses.get(busToSetFree).unlock();
     }
 

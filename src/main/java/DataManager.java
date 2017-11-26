@@ -1,4 +1,7 @@
 import java.lang.*;
+import java.lang.System;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -144,6 +147,132 @@ public class DataManager {
        return resultingWord;
    }
 
+   public int[] storeWordProcedure(int wordNumber, int blockNumber, int[] data){
+        duration=0;
+       //Let's block our cache
+       if(!bus.request(localCache.getCacheID())){
+           return Constant.ABORT;
+       }
+       addLockableResource(localCache.getCacheID());
+
+       int resultCacheCheckBlock = checkCache(blockNumber, localCache);
+       String victimBlockDirectoryId = "";
+
+       if(resultCacheCheckBlock != Constant.I){
+        System.out.println("hit\n");
+           if(resultCacheCheckBlock == Constant.HIT_DATA_CACHE){
+
+               Directory targetDirectory = getDirectoryByBlock(blockNumber);
+               if(!bus.request(targetDirectory.getDirectoryID())){
+                   releaseAllResources();
+                   return Constant.ABORT;
+               }
+               addLockableResource(targetDirectory.getDirectoryID());
+
+               //Update caches with Shared status.
+               int[] updateResult = propateStateInCaches(Constant.I,blockNumber,targetDirectory);
+               if(updateResult==Constant.ABORT){
+                   return Constant.ABORT;
+               }
+
+               targetDirectory.setBlockState(blockNumber,Constant.M);
+               targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.ON);
+               localCache.writeWordOnCache(blockNumber,wordNumber,data);
+               releaseAllResources();
+               return Constant.COMPLETED;
+           }//hit end
+           int victimBlock = resultCacheCheckBlock;
+           Directory victimDirectory = getDirectoryByBlock(victimBlock);
+           victimBlockDirectoryId = victimDirectory.getDirectoryID();
+
+           if(!bus.request(victimDirectory.getDirectoryID())){
+               releaseAllResources();
+               return Constant.ABORT;
+           }
+           addLockableResource(victimDirectory.getDirectoryID());
+           int stateVictimBlock = victimDirectory.getBlockState(victimBlock);
+           if(stateVictimBlock== Constant.M && victimDirectory.getExistenceInCore(victimBlock,myCoreId)){
+               PhysicalMemory memoryVictimBlock = getPhysicalMemoryByBlock(victimBlock);
+               if(!bus.request(memoryVictimBlock.getIdSharedMem())){
+                   releaseAllResources();
+                   return  Constant.ABORT;
+               }
+                   //dont add to stack
+               writeBlockToMemory(victimBlock,memoryVictimBlock,localCache);
+               victimDirectory.setBlockState(victimBlock,Constant.U);
+               victimDirectory.setExistenceInCore(victimBlock,myCoreId,Constant.OFF);
+               bus.setFree(memoryVictimBlock.getIdSharedMem());
+
+           }//victimblock M
+           else{
+               victimDirectory.setExistenceInCore(victimBlock,myCoreId,Constant.OFF);
+               if(victimDirectory.getBlockState(Constant.CORE_0)  == Constant.OFF &&
+                    victimDirectory.getBlockState(Constant.CORE_1)  == Constant.OFF &&
+                    victimDirectory.getBlockState(Constant.CORE_2) == Constant.OFF){
+                    victimDirectory.setBlockState(victimBlock,Constant.U);
+               }
+               localCache.setBlockState(victimBlock,Constant.I);
+
+           }
+       }//not invalid end
+       Directory targetDirectory = getDirectoryByBlock(blockNumber);
+
+       //Do we need to get ad lock a different directory?
+       if(!victimBlockDirectoryId.equals(targetDirectory.getDirectoryID())){
+           if(!victimBlockDirectoryId.equals("")){
+               //Let's ask for what we want
+               removeLockableResource(victimBlockDirectoryId);
+               bus.setFree(victimBlockDirectoryId);
+           }
+
+           if(!bus.request(targetDirectory.getDirectoryID())){
+               releaseAllResources();
+               return Constant.ABORT;
+           }
+           addLockableResource(targetDirectory.getDirectoryID());
+       }
+
+       PhysicalMemory targetMemory = getPhysicalMemoryByBlock(blockNumber);
+       if(!bus.request(targetMemory.getIdSharedMem())){
+           releaseAllResources();
+           return Constant.ABORT;
+       }
+       addLockableResource(targetMemory.getIdSharedMem());
+
+       if(targetDirectory.getBlockState(blockNumber) == Constant.M){
+           Cache targetCache = getCacheFromDirectoryBlockOnModified(targetDirectory, blockNumber);
+           //TODO preconditions for handling null targetCache.
+           if(!bus.request(targetCache.getCacheID())){
+               releaseAllResources();
+               return Constant.ABORT;
+           }
+           //Change cache from M to I
+           targetCache.setBlockState(blockNumber, Constant.I);
+           writeBlockToMemory(blockNumber,targetMemory,targetCache);
+           writeBlockCacheToCache(targetCache,localCache,blockNumber);
+
+           targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.ON);
+           bus.setFree(targetCache.getCacheID());
+       }else{
+           //We are C or I
+           //Update caches with Shared status.
+           if(targetDirectory.getBlockState(blockNumber)==Constant.C ) {
+               int[] updateResult = propateStateInCaches(Constant.I, blockNumber, targetDirectory);
+               if (updateResult == Constant.ABORT) {
+                   return Constant.ABORT;
+               }
+           }
+           targetDirectory.setBlockState(blockNumber,Constant.M);
+           targetDirectory.setExistenceInCore(blockNumber, myCoreId, Constant.ON);
+           writeFromMemoryToCache(blockNumber,targetMemory,localCache);
+       }
+
+       localCache.setBlockState(blockNumber, Constant.M);
+       localCache.writeWordOnCache(blockNumber,wordNumber,data);
+       releaseAllResources();
+       return Constant.COMPLETED;
+   }
+
 
    public void writeBlockToMemory(int block, PhysicalMemory memory, Cache cache){
        int [] blockInCacheInM =  readBlockFromCache(block,cache );
@@ -164,7 +293,8 @@ public class DataManager {
     }
 
    public void releaseAllResources(){
-    for(int resourcesQuantity = 0 ; resourcesQuantity < lockedResources.size(); resourcesQuantity++){
+       int initSize = lockedResources.size();
+    for(int resourcesQuantity = 0 ; resourcesQuantity < initSize ; resourcesQuantity++){
         bus.setFree(lockedResources.pop());//WARNING
     }
    }
@@ -273,6 +403,39 @@ public class DataManager {
 
     public int getDuration() {
         return duration;
+    }
+
+    public int[] propateStateInCaches(int state, int blockNumber, Directory targetDirectory){
+
+        List<Integer> cores = new LinkedList<Integer>();
+        cores.add(Constant.CORE_0);
+        cores.add(Constant.CORE_1);
+        cores.add(Constant.CORE_2);
+
+        for(int i = 0; i < cores.size(); i++) {
+            int currentCore = cores.get(i);
+            if(currentCore != myCoreId && targetDirectory.getExistenceInCore(blockNumber, cores.get(i))){
+                Cache dataCache;
+                if(currentCore == Constant.CORE_0){
+                    dataCache = bus.getProcessorById(Constant.PROCESSOR_0).getDataCacheByCoreId(Constant.CORE_0);
+                }else if(currentCore == Constant.CORE_1){
+                    dataCache = bus.getProcessorById(Constant.PROCESSOR_0).getDataCacheByCoreId(Constant.CORE_1);
+                }else{
+                    dataCache = bus.getProcessorById(Constant.PROCESSOR_1).getDataCacheByCoreId(Constant.CORE_2);
+                }
+
+                if(!bus.request(dataCache.getCacheID())){
+                    releaseAllResources();
+                    return Constant.ABORT;
+                }
+                dataCache.setBlockState(blockNumber,state);
+                targetDirectory.setExistenceInCore(blockNumber,currentCore,Constant.OFF);
+
+                bus.setFree(dataCache.getCacheID());
+            }
+        }
+        return Constant.COMPLETED;
+
     }
 }
 

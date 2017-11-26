@@ -35,7 +35,7 @@ public final class Constant {
     public static final int WORDS_IN_BLOCK = 4;
 
     public static final int[] INSTRUCTION_EMPTY_BLOCK = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    public static final int[] DATA_EMPTY_BLOCK = {1,1,1,1};
+    public static final int[] DATA_EMPTY_BLOCK = {0,0,0,0};
 
     public static final int[] INSTRUCTION_EMPTY_WORD = {0,0,0,0};
     public static final int[] DATA_EMPTY_WORD = {0};
