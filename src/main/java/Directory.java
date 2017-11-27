@@ -2,6 +2,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.lang.System;
+import java.util.Arrays;
 
 
 /**
@@ -103,5 +104,14 @@ public class Directory {
             return true;
         }
         return false;
+    }
+
+    public void printDirectoryData(){
+        String memoryDump = "Data in directory: "+directoryID+"\n";
+        for(int j = 0; j < directory.size(); j++){
+            int actualBlock = j+initBlock;
+            memoryDump += "Block #"+actualBlock+":"+ Arrays.toString(directory.get(j))+"\n";
+        }
+        System.out.println(memoryDump);
     }
 }

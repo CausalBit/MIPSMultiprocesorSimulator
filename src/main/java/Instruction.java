@@ -49,7 +49,7 @@ public class Instruction {
     public void decodeAndExecute(int[] instruction){
 
         int codOP= instruction[0]; // the first position is the cod operation
-        //System.out.println(cacheIns+"  codop+"+codOP+"wordtoREad "+word);
+        //Simulation.out.println(cacheIns+"  codop+"+codOP+"wordtoREad "+word);
         int reg1 = instruction[1];
         int reg2orRd = instruction[2];
         int RDorImmediate = instruction[3];
@@ -132,7 +132,7 @@ public class Instruction {
             for(int t = 0; t <16;t++){
                 s+=" "+blockOfMem[t];
             }
-           // System.out.println("bloque de metodo:"+block+"\tinst :: "+cacheIns+"\t"+s);
+           // Simulation.out.println("bloque de metodo:"+block+"\tinst :: "+cacheIns+"\t"+s);
 
             //copiar de 4 en 4
             myCacheInst.setBlockNumberInCachePosition(block);
@@ -281,7 +281,7 @@ public class Instruction {
         int block = getBlockNumberInSharedMemory(dataAddress);
         int word = getWordNumber(dataAddress);
        // if(myCoreID == 0 && block == 10) {//garbage
-           // System.out.println("Error here\n");
+           // Simulation.out.println("Error here\n");
        // }
         int[] result =  dataManagerSW.storeWordProcedure(word,block,data);
         if(result == Constant.ABORT) {

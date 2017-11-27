@@ -1,6 +1,7 @@
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by irvin on 11/9/17.
@@ -162,5 +163,19 @@ public class Cache {
 
     public String getCacheID() {
         return cacheID;
+    }
+
+    public void printCacheData(){
+        String memoryDump = "Data in cache: "+cacheID+"\n";
+        for(int j = 0; j < columnZero.size(); j++){
+
+            memoryDump += "Word #"+j+":"+ Arrays.toString(columnZero.get(j))+
+                    Arrays.toString(columnOne.get(j))+
+                    Arrays.toString(columnTwo.get(j))+
+                    Arrays.toString(columnThree.get(j))+"\n";
+        }
+        memoryDump += "Block #:"+Arrays.toString(blockNumbers)+"\n"+
+                "Tags   :"+Arrays.toString(tags)+"\n";
+        System.out.println(memoryDump);
     }
 }

@@ -81,7 +81,7 @@ public class Core implements Runnable {
 
                if (instructionDuration == 0) {
 
-                   //java.lang.System.out.println("pc de inst: "+this.pc+", "+parentProcessorId+", core: "+myCoreNumber);
+                   //java.lang.Simulation.out.println("pc de inst: "+this.pc+", "+parentProcessorId+", core: "+myCoreNumber);
 
                    instruction.setPC(pc);
                     try {
@@ -109,9 +109,8 @@ public class Core implements Runnable {
 
                 //La verificación del cuantum está aquí.
                 if (instructionDuration == 0 && currentProgramDuration >= quantum || currentProgramIsFinished) {//aqui va quauntum TODO
-                    //java.lang.System.out.println("------------quantum acabado------------");
+                    //java.lang.Simulation.out.println("------------quantum acabado------------");
                     if(!currentProgramIsFinished){//Store the current context if program is not finished (current instruction is not FIN).
-                       // java.lang.System.out.println("------------no acabo programa------------ del core :"+myCoreNumber);
                         Context contextToSave = new Context(registers,pc);
                         contextToSave.setIdHilillo(this.programFileId);
                         contextToSave.setProgramTime(this.programTime+currentProgramDuration);

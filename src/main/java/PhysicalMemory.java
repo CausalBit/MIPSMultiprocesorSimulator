@@ -131,6 +131,16 @@ public class PhysicalMemory {
         }
         System.out.println(memoryDump);
     }
+
+    public void printSharedMem(){
+        String memoryDump = "Shared Memory in Physical Memory: "+sharedMemId+"\n\n";
+        for(int j = 0; j < sharedDataMem.size(); j++){
+            int actualBlock = j+sharedDataInitBlock;
+            memoryDump += "Block #"+actualBlock+":"+Arrays.toString(sharedDataMem.get(j))+"\n";
+        }
+        System.out.println(memoryDump);
+    }
+
     public String getIdSharedMem(){
         return sharedMemId;
     }

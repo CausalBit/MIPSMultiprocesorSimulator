@@ -1,15 +1,15 @@
-import javax.swing.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.lang.System;
+
 
 /**
  * Created by irvin on 11/12/17.
  */
-public class System {
+public class Simulation {
 
 
     public static void main(String [ ] args) {
@@ -17,8 +17,16 @@ public class System {
         //TODO cola de semaphore general para el barrier para los 3 cores
         //pide quantum
         //es necesario crearlas cachesdata aqui ya que se deben compartir para cada procesador , se pueden compartir en algun momento
+        System.out.println("Please enter the quantum: ");
+        Scanner scanner = new Scanner(System.in);
+        int inQuantum = scanner.nextInt();
+        System.out.println("Your quantum is " + inQuantum+"\n");
+
+        //System.out.println("Indicate the  mode of execution, fast (0), slow (1): ");
+        //int modeExecution = scanner.nextInt();
+
         int clock = 0;
-        int quantum = 30;
+        int quantum = inQuantum;
 
         AtomicInteger numberActiveCores = new AtomicInteger(3);
 
@@ -66,8 +74,8 @@ public class System {
             ex.printStackTrace();
         }
 
-        P0memory.printInstMem();
-        P1memory.printInstMem();
+       // P0memory.printInstMem();
+        //P1memory.printInstMem();
 
         Bus bus = new Bus(processors);
 
@@ -83,6 +91,21 @@ public class System {
             runningCore1.start();
             runningCore2.start();
         //}
+        try {
+            runningCore0.join();
+            runningCore1.join();
+            runningCore2.join();
+
+            directory0.printDirectoryData();
+            directory1.printDirectoryData();
+            P0memory.printSharedMem();
+            P1memory.printSharedMem();
+            cacheD0.printCacheData();
+            cacheD1.printCacheData();
+            cacheD2.printCacheData();
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
 
         //También es la entrada del toda las simulación.
         //Después de crear estas, se puede hacer el boot up.
