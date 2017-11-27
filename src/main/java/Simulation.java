@@ -17,16 +17,16 @@ public class Simulation {
         //TODO cola de semaphore general para el barrier para los 3 cores
         //pide quantum
         //es necesario crearlas cachesdata aqui ya que se deben compartir para cada procesador , se pueden compartir en algun momento
-       /* System.out.println("Please enter the quantum: ");
+        System.out.println("Please enter the quantum: ");
         Scanner scanner = new Scanner(System.in);
         int inQuantum = scanner.nextInt();
-        System.out.println("Your quantum is " + inQuantum+"\n");*/
+        System.out.println("Your quantum is " + inQuantum+"\n\n");
 
         //System.out.println("Indicate the  mode of execution, fast (0), slow (1): ");
         //int modeExecution = scanner.nextInt();
 
         int clock = 0;
-        int quantum = 30;
+        int quantum = inQuantum;
 
         AtomicInteger numberActiveCores = new AtomicInteger(3);
         AtomicInteger waitingCores = new AtomicInteger(0);
