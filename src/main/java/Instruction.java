@@ -76,10 +76,6 @@ public class Instruction {
 
                 break;
             case Constant.CODOP_BNEQZ:
-
-                //if(reg1==24){
-
-                //}
                 BNEQZ(reg1,RDorImmediate);
                 break;
             case Constant.CODOP_JAL:
@@ -92,11 +88,9 @@ public class Instruction {
                 LW(reg1, reg2orRd, RDorImmediate);
                 break;
             case Constant.CODOP_SW:
-                //
                 SW(reg1, reg2orRd, RDorImmediate);
                 break;
             case Constant.CODOP_FIN:
-                //
                 FIN();
                 break;
 
@@ -244,7 +238,6 @@ public class Instruction {
 
 
     private void BNEQZ( int regTarget,  int tag){
-     //   System.out.println("\tel reg "+regTarget+" es : "+registers.get(Integer.toString(regTarget)));
         if (registers.get(Integer.toString(regTarget)) != 0){
            pc+= (tag)*4;
         }
@@ -287,6 +280,9 @@ public class Instruction {
         DataManager dataManagerSW = new DataManager(bus,processorID,myCoreID);
         int block = getBlockNumberInSharedMemory(dataAddress);
         int word = getWordNumber(dataAddress);
+       // if(myCoreID == 0 && block == 10) {//garbage
+           // System.out.println("Error here\n");
+       // }
         int[] result =  dataManagerSW.storeWordProcedure(word,block,data);
         if(result == Constant.ABORT) {
             pc -= 4;

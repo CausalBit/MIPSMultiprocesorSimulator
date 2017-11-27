@@ -1,6 +1,8 @@
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
+import java.lang.System;
+
 
 /**
  * Created by irvin on 11/9/17.
@@ -65,7 +67,7 @@ public class Directory {
         Preconditions.checkArgument(State == Constant.C || State == Constant.M || State == Constant.U, "The state is not recognized in the dictionary");
 
         int actualIndex = blockNumber - initBlock;
-        directory.get(actualIndex)[Constant.DICTIONARY_STATE] = State;
+        directory.get(actualIndex)[Constant.DICTIONARY_STATE ] = State;
     }
 
     public boolean getExistenceInCore(int blockNumber, int coreId) throws IllegalArgumentException {
@@ -75,7 +77,7 @@ public class Directory {
         Preconditions.checkArgument(coreId == Constant.CORE_0 || coreId == Constant.CORE_1 || coreId == Constant.CORE_2, "The core id \""+coreId+"\" is not identified." );
 
         int actualIndex = blockNumber - initBlock;
-        return directory.get(actualIndex)[coreId] == Constant.ON ? true: false;
+        return directory.get(actualIndex)[coreId+1] == Constant.ON ? true: false;
 
     }
 
@@ -88,7 +90,7 @@ public class Directory {
         Preconditions.checkArgument(existenceInCore == Constant.ON || existenceInCore == Constant.OFF, "The value for processor existence \""+existenceInCore+"\" is not recognized.");
 
         int actualIndex = blockNumber - initBlock;
-        directory.get(actualIndex)[coreId] = existenceInCore;
+        directory.get(actualIndex)[coreId+1] = existenceInCore;
 
     }
 

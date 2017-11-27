@@ -148,6 +148,10 @@ public class DataManager {
    }
 
    public int[] storeWordProcedure(int wordNumber, int blockNumber, int[] data){
+       if(myCoreId == 0 && blockNumber == 10) {//garbage
+           System.out.println("debug core : "+myCoreId);
+       }
+
         duration=0;
        //Let's block our cache
        if(!bus.request(localCache.getCacheID())){
