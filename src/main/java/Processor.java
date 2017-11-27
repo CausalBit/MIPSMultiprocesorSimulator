@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by irvin on 11/13/17.
@@ -13,7 +14,7 @@ public class Processor {
     private Map<String, Cache> caches;
     private PhysicalMemory localPhysicalMemory;
     private Directory localDirectory;
-    private Queue<Context> coreContext;
+    private ConcurrentLinkedQueue<Context> coreContext;
     private String programFilesPath;
     private int currentPC;
 
@@ -24,7 +25,7 @@ public class Processor {
       this.localPhysicalMemory = localPhysicalMemory;
       this.localDirectory = localDirectory;
       this.programFilesPath = programFilesPath;
-      this.coreContext = new LinkedList<Context>();
+      this.coreContext = new ConcurrentLinkedQueue<Context>();
   }
 
     public Map<String, Cache> getCaches() {
@@ -58,7 +59,7 @@ public class Processor {
 
     //public String setLocalDirectory() {return caches.get();}
 
-    public Queue<Context> getCoreContext() {
+    public ConcurrentLinkedQueue<Context> getCoreContext() {
         return coreContext;
     }
 

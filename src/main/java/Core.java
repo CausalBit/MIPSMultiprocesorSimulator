@@ -1,6 +1,7 @@
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CyclicBarrier;
 import java.lang.System;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,7 +18,7 @@ public class Core implements Runnable {
     private AtomicInteger waitingCores;
     private CyclicBarrier barrier;
     private HashMap<String, Integer> registers;
-    private Queue<Context> coreContexts;
+    private ConcurrentLinkedQueue<Context> coreContexts;
     private String parentProcessorId;
     private int clock;
     private int myCoreNumber;
@@ -79,7 +80,7 @@ public class Core implements Runnable {
         while (!coreFinished) {
 
                touchBarrier();
-                /*fecth new and decodeAndExceute*/
+                /*fetch new and decodeAndExceute*/
 
                if (instructionDuration == 0) {
 
@@ -98,10 +99,10 @@ public class Core implements Runnable {
                     }
                     pc = instruction.getPC();
                     currentProgramIsFinished = instruction.programIsFinished();
+                   //System.out.println("running "+myCoreNumber+" is "+currentProgramIsFinished);
 
                }
                 //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
-
                 clock++;
                 instructionDuration--;
 
@@ -135,6 +136,7 @@ public class Core implements Runnable {
                         java.lang.System.out.println("------------All programs finished for core: "+myCoreNumber+"------------\n\n");
                         numberActiveCores.decrementAndGet();//The shut down implies decreasing the numberActiveCores by one. :D
                         coreFinished = true;
+
                     }else{  //Take the next context from the queue.
                         Context initialContext = coreContexts.poll();
                         currentProgramIsFinished = false; //update state of program
@@ -155,7 +157,7 @@ public class Core implements Runnable {
     public void setInitialContext() {
         //Set up the fist conte
         this.coreContexts = bus.getProcessor(parentProcessorId).getCoreContext();
-        if(coreContexts.isEmpty()){// if only exit
+        if(coreContexts.isEmpty()){// if none, then exit
             numberActiveCores.decrementAndGet();
             coreFinished=true;
         }else {
@@ -170,7 +172,10 @@ public class Core implements Runnable {
 
     public void touchBarrier(){
         waitingCores.incrementAndGet();
-        while(waitingCores.get() < numberActiveCores.get()){}
+        //System.out.println("enetringWaiting " + myCoreNumber);
+        while(waitingCores.get() < numberActiveCores.get() && numberActiveCores.get() > 1){
+        }
+        //System.out.println("leaveingWAiting " + myCoreNumber);
         waitingCores.decrementAndGet();
     }
 

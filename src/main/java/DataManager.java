@@ -148,10 +148,6 @@ public class DataManager {
    }
 
    public int[] storeWordProcedure(int wordNumber, int blockNumber, int[] data){
-       if(myCoreId == 0 && blockNumber == 10) {//garbage
-           System.out.println("debug core : "+myCoreId);
-       }
-
         duration=0;
        //Let's block our cache
        if(!bus.request(localCache.getCacheID())){
@@ -306,6 +302,7 @@ public class DataManager {
     for(int resourcesQuantity = 0 ; resourcesQuantity < initSize ; resourcesQuantity++){
         bus.setFree(lockedResources.pop());//WARNING
     }
+       bus.freeOwnedByCurrentThread();
    }
 
    public void addLockableResource(String resource){
@@ -359,7 +356,6 @@ public class DataManager {
    }
 
    public PhysicalMemory getPhysicalMemoryByBlock(int block){
-       //TODO validate for wrong block that doesnt exist in any physical memory.
        if ( myProcessor.getLocalPhysicalMemory().getExistenceBlockInSharedMemory(block)){
            duration+= Constant.LOCAL_MEMORY_ACCESS;
            return myProcessor.getLocalPhysicalMemory();
@@ -413,6 +409,7 @@ public class DataManager {
     }
 
     public int getDuration() {
+
         return duration;
     }
 

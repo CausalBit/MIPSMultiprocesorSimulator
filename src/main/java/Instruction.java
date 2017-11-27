@@ -267,6 +267,7 @@ public class Instruction {
             int readWord = result[0];
             registers.put(Integer.toString(destinationRegister), readWord);
         }else{
+
             pc -= 4;
         }
         this.duration += dataManagerLW.getDuration();
@@ -280,12 +281,10 @@ public class Instruction {
         DataManager dataManagerSW = new DataManager(bus,processorID,myCoreID);
         int block = getBlockNumberInSharedMemory(dataAddress);
         int word = getWordNumber(dataAddress);
-       // if(myCoreID == 0 && block == 10) {//garbage
-           // Simulation.out.println("Error here\n");
-       // }
         int[] result =  dataManagerSW.storeWordProcedure(word,block,data);
         if(result == Constant.ABORT) {
             pc -= 4;
+            bus.freeOwnedByCurrentThread();
         }
         this.duration += dataManagerSW.getDuration();
 

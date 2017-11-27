@@ -9,7 +9,7 @@ import java.lang.System;
  * Created by J.A Rodriguez on 13/11/2017.
  */
 public class Bus {
-    private HashMap<String, Lock> buses;
+    private HashMap<String, ReentrantLock> buses;
     private Map<String, Processor> processors;
 
     /**
@@ -17,7 +17,7 @@ public class Bus {
      * be available to be requested and locked by a core.
      */
     public Bus(Map<String, Processor> processors){
-        buses = new HashMap<String, Lock>();
+        buses = new HashMap<String, ReentrantLock>();
         buses.put(Constant.DATA_CACHE_0, new ReentrantLock());
         buses.put(Constant.INSTRUCTIONS_CACHE_0, new ReentrantLock());
         buses.put(Constant.DATA_CACHE_1, new ReentrantLock());
@@ -42,8 +42,8 @@ public class Bus {
         //Simulation.out.println("requesting: "+busRequested);
         boolean wasLocked = buses.get(busRequested).tryLock();
        /*if(wasLocked){
-           Simulation.out.println("locked: "+busRequested);
-       }else{Simulation.out.println("unable to get: "+busRequested);}*/
+           System.out.println("locked: "+busRequested);
+       }else{System.out.println("unable to get: "+busRequested);}*/
 
         return wasLocked;
     }
@@ -63,5 +63,14 @@ public class Bus {
 
     public Processor getProcessorById(String processorId){
         return processors.get(processorId);
+    }
+
+    public void freeOwnedByCurrentThread(){
+        for (Map.Entry<String, ReentrantLock> entry : buses.entrySet())
+        {
+            if(entry.getValue().isHeldByCurrentThread()){
+                entry.getValue().unlock();
+            }
+        }
     }
 }
