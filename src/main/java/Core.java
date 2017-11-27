@@ -1,8 +1,5 @@
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CyclicBarrier;
 import java.lang.System;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,7 +13,6 @@ public class Core implements Runnable {
     private int pc;
     private AtomicInteger numberActiveCores;
     private AtomicInteger waitingCores;
-    private CyclicBarrier barrier;
     private HashMap<String, Integer> registers;
     private ConcurrentLinkedQueue<Context> coreContexts;
     private String parentProcessorId;
@@ -27,10 +23,11 @@ public class Core implements Runnable {
     private String myDataCacheName;
     private String programFileId;
     private int programTime;
+    private int programInitTime;
 
 
     private boolean currentProgramIsFinished;
-    private int currentProgramDuration = 0;
+    private int currentQuantumDuration = 0;
     private int instructionDuration = 0;
     private boolean coreFinished = false;
 
@@ -55,7 +52,7 @@ public class Core implements Runnable {
         this.waitingCores = waitingCores;
 
         this.currentProgramIsFinished = false;
-        this.currentProgramDuration = 0;
+        this.currentQuantumDuration = 0;
         this.instructionDuration = 0;
         this.coreFinished = false;
         this.programFileId = "";
@@ -84,49 +81,48 @@ public class Core implements Runnable {
 
                if (instructionDuration == 0) {
 
-                   //java.lang.Simulation.out.println("pc de inst: "+this.pc+", "+parentProcessorId+", core: "+myCoreNumber);
-
                    instruction.setPC(pc);
-                    try {
-                        int[] currentIntruction = instruction.fetchInstruction();
 
+                    try {
+                        int[] currentIntruction = instruction.fetchInstruction();//Get Instruction
                         instruction.decodeAndExecute(currentIntruction);
                         instructionDuration = instruction.getDuration();
-
                     }catch(Exception ex){
-
                         ex.printStackTrace();
                     }
+
                     pc = instruction.getPC();
                     currentProgramIsFinished = instruction.programIsFinished();
-                   //System.out.println("running "+myCoreNumber+" is "+currentProgramIsFinished);
-
                }
                 //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
                 clock++;
+                this.programTime++;
                 instructionDuration--;
-
                 if(instructionDuration == 0){ //Cuando un instruccion termine en el ciclo acutal, entonces agregar a duracion de tipo quantum
-                    currentProgramDuration++;
+                    currentQuantumDuration++;
                 }
 
                 //La verificación del cuantum está aquí.
-                if (instructionDuration == 0 && currentProgramDuration >= quantum || currentProgramIsFinished) {//aqui va quauntum TODO
+                if (instructionDuration == 0 && currentQuantumDuration >= quantum || currentProgramIsFinished) {//aqui va quauntum TODO
                     //java.lang.Simulation.out.println("------------quantum acabado------------");
                     if(!currentProgramIsFinished){//Store the current context if program is not finished (current instruction is not FIN).
                         Context contextToSave = new Context(registers,pc);
                         contextToSave.setIdHilillo(this.programFileId);
-                        contextToSave.setProgramTime(this.programTime+currentProgramDuration);
+                        contextToSave.setProgramTime(this.programTime);
+                        contextToSave.setInitTime(this.programInitTime);
                         coreContexts.add(contextToSave);
                     }else{
                         //Imprimir registros
-                        int lastUpdateOneProgramDuration = this.programTime+currentProgramDuration;
-                        java.lang.System.out.println("ProgramFile (Hilillo) finished: "+this.programFileId+" |   Global Clock (cycles): "+this.clock+" |   Program Time "+lastUpdateOneProgramDuration);
+                        //int lastUpdateOneProgramDuration = this.programTime+currentQuantumDuration;
+                        java.lang.System.out.println("\nProgramFile (Hilillo): "+this.programFileId+
+                                " finished in Prcessor: "+parentProcessorId+" |     Initial Time: "+this.programInitTime+" |    Final Time: "+this.clock+
+                                " |     Program Time "+this.programTime);
+
                         String finalRegisters = "";
                         for(HashMap.Entry<String, Integer> entry: registers.entrySet()){
-                            if(entry.getValue() != -1){
+                            //if(entry.getValue() != -1){
                                 finalRegisters+=" R"+entry.getKey()+": "+entry.getValue()+", ";
-                            }
+                           // }
 
                         }
                         System.out.println("Core: "+myCoreNumber+" |  Registers :"+finalRegisters+"\n");
@@ -143,9 +139,11 @@ public class Core implements Runnable {
                         this.pc = initialContext.getPc();
                         this.registers = initialContext.getRegisters();
                         this.programFileId = initialContext.getIdHilillo();
+                        java.lang.System.out.println("Running core "+myCoreNumber+" now switching to: "+this.programFileId);
                         this.programTime = initialContext.getProgramTime();
+                        this.programInitTime = initialContext.getInitTime() < 0? this.clock: initialContext.getInitTime();
                         instruction.setRegisters(this.registers);
-                        currentProgramDuration = 0;
+                        currentQuantumDuration = 0;
                     }
                 }
 
@@ -166,16 +164,17 @@ public class Core implements Runnable {
             this.pc = initialContext.getPc();
             this.registers = initialContext.getRegisters();
             this.programFileId = initialContext.getIdHilillo();
+            java.lang.System.out.println("Running core "+myCoreNumber+" with: "+this.programFileId);
             this.programTime = 0;
+            this.programInitTime = 0;
+
         }
     }
 
     public void touchBarrier(){
         waitingCores.incrementAndGet();
-        //System.out.println("enetringWaiting " + myCoreNumber);
         while(waitingCores.get() < numberActiveCores.get() && numberActiveCores.get() > 1){
         }
-        //System.out.println("leaveingWAiting " + myCoreNumber);
         waitingCores.decrementAndGet();
     }
 

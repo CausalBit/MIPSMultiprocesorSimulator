@@ -8,10 +8,13 @@ public class Context {
     private int pc;
     private String idHilillo;
     private int programTime;
+    private int initTime;
+
 
     public Context(HashMap<String, Integer> registers, int pc) {
         this.registers = registers;
         this.pc = pc;
+        initTime = -1;
     }
 
     public HashMap<String, Integer> getRegisters() {
@@ -44,5 +47,13 @@ public class Context {
 
     public void setProgramTime(int programTime) {
         this.programTime = programTime;
+    }
+
+    public int getInitTime() {
+        return initTime;
+    }
+
+    public void setInitTime(int initTime) {
+        this.initTime = initTime;
     }
 }
