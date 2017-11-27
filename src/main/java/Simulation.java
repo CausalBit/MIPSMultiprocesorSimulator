@@ -17,20 +17,21 @@ public class Simulation {
         //TODO cola de semaphore general para el barrier para los 3 cores
         //pide quantum
         //es necesario crearlas cachesdata aqui ya que se deben compartir para cada procesador , se pueden compartir en algun momento
-        System.out.println("Please enter the quantum: ");
+       /* System.out.println("Please enter the quantum: ");
         Scanner scanner = new Scanner(System.in);
         int inQuantum = scanner.nextInt();
-        System.out.println("Your quantum is " + inQuantum+"\n");
+        System.out.println("Your quantum is " + inQuantum+"\n");*/
 
         //System.out.println("Indicate the  mode of execution, fast (0), slow (1): ");
         //int modeExecution = scanner.nextInt();
 
         int clock = 0;
-        int quantum = inQuantum;
+        int quantum = 30;
 
         AtomicInteger numberActiveCores = new AtomicInteger(3);
+        AtomicInteger waitingCores = new AtomicInteger(0);
 
-        CyclicBarrier barrier = new CyclicBarrier(3);
+       // CyclicBarrier barrier = new CyclicBarrier(3);
 
 
         PhysicalMemory P0memory = new PhysicalMemory(16,0,24,16, Constant.SHARED_DATA_MEMORY_0);
@@ -79,9 +80,9 @@ public class Simulation {
 
         Bus bus = new Bus(processors);
 
-        Core core0 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, Constant.CORE_0,Constant.INSTRUCTIONS_CACHE_0, Constant.DATA_CACHE_0);
-        Core core1 = new Core(Constant.PROCESSOR_0, barrier, clock, quantum, numberActiveCores, bus, Constant.CORE_1,Constant.INSTRUCTIONS_CACHE_1, Constant.DATA_CACHE_1);
-        Core core2 = new Core(Constant.PROCESSOR_1, barrier, clock, quantum, numberActiveCores, bus, Constant.CORE_2,Constant.INSTRUCTIONS_CACHE_2, Constant.DATA_CACHE_2);
+        Core core0 = new Core(Constant.PROCESSOR_0, clock, quantum, numberActiveCores, waitingCores, bus, Constant.CORE_0,Constant.INSTRUCTIONS_CACHE_0, Constant.DATA_CACHE_0);
+        Core core1 = new Core(Constant.PROCESSOR_0, clock, quantum, numberActiveCores, waitingCores,  bus, Constant.CORE_1,Constant.INSTRUCTIONS_CACHE_1, Constant.DATA_CACHE_1);
+        Core core2 = new Core(Constant.PROCESSOR_1, clock, quantum, numberActiveCores, waitingCores,  bus, Constant.CORE_2,Constant.INSTRUCTIONS_CACHE_2, Constant.DATA_CACHE_2);
 
             Thread runningCore0 = new Thread(core0);
             Thread runningCore1 = new Thread(core1);

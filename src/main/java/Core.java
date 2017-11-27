@@ -14,6 +14,7 @@ public class Core implements Runnable {
     private int quantum;
     private int pc;
     private AtomicInteger numberActiveCores;
+    private AtomicInteger waitingCores;
     private CyclicBarrier barrier;
     private HashMap<String, Integer> registers;
     private Queue<Context> coreContexts;
@@ -33,14 +34,14 @@ public class Core implements Runnable {
     private boolean coreFinished = false;
 
     public Core(String parentProcessorId,
-                CyclicBarrier barrier,
                 int clock, int quantum,
                 AtomicInteger numberActiveCores,
+                AtomicInteger waitingCores,
                 Bus bus,
                 int myCoreNumber,
                 String myNameCache, String myDataCacheName) {
 
-        this.barrier = barrier;
+
         this.bus = bus;
         this.quantum = quantum;
         this.numberActiveCores = numberActiveCores;
@@ -50,6 +51,7 @@ public class Core implements Runnable {
         this.myNameCache = myNameCache;
         this.pc = 0;
         this.myDataCacheName = myDataCacheName;
+        this.waitingCores = waitingCores;
 
         this.currentProgramIsFinished = false;
         this.currentProgramDuration = 0;
@@ -74,9 +76,9 @@ public class Core implements Runnable {
 
     public void run() {
 
-        while (numberActiveCores.get()>0) {
+        while (!coreFinished) {
 
-            if(!coreFinished) {
+               touchBarrier();
                 /*fecth new and decodeAndExceute*/
 
                if (instructionDuration == 0) {
@@ -144,14 +146,6 @@ public class Core implements Runnable {
                         currentProgramDuration = 0;
                     }
                 }
-            }
-
-            //Barrera para todos los threads.
-            try {
-                this.barrier.await();
-            } catch (Exception ex) {
-
-            }
 
 
         }
@@ -172,6 +166,12 @@ public class Core implements Runnable {
             this.programFileId = initialContext.getIdHilillo();
             this.programTime = 0;
         }
+    }
+
+    public void touchBarrier(){
+        waitingCores.incrementAndGet();
+        while(waitingCores.get() < numberActiveCores.get()){}
+        waitingCores.decrementAndGet();
     }
 
 
