@@ -1,7 +1,8 @@
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.lang.System;
 
@@ -11,6 +12,19 @@ import java.lang.System;
  */
 public class Simulation {
 
+    public static String getPublicPath(){
+        String filanPath = "";
+        try {
+
+            File jarPath=new File(Simulation.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String propertiesPath=jarPath.getParentFile().getParentFile().getAbsolutePath();
+            //System.out.println(" propertiesPath-"+propertiesPath);
+            filanPath = propertiesPath;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return filanPath;
+    }
 
     public static void main(String [ ] args) {
         //Aquí se van a crear todos las partes simuladas del sistema. Como es la memoria, bus, etc.
@@ -22,8 +36,10 @@ public class Simulation {
         int inQuantum = scanner.nextInt();
         System.out.println("Your quantum is " + inQuantum+"\n\n");
 
-        //System.out.println("Indicate the  mode of execution, fast (0), slow (1): ");
-        //int modeExecution = scanner.nextInt();
+        System.out.println("Indicate the  mode of execution, fast (0), slow (1): ");
+        int modeExecution = scanner.nextInt();
+
+        boolean master = ( modeExecution == 1 );
 
         int clock = 0;
         int quantum = inQuantum;
@@ -57,8 +73,10 @@ public class Simulation {
         Directory directory0 = new Directory(16, 0, Constant.DIRECTORY_0);
         Directory directory1 = new Directory(8, 16,Constant.DIRECTORY_1);
 
-        Processor processor0 = new Processor(processorOneCaches, P0memory, directory0, Constant.PATH_1);
-        Processor processor1 = new Processor(processorTwoCaches, P1memory, directory1, Constant.PATH_2);
+        String parentPath = getPublicPath();
+       // System.out.println(parentPath+Constant.PATH_1);
+        Processor processor0 = new Processor(processorOneCaches, P0memory, directory0, parentPath+Constant.PATH_1);
+        Processor processor1 = new Processor(processorTwoCaches, P1memory, directory1, parentPath+Constant.PATH_2);
 
         Map<String, Processor> processors = new HashMap<String, Processor>();
         processors.put(Constant.PROCESSOR_0, processor0);
@@ -78,11 +96,12 @@ public class Simulation {
        // P0memory.printInstMem();
         //P1memory.printInstMem();
 
+
         Bus bus = new Bus(processors);
 
-        Core core0 = new Core(Constant.PROCESSOR_0, clock, quantum, numberActiveCores, waitingCores, bus, Constant.CORE_0,Constant.INSTRUCTIONS_CACHE_0, Constant.DATA_CACHE_0);
-        Core core1 = new Core(Constant.PROCESSOR_0, clock, quantum, numberActiveCores, waitingCores,  bus, Constant.CORE_1,Constant.INSTRUCTIONS_CACHE_1, Constant.DATA_CACHE_1);
-        Core core2 = new Core(Constant.PROCESSOR_1, clock, quantum, numberActiveCores, waitingCores,  bus, Constant.CORE_2,Constant.INSTRUCTIONS_CACHE_2, Constant.DATA_CACHE_2);
+        Core core0 = new Core(Constant.PROCESSOR_0, clock, quantum, numberActiveCores, waitingCores, bus, Constant.CORE_0,Constant.INSTRUCTIONS_CACHE_0, Constant.DATA_CACHE_0, master);
+        Core core1 = new Core(Constant.PROCESSOR_0, clock, quantum, numberActiveCores, waitingCores,  bus, Constant.CORE_1,Constant.INSTRUCTIONS_CACHE_1, Constant.DATA_CACHE_1, false);
+        Core core2 = new Core(Constant.PROCESSOR_1, clock, quantum, numberActiveCores, waitingCores,  bus, Constant.CORE_2,Constant.INSTRUCTIONS_CACHE_2, Constant.DATA_CACHE_2, false);
 
             Thread runningCore0 = new Thread(core0);
             Thread runningCore1 = new Thread(core1);
@@ -110,5 +129,7 @@ public class Simulation {
 
         //También es la entrada del toda las simulación.
         //Después de crear estas, se puede hacer el boot up.
+
+
     }
 }

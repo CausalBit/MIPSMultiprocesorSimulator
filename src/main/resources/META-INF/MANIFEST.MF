@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: /home/irvin/Documents/Universidad/VIIISemester/Archi/MIPSMultiprocesorSimulator/src/main/java/Simulation.java
+Main-Class: Simulation
+

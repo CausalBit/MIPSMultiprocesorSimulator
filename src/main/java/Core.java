@@ -1,6 +1,9 @@
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.lang.System;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -24,6 +27,7 @@ public class Core implements Runnable {
     private String programFileId;
     private int programTime;
     private int programInitTime;
+    private boolean master;
 
 
     private boolean currentProgramIsFinished;
@@ -37,7 +41,7 @@ public class Core implements Runnable {
                 AtomicInteger waitingCores,
                 Bus bus,
                 int myCoreNumber,
-                String myNameCache, String myDataCacheName) {
+                String myNameCache, String myDataCacheName, boolean master) {
 
 
         this.bus = bus;
@@ -57,6 +61,7 @@ public class Core implements Runnable {
         this.coreFinished = false;
         this.programFileId = "";
         this.programTime = 0;
+        this.master = master;
 
 
         registers = new HashMap<String, Integer>();
@@ -73,6 +78,7 @@ public class Core implements Runnable {
     }
 
     public void run() {
+        Scanner scanner = new Scanner(System.in);
 
         while (!coreFinished) {
 
@@ -100,6 +106,15 @@ public class Core implements Runnable {
                 instructionDuration--;
                 if(instructionDuration == 0){ //Cuando un instruccion termine en el ciclo acutal, entonces agregar a duracion de tipo quantum
                     currentQuantumDuration++;
+                }
+
+                if(master){
+                    System.out.println("\n\n Presione cualquier número > 0 para la siguiente instrucción\n o presione 0 para salir rápido: \n\n");
+                    int modeExecution = scanner.nextInt();
+                    if(modeExecution==0){
+                        master = false;
+                    }
+                    printGuts();
                 }
 
                 //La verificación del cuantum está aquí.
@@ -176,6 +191,48 @@ public class Core implements Runnable {
         while(waitingCores.get() < numberActiveCores.get() && numberActiveCores.get() > 1){
         }
         waitingCores.decrementAndGet();
+    }
+
+    public void printGuts(){
+
+        if(master) {
+            Processor p0 = bus.getProcessor(Constant.PROCESSOR_0);
+            Processor p1 = bus.getProcessor(Constant.PROCESSOR_1);
+
+            Directory directory0 = p0.getLocalDirectory();
+            Directory directory1 = p1.getLocalDirectory();
+            PhysicalMemory P0memory = p0.getLocalPhysicalMemory();
+            PhysicalMemory P1memory = p1.getLocalPhysicalMemory();
+            Map<String, Cache> cachep0 = p0.getCaches();
+            Map<String, Cache> cachep1 = p1.getCaches();
+
+
+            directory0.printDirectoryData();
+            directory1.printDirectoryData();
+            P0memory.printSharedMem();
+            P1memory.printSharedMem();
+
+            for (Map.Entry<String, Cache> e : cachep0.entrySet()) {
+                if (e.getValue().cacheType == Constant.DATA_CACHE_TYPE) {
+                    e.getValue().printCacheData();
+                }
+            }
+            for (Map.Entry<String, Cache> e : cachep1.entrySet()) {
+                if (e.getValue().cacheType == Constant.DATA_CACHE_TYPE) {
+                    e.getValue().printCacheData();
+                }
+            }
+
+
+        }
+        String finalRegisters = "";
+        for (HashMap.Entry<String, Integer> entry : registers.entrySet()) {
+            //if(entry.getValue() != -1){
+            finalRegisters += " R" + entry.getKey() + ": " + entry.getValue() + ", ";
+            // }
+
+        }
+        System.out.println("\nBY STEP. Core: "+myCoreNumber+" in cycle: "+this.clock+" |  Registers :"+finalRegisters+"\n");
     }
 
 

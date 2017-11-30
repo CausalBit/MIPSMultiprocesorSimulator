@@ -85,8 +85,8 @@ public final class Constant {
     public static final String PROCESSOR_1 = "processor1";
 
     //PATHS TO HILILLO
-    public static final String PATH_1 = "./src/main/threads/hilillosP0";
-    public static final String PATH_2 = "./src/main/threads/hilillosP1";
+    public static final String PATH_1 = "/Proyecto/threads/hilillosP0";
+    public static final String PATH_2 = "/Proyecto/threads/hilillosP1";
 
     //hit or miss
     public static final int HIT_DATA_CACHE = -2;
