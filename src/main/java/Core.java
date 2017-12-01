@@ -79,13 +79,13 @@ public class Core implements Runnable {
 
     public void run() {
         Scanner scanner = new Scanner(System.in);
-
+        boolean instructionFinished = false;
         while (!coreFinished) {
 
-               touchBarrier();
+               touchBarrier();//el barrier por instruccion no ciclos
                 /*fetch new and decodeAndExceute*/
 
-               if (instructionDuration == 0) {
+            //   if (instructionDuration == 0) { siempre va a ser 0 al llegar aqui
 
                    instruction.setPC(pc);
 
@@ -96,17 +96,28 @@ public class Core implements Runnable {
                     }catch(Exception ex){
                         ex.printStackTrace();
                     }
+                   if(pc != instruction.getPC()){//instruction abortada
+                        instructionFinished = true;
 
+                        currentQuantumDuration++;//se ejecuto una instruccion
+                       System.out.println("una instruccion terminada :"+myCoreNumber+"\tquantum: "+currentQuantumDuration);
+                   }else{
+                       System.out.println("una instruccion ABORT :"+myCoreNumber+"\tquantum: "+currentQuantumDuration);
+
+                   }
                     pc = instruction.getPC();
                     currentProgramIsFinished = instruction.programIsFinished();
-               }
+              // }
                 //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
-                clock++;
-                this.programTime++;
-                instructionDuration--;
-                if(instructionDuration == 0){ //Cuando un instruccion termine en el ciclo acutal, entonces agregar a duracion de tipo quantum
-                    currentQuantumDuration++;
+                while (instructionDuration != 0){//simular ciclos
+
+                    clock++;
+                    this.programTime++;
+                    instructionDuration--;
                 }
+               // if(instructionDuration == 0){ //Cuando un instruccion termine en el ciclo acutal, entonces agregar a duracion de tipo quantum
+                   // currentQuantumDuration++;
+               // }
 
                 if(master){
                     System.out.println("\n\n Presione cualquier número > 0 para la siguiente instrucción\n o presione 0 para salir rápido: \n\n");
@@ -116,7 +127,7 @@ public class Core implements Runnable {
                     }
                     printGuts();
                 }
-
+                touchBarrier();//el barrier por instruccion no ciclos
                 //La verificación del cuantum está aquí.
                 if (instructionDuration == 0 && currentQuantumDuration >= quantum || currentProgramIsFinished) {//aqui va quauntum TODO
                     //java.lang.Simulation.out.println("------------quantum acabado------------");
@@ -132,7 +143,7 @@ public class Core implements Runnable {
                         java.lang.System.out.println("\nProgramFile (Hilillo): "+this.programFileId+
                                 " finished in Prcessor: "+parentProcessorId+" |     Initial Time: "+this.programInitTime+" |    Final Time: "+this.clock+
                                 " |     Program Time "+this.programTime);
-
+System.out.println("quantum current "+currentQuantumDuration);
                         String finalRegisters = "";
                         for(HashMap.Entry<String, Integer> entry: registers.entrySet()){
                             //if(entry.getValue() != -1){
@@ -142,7 +153,7 @@ public class Core implements Runnable {
                         }
                         System.out.println("Core: "+myCoreNumber+" |  Registers :"+finalRegisters+"\n");
                     }
-
+touchBarrier();
                     if(coreContexts.isEmpty()){//If the next context is null, then the core shuts down.
                         java.lang.System.out.println("------------All programs finished for core: "+myCoreNumber+"------------\n\n");
                         numberActiveCores.decrementAndGet();//The shut down implies decreasing the numberActiveCores by one. :D
