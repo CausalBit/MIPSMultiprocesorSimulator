@@ -298,10 +298,10 @@ public class DataManager {
     }
 
    public void releaseAllResources(){
-   //    int initSize = lockedResources.size();
+       int initSize = lockedResources.size();
    // for(int resourcesQuantity = 0 ; resourcesQuantity < initSize ; resourcesQuantity++){
-    //    bus.setFree(lockedResources.pop());//WARNING
-  //  }
+   //     bus.setFree(lockedResources.pop());//WARNING
+   // }
        bus.freeOwnedByCurrentThread();
    }
 

@@ -3,7 +3,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.lang.System;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -79,55 +78,41 @@ public class Core implements Runnable {
 
     public void run() {
         Scanner scanner = new Scanner(System.in);
-        boolean instructionFinished = false;
         while (!coreFinished) {
 
-               touchBarrier();//el barrier por instruccion no ciclos
-                /*fetch new and decodeAndExceute*/
+            touchBarrier();//el barrier por instruccion no ciclos
+                instruction.setPC(pc);
+                try {
+                    int[] currentIntruction = instruction.fetchInstruction();//Get Instruction
+                    instruction.decodeAndExecute(currentIntruction);
+                    instructionDuration = instruction.getDuration();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                if (pc != instruction.getPC()) {//instruction NO abortada
+                    currentQuantumDuration++;
+                }
 
-            //   if (instructionDuration == 0) { siempre va a ser 0 al llegar aqui
+                pc = instruction.getPC();
+                currentProgramIsFinished = instruction.programIsFinished();
 
-                   instruction.setPC(pc);
-
-                    try {
-                        int[] currentIntruction = instruction.fetchInstruction();//Get Instruction
-                        instruction.decodeAndExecute(currentIntruction);
-                        instructionDuration = instruction.getDuration();
-                    }catch(Exception ex){
-                        ex.printStackTrace();
-                    }
-                   if(pc != instruction.getPC()){//instruction abortada
-                        instructionFinished = true;
-
-                        currentQuantumDuration++;//se ejecuto una instruccion
-                       System.out.println("una instruccion terminada :"+myCoreNumber+"\tquantum: "+currentQuantumDuration);
-                   }else{
-                       System.out.println("una instruccion ABORT :"+myCoreNumber+"\tquantum: "+currentQuantumDuration);
-
-                   }
-                    pc = instruction.getPC();
-                    currentProgramIsFinished = instruction.programIsFinished();
-              // }
                 //Cuando termine de correr una instrucción, o parte de esta, se incrementa el reloj.
-                while (instructionDuration != 0){//simular ciclos
-
+                while (instructionDuration != 0) {//simular ciclos
                     clock++;
                     this.programTime++;
                     instructionDuration--;
                 }
-               // if(instructionDuration == 0){ //Cuando un instruccion termine en el ciclo acutal, entonces agregar a duracion de tipo quantum
-                   // currentQuantumDuration++;
-               // }
 
-                if(master){
-                    System.out.println("\n\n Presione cualquier número > 0 para la siguiente instrucción\n o presione 0 para salir rápido: \n\n");
-                    int modeExecution = scanner.nextInt();
-                    if(modeExecution==0){
-                        master = false;
-                    }
-                    printGuts();
+            if(master){
+                System.out.println("\n\n Presione cualquier número > 0 para la siguiente instrucción\n o presione 0 para salir rápido: \n\n");
+                int modeExecution = scanner.nextInt();
+                if(modeExecution==0){
+                    master = false;
                 }
-                touchBarrier();//el barrier por instruccion no ciclos
+                printGuts();
+            }
+            bus.freeOwnedByCurrentThread();
+            touchBarrier();//el barrier por instruccion no ciclos
                 //La verificación del cuantum está aquí.
                 if (instructionDuration == 0 && currentQuantumDuration >= quantum || currentProgramIsFinished) {//aqui va quauntum TODO
                     //java.lang.Simulation.out.println("------------quantum acabado------------");
@@ -147,11 +132,12 @@ System.out.println("quantum current "+currentQuantumDuration);
                         String finalRegisters = "";
                         for(HashMap.Entry<String, Integer> entry: registers.entrySet()){
                             //if(entry.getValue() != -1){
-                                finalRegisters+=" R"+entry.getKey()+": "+entry.getValue()+", ";
+                                finalRegisters+=" R"+entry.getKey()+": "+entry.getValue()+"\n ";
                            // }
 
                         }
                         System.out.println("Core: "+myCoreNumber+" |  Registers :"+finalRegisters+"\n");
+                        bus.freeOwnedByCurrentThread();
                     }
 touchBarrier();
                     if(coreContexts.isEmpty()){//If the next context is null, then the core shuts down.
