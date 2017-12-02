@@ -29,252 +29,422 @@ public class DataManager {
        this.cacheLocalId = bus.getProcessor(processorId).getCacheIdbyCoreId(myCoreId);
        this.localCache  = bus.getProcessorById(processorId).getDataCacheByCoreId(myCoreId);
        this.localDirectory = bus.getProcessorById(processorId).getLocalDirectory();
+       this.localMem = bus.getProcessor(processorId).getLocalPhysicalMemory();
        lockedResources = new Stack<String>();
    }
    public int[] loadWordProcedure(int wordNumber, int blockNumber){
         this.duration = 0;
        //Bock the local cache!
        if (!bus.request(cacheLocalId)) {
-           releaseAllResources();
+           bus.freeOwnedByCurrentThread();
            return Constant.ABORT;
        }
-       addLockableResource(cacheLocalId);
-       int victimBlock = checkCache(blockNumber, localCache);
 
+       int blockInCache = localCache.getBlockNumberInCachePosition(blockNumber);
 
-       if (victimBlock == Constant.HIT_DATA_CACHE) {
-           int[] resultingWord = localCache.readWordFromCache(blockNumber, wordNumber);
-           return resultingWord; //return the desired word, because it is a HIT!
-       }
-
-       //From this point on, we are dealing with a MISS :(
-       String victimBlockDirectoryId = "";
-
-       if (victimBlock != Constant.I){//If it is invalid, victimBlock is a -1 for invalid.
-
-           Directory victimBlockDirectory = getDirectoryByBlock(victimBlock);//Let's identify the directory of the desired block.
-           victimBlockDirectoryId =  victimBlockDirectory.getDirectoryID();
-           //Now, let's attempt
-           if(!bus.request(victimBlockDirectoryId)){
-               releaseAllResources();
-               return Constant.ABORT; //We couldn't get the resource, so we ABORT!
-           }
-           addLockableResource(victimBlockDirectoryId); //Because we are going to secure another secure, we need
-           //to add the previous obtain resource in a stack to make sure to free it before aborting.
-
-           int victimBlockStateInDirectory = victimBlockDirectory.getBlockState(victimBlock);
-
-           if(victimBlockStateInDirectory==Constant.M){
-               if(victimBlockDirectory.getExistenceInCore(victimBlock, myCoreId)){
-                    //Save in memory the victim block, before writing on the cache.
-                   String victimBlockMemoryId = getIdPhysicalMemory(victimBlock);
-                   if(!bus.request(victimBlockMemoryId)){
-                       releaseAllResources();
-                       return Constant.ABORT;
-                   }
-                   //We are not going to request any other resource, allow this one memory outside of the resources stack.
-                   writeBlockToMemory(victimBlock,getPhysicalMemoryByBlock(victimBlock), localCache);
-                   victimBlockDirectory.setExistenceInCore(victimBlock,myCoreId, Constant.OFF);//solo es necesario para el que estaba en M on bit igual a 1
-                   victimBlockDirectory.setBlockState(victimBlock,Constant.U);
-                   bus.setFree(victimBlockMemoryId);
-               }//If it's in the M state, on a different cache than the local cache, we don't care.
-           }else{//This is actually in the C state.
-               if(victimBlockDirectory.getExistenceInCore(victimBlock, myCoreId)){
-                   victimBlockDirectory.setExistenceInCore(victimBlock,myCoreId, Constant.OFF);
-               }
-               //TODO refactor this boy!
-               if(!victimBlockDirectory.getExistenceInCore(victimBlock,Constant.CORE_0) &&
-                       !victimBlockDirectory.getExistenceInCore(victimBlock, Constant.CORE_1) &&
-                       !victimBlockDirectory.getExistenceInCore(victimBlock,Constant.CORE_2)){
-                   victimBlockDirectory.setBlockState(victimBlock,Constant.U);
-               }
-
-           }
-           localCache.setBlockState(victimBlock,Constant.I);//Has the requirement of actually having the victimBlock to set the state.
-       }//fin de no invalido
-       //FOR ALL!!
-
-       Directory targetDirectory = getDirectoryByBlock(blockNumber);
-       if(!victimBlockDirectoryId.equals(targetDirectory.getDirectoryID())){
-           if(!victimBlockDirectoryId.equals("")) {
-               removeLockableResource(victimBlockDirectoryId);
-               bus.setFree(victimBlockDirectoryId);
+       if(blockInCache == blockNumber){
+           int blockState = localCache.getBlockState(blockInCache);
+           if(blockState == Constant.M && blockState == Constant.C){
+               //THIS IS A HIT!!
+               int [] resultingWord = localCache.readWordFromCache(blockNumber,wordNumber);
+               bus.freeOwnedByCurrentThread();
+               return resultingWord;
            }
 
+           //Now we are dealing with an invalidated block.
+           //Let's check the directory to see if it is in some other cache.
+           Directory targetDirectory = getDirectoryByBlock(blockNumber);
            if(!bus.request(targetDirectory.getDirectoryID())){
-               releaseAllResources();
-               return Constant.ABORT; //We couldn't get the resource, so we ABORT!
-           }
-           addLockableResource(targetDirectory.getDirectoryID());
-       }
-
-       PhysicalMemory targetMemory = getPhysicalMemoryByBlock(blockNumber);
-       if(!bus.request(targetMemory.getIdSharedMem())){
-           releaseAllResources();
-           return Constant.ABORT; //We couldn't get the resource, so we ABORT!
-       }
-
-       if(targetDirectory.getBlockState(blockNumber) == Constant.M){
-           addLockableResource(targetMemory.getIdSharedMem());
-           Cache targetCache = getCacheFromDirectoryBlockOnModified(targetDirectory,blockNumber);
-           //TODO precondition with null targetCache
-           if(!bus.request(targetCache.getCacheID()) ){
-               releaseAllResources();
+               bus.freeOwnedByCurrentThread();
                return Constant.ABORT;
            }
 
-           writeBlockToMemory(blockNumber, targetMemory, targetCache);
-           writeBlockCacheToCache(targetCache,localCache,blockNumber);
-           targetDirectory.setBlockState(blockNumber, Constant.C);
-           targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.ON);
-           bus.setFree(targetCache.getCacheID());
-
-       }else{//if state of cache is C or I
-          // se averigua la memoria y se intenta bloquear , all afuera del if
-           if(targetDirectory.getBlockState(blockNumber) != Constant.C){
-               targetDirectory.setBlockState(blockNumber,Constant.C);
+           //We need to pull the block from memory to local cache.
+           PhysicalMemory targetMemory = getPhysicalMemoryByBlock(blockNumber);
+           if(!bus.request(targetMemory.getIdSharedMem())){
+               bus.freeOwnedByCurrentThread();
+               return Constant.ABORT;
            }
-           targetDirectory.setExistenceInCore(blockNumber, myCoreId, Constant.ON);
-           writeFromMemoryToCache(blockNumber, targetMemory,localCache);
-           bus.setFree(targetMemory.getIdSharedMem());//TODO, duda de si es necesario liberar ya, ya está en la cola y ahi lo libera
+
+           increaseDurationOnDirectoryAccess(targetDirectory);
+           if(targetDirectory.getBlockState(blockNumber) == Constant.M){
+
+               //Let's get the cache where it modified.
+               Cache otherCache = getCacheFromDirectoryBlockOnModified(targetDirectory,blockNumber);
+
+               if(!bus.request(otherCache.getCacheID())){
+                   bus.freeOwnedByCurrentThread();
+                   return Constant.ABORT;
+               }
+
+               //Since this block is modified, we need to store back in to memory,
+               increaseDurationOnMemoryRW(targetMemory);
+               writeBlockToMemory(blockNumber, targetMemory,otherCache);
+               otherCache.setBlockState(blockNumber,Constant.C);
+               bus.setFree(otherCache.getCacheID());
+
+
+           }
+
+           increaseDurationOnMemoryRW(targetMemory);
+           writeFromMemoryToCache(blockNumber,targetMemory,localCache);
+           localCache.setBlockState(blockInCache,Constant.C);
+           bus.setFree(targetMemory.getIdSharedMem());
+           targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.ON);
+           targetDirectory.setBlockState(blockNumber,Constant.C); //if it's already in C, it doesn't matter.
+
+           int [] resultingWord = localCache.readWordFromCache(blockNumber,wordNumber);
+           bus.freeOwnedByCurrentThread();
+           return resultingWord;
+
+       }
+
+       //Now we have a miss based on a different block number in cache.
+       //So first, we need to decide what to do about this other block number.
+       //Though, we have to make sure we are not talking about a miss because the cache is empty (NULL BLOCK NUMBER)
+
+       /****LET's HANDLE OUT A VICTIM NUMBER****/
+       Directory victimDirectory = null;
+       PhysicalMemory victimMemory = null;
+
+       if(blockInCache != Constant.NULL_BLOCK_NUMBER) {
+           int blockInCacheState = localCache.getBlockState(blockInCache);
+
+           if(blockInCacheState == Constant.M){
+
+                //We need to get the directory to update to U.
+               victimDirectory = getDirectoryByBlock(blockInCache);
+               if(!bus.request(victimDirectory.getDirectoryID())){
+                   bus.freeOwnedByCurrentThread();
+                   return Constant.ABORT;
+               }
+
+               //We need to pull the block from memory to local cache.
+               victimMemory = getPhysicalMemoryByBlock(blockInCache);
+               if(!bus.request(victimMemory.getIdSharedMem())){
+                   bus.freeOwnedByCurrentThread();
+                   return Constant.ABORT;
+               }
+
+               increaseDurationOnMemoryRW(victimMemory);
+               writeBlockToMemory(blockInCache,victimMemory,localCache);
+               bus.setFree(victimMemory.getIdSharedMem()); //We won't need the memory any longer.
+               increaseDurationOnDirectoryAccess(victimDirectory);
+               victimDirectory.setBlockState(blockInCache,Constant.U);
+
+           }else if( blockInCacheState == Constant.C ){
+
+               victimDirectory = getDirectoryByBlock(blockInCache);
+               if(!bus.request(victimDirectory.getDirectoryID())){
+                   bus.freeOwnedByCurrentThread();
+                   return Constant.ABORT;
+               }
+
+               increaseDurationOnDirectoryAccess(victimDirectory);
+               victimDirectory.setExistenceInCore(blockInCache,myCoreId,Constant.OFF);
+
+               if (victimDirectory.getExistenceInCore(blockInCache, Constant.CORE_0)
+                       && victimDirectory.getExistenceInCore(blockInCache, Constant.CORE_1)
+                       && victimDirectory.getExistenceInCore(blockInCache, Constant.CORE_2)) {
+
+                   victimDirectory.setBlockState(blockInCache, Constant.U);
+               }
+           }
 
        }
 
 
+       //At this point, we have a block in cache which either null, or invalidated. We can just
+       //pull the block from memory and read it from there.
+       //However, before we read from memory, we have to deal with a block number in other cases in
+       //states like M or C.
+
+       /****LET's HANDLE OUT ACTUAL BLOCK NUMBER****/
+       //Let's get our target directory if haven't done so.
+       Directory targetDirectory = getDirectoryByBlock(blockNumber);
+       if(victimDirectory == null || !targetDirectory.getDirectoryID().equals(victimDirectory.getDirectoryID())){
+           if(victimDirectory != null ){
+               bus.setFree(victimDirectory.getDirectoryID()); //Release victim block's directory because it is no longer needed.
+           }
+           if(!bus.request(targetDirectory.getDirectoryID())){
+               bus.freeOwnedByCurrentThread();
+               return Constant.ABORT;
+           }
+
+       }
+
+       //Let's get our target memory if haven't done so.
+       PhysicalMemory targetMemory = getPhysicalMemoryByBlock(blockNumber);
+       if(victimMemory == null || !targetMemory.getIdSharedMem().equals(victimDirectory.getDirectoryID())){
+           if(victimMemory != null) {
+               bus.setFree(victimMemory.getIdSharedMem()); //Release victim block's memory because it is no longer needed.
+           }
+           if(!bus.request(targetMemory.getIdSharedMem())){
+               bus.freeOwnedByCurrentThread();
+               return Constant.ABORT;
+           }
+       }
+
+       //The block number can actually be shared (C), or modified(M) in other caches
+       increaseDurationOnDirectoryAccess(targetDirectory);
+       if(targetDirectory.getBlockState(blockNumber) == Constant.M){
+
+           //Let's get the cache where it modified.
+           Cache otherCache = getCacheFromDirectoryBlockOnModified(targetDirectory,blockNumber);
+
+           if(!bus.request(otherCache.getCacheID())){
+               bus.freeOwnedByCurrentThread();
+               return Constant.ABORT;
+           }
+
+           //Since this block is modified, we need to store back in to memory
+           increaseDurationOnMemoryRW(targetMemory);
+           writeBlockToMemory(blockNumber, targetMemory,otherCache);
+           otherCache.setBlockState(blockNumber,Constant.C);
+           bus.setFree(otherCache.getCacheID());
+
+
+       }
+
+       increaseDurationOnMemoryRW(targetMemory);
+       writeFromMemoryToCache(blockNumber,targetMemory,localCache);
        localCache.setBlockState(blockNumber,Constant.C);
+       bus.setFree(targetMemory.getIdSharedMem());
+       targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.ON);
+       targetDirectory.setBlockState(blockNumber,Constant.C); //if it's already in C, it doesn't matter.
+
        int [] resultingWord = localCache.readWordFromCache(blockNumber,wordNumber);
-       releaseAllResources();
+       bus.freeOwnedByCurrentThread();
        return resultingWord;
+
    }
 
-   public int[] storeWordProcedure(int wordNumber, int blockNumber, int[] data){
-        duration=0;
+   public int[] storeWordProcedure(int wordNumber, int blockNumber, int[] data) {
+       duration = 0;
        //Let's block our cache
-       if(!bus.request(localCache.getCacheID())){
+       if (!bus.request(localCache.getCacheID())) {
            return Constant.ABORT;
        }
-       addLockableResource(localCache.getCacheID());
 
-       int resultCacheCheckBlock = checkCache(blockNumber, localCache);
-       String victimBlockDirectoryId = "";
+       int blockNumberInCache = localCache.getBlockNumberInCachePosition(blockNumber);
+       if (blockNumber == blockNumberInCache) {
+           int blockInCacheState = localCache.getBlockState(blockNumberInCache);
 
-       if(resultCacheCheckBlock != Constant.I){
-
-           if(resultCacheCheckBlock == Constant.HIT_DATA_CACHE){
-
-               Directory targetDirectory = getDirectoryByBlock(blockNumber);
-               if(!bus.request(targetDirectory.getDirectoryID())){
-                   releaseAllResources();
-                   return Constant.ABORT;
-               }
-               addLockableResource(targetDirectory.getDirectoryID());
-
-               //Update caches with Shared status.
-               int[] updateResult = propateStateInCaches(Constant.I,blockNumber,targetDirectory);
-               if(updateResult==Constant.ABORT){
-                   releaseAllResources();
-                   return Constant.ABORT;
-               }
-
-               targetDirectory.setBlockState(blockNumber,Constant.M);
-               targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.ON);
-               localCache.setBlockState(blockNumber,Constant.M);
-               localCache.writeWordOnCache(blockNumber,wordNumber,data);
-               releaseAllResources();
-               return Constant.COMPLETED;
-           }//hit end
-           int victimBlock = resultCacheCheckBlock;
-           Directory victimDirectory = getDirectoryByBlock(victimBlock);
-           victimBlockDirectoryId = victimDirectory.getDirectoryID();
-
-           if(!bus.request(victimDirectory.getDirectoryID())){
-               releaseAllResources();
+           //We need to get the directory to invalidate the block in other caches.
+           Directory targetDirectory = getDirectoryByBlock(blockNumber);
+           if (!bus.request(targetDirectory.getDirectoryID())) {
+               bus.freeOwnedByCurrentThread();
                return Constant.ABORT;
            }
-           addLockableResource(victimDirectory.getDirectoryID());
-           int stateVictimBlock = victimDirectory.getBlockState(victimBlock);
 
-           if(stateVictimBlock== Constant.M && victimDirectory.getExistenceInCore(victimBlock,myCoreId)){
-               PhysicalMemory memoryVictimBlock = getPhysicalMemoryByBlock(victimBlock);
-               if(!bus.request(memoryVictimBlock.getIdSharedMem())){
-                   releaseAllResources();
-                   return  Constant.ABORT;
+           if (blockInCacheState == Constant.C) {
+
+               //Invalidate other caches! This will return incomplete if it is unable to obtain all necessary caches.
+               increaseDurationOnDirectoryAccess(targetDirectory);
+               int[] updateResult = propateStateInCaches(Constant.I, blockNumber, targetDirectory);
+               if (updateResult == Constant.ABORT) {
+                   bus.freeOwnedByCurrentThread();
+                   return Constant.ABORT;
                }
-                   //dont add to stack
-               writeBlockToMemory(victimBlock,memoryVictimBlock,localCache);
-               localCache.setBlockState(victimBlock,Constant.I);
-               victimDirectory.setBlockState(victimBlock,Constant.U);
-               victimDirectory.setExistenceInCore(victimBlock,myCoreId,Constant.OFF);
-               bus.setFree(memoryVictimBlock.getIdSharedMem());
 
-           }else{
-               victimDirectory.setExistenceInCore(victimBlock,myCoreId,Constant.OFF);
-               if(!victimDirectory.getExistenceInCore(victimBlock,Constant.CORE_0) &&
-                       !victimDirectory.getExistenceInCore(victimBlock, Constant.CORE_1) &&
-                       !victimDirectory.getExistenceInCore(victimBlock,Constant.CORE_2)){
-                   victimDirectory.setBlockState(victimBlock,Constant.U);
+
+           }else if (blockInCacheState == Constant.I) {
+               //We need to use the directory to see if the target block number is actually
+               //being used some place else, and then update it.
+
+               //And since the block is invalid in the local cache, we need to bring back
+               //the block from memory, even if this is a store.
+               //Since we are doing a "Write-Allocate" policy.
+               PhysicalMemory targetMemory = getPhysicalMemoryByBlock(blockNumber);
+               if (!bus.request(targetMemory.getIdSharedMem())) {
+                   bus.freeOwnedByCurrentThread();
+                   return Constant.ABORT;
+               }
+
+               increaseDurationOnDirectoryAccess(targetDirectory);
+               int blockStateOnDirectory = targetDirectory.getBlockState(blockNumber);
+               if (blockStateOnDirectory == Constant.C) {
+                   //This means that we need to invalidate this block in other caches.
+                   int[] updateResult = propateStateInCaches(Constant.I, blockNumber, targetDirectory);
+                   if (updateResult == Constant.ABORT) {
+                       bus.freeOwnedByCurrentThread();
+                       return Constant.ABORT;
+                   }
+               }
+
+               if (blockStateOnDirectory == Constant.M) {
+                   //This means that we need to invalidate this block in the other cache where it is modified,
+                   //Although, we need to store that block in memory, and allocate this block back into our cache.
+                   Cache targetCache = getCacheFromDirectoryBlockOnModified(targetDirectory, blockNumber);
+                   if (!bus.request(targetCache.getCacheID())) {
+                       bus.freeOwnedByCurrentThread();
+                       return Constant.ABORT;
+                   }
+                   //Change cache from M to I
+                   increaseDurationOnDirectoryAccess(targetDirectory);
+                   targetCache.setBlockState(blockNumber, Constant.I);
+                   increaseDurationOnMemoryRW(targetMemory);
+                   writeBlockToMemory(blockNumber, targetMemory, targetCache);
+                   int coreId = getCoreIdByCache(targetCache);
+                   targetDirectory.setExistenceInCore(blockNumber, coreId, Constant.OFF);
+                   bus.setFree(targetCache.getCacheID());
 
                }
-               localCache.setBlockState(victimBlock,Constant.I);
+
+               //The last case would be having block U (uncached), so we need to update the directory.
+               if (blockInCacheState == Constant.U) {
+                   increaseDurationOnDirectoryAccess(targetDirectory);
+                   targetDirectory.setExistenceInCore(blockNumber, myCoreId, Constant.ON);
+               }
+
+               increaseDurationOnMemoryRW(targetMemory);
+               writeFromMemoryToCache(blockNumber, targetMemory, localCache); //WRITE ALLOCATE!
+               bus.setFree(targetMemory.getIdSharedMem());
 
            }
-       }//not invalid end
+
+           //For everyone, we just write on the cache after making the previous, conditional changes.
+           localCache.writeWordOnCache(blockNumber, wordNumber, data);
+
+           if(blockInCacheState != Constant.M) {
+               localCache.setBlockState(blockNumber, Constant.M);
+               targetDirectory.setBlockState(blockNumber, Constant.M);
+           }
+
+           bus.freeOwnedByCurrentThread(); //Release all blocked resources!
+           return Constant.COMPLETED;
+       }
+
+       Directory victimDirectory = null;
+       PhysicalMemory victimMemory = null;
+
+       if(blockNumberInCache != Constant.NULL_BLOCK_NUMBER) {
+           /**LET'S HANDLE THE VICTIM BLOCK**/
+           //Ok, so at this point we a a different block in the cache, A.K.A. the victim block.
+           //blockNumberInCache is the victim block. Depending on it's state on the cache, we do different things.
+           int blockInCacheState = localCache.getBlockState(blockNumberInCache); //NOTICE: STATE FROM CACHE.
+           victimDirectory = getDirectoryByBlock(blockNumberInCache);
+            victimMemory = getPhysicalMemoryByBlock(blockNumberInCache);
+
+           //NOTICE: STATE FROM CACHE.
+           if (blockInCacheState == Constant.M) {
+
+               if (!bus.request(victimDirectory.getDirectoryID())) {
+                   bus.freeOwnedByCurrentThread();
+                   return Constant.ABORT;
+               }
+               //We need to store this block to the memory and update it's directory entry.
+               if (!bus.request(victimMemory.getIdSharedMem())) {
+                   bus.freeOwnedByCurrentThread();
+                   return Constant.ABORT;
+               }
+
+               increaseDurationOnMemoryRW(victimMemory);
+               writeBlockToMemory(blockNumberInCache, victimMemory, localCache);
+               bus.setFree(victimMemory.getIdSharedMem());
+
+               increaseDurationOnDirectoryAccess(victimDirectory);
+               victimDirectory.setExistenceInCore(blockNumberInCache, myCoreId, Constant.OFF);
+               victimDirectory.setBlockState(blockNumberInCache, Constant.U);
+
+           } else if (blockInCacheState == Constant.C) {
+               //We just need to update the directory.
+               if (!bus.request(victimDirectory.getDirectoryID())) {
+                   bus.freeOwnedByCurrentThread();
+                   return Constant.ABORT;
+               }
+               increaseDurationOnDirectoryAccess(victimDirectory);
+               victimDirectory.setExistenceInCore(blockNumberInCache, myCoreId, Constant.OFF);
+
+               if (victimDirectory.getExistenceInCore(blockNumberInCache, Constant.CORE_0)
+                       && victimDirectory.getExistenceInCore(blockNumberInCache, Constant.CORE_1)
+                       && victimDirectory.getExistenceInCore(blockNumberInCache, Constant.CORE_2)) {
+
+                   victimDirectory.setBlockState(blockNumberInCache, Constant.U);
+               }
+           }
+
+           //If the directory of the victim block is uncached, we would just write on the cache.
+       }
+
+       /****LET's HANDLE OUT ACTUAL BLOCK NUMBER****/
+       //Let's get our target directory if haven't done so.
        Directory targetDirectory = getDirectoryByBlock(blockNumber);
-
-       //Do we need to get ad lock a different directory?
-       if(!victimBlockDirectoryId.equals(targetDirectory.getDirectoryID())){
-           if(!victimBlockDirectoryId.equals("")){
-               //Let's ask for what we want
-               removeLockableResource(victimBlockDirectoryId);
-               bus.setFree(victimBlockDirectoryId);
+       if(victimDirectory == null || !targetDirectory.getDirectoryID().equals(victimDirectory.getDirectoryID())){
+           if(victimDirectory != null ){
+               bus.setFree(victimDirectory.getDirectoryID()); //Release victim block's directory because it is no longer needed.
            }
-
            if(!bus.request(targetDirectory.getDirectoryID())){
-               releaseAllResources();
+               bus.freeOwnedByCurrentThread();
                return Constant.ABORT;
            }
-           addLockableResource(targetDirectory.getDirectoryID());
+
        }
 
+       //Let's get our target memory if haven't done so.
        PhysicalMemory targetMemory = getPhysicalMemoryByBlock(blockNumber);
-       if(!bus.request(targetMemory.getIdSharedMem())){
-           releaseAllResources();
-           return Constant.ABORT;
+       if(victimMemory == null || !targetMemory.getIdSharedMem().equals(victimDirectory.getDirectoryID())){
+           if(victimMemory != null) {
+               bus.setFree(victimMemory.getIdSharedMem()); //Release victim block's memory because it is no longer needed.
+           }
+           if(!bus.request(targetMemory.getIdSharedMem())){
+               bus.freeOwnedByCurrentThread();
+               return Constant.ABORT;
+           }
        }
-       addLockableResource(targetMemory.getIdSharedMem());
 
-       if(targetDirectory.getBlockState(blockNumber) == Constant.M){
+       increaseDurationOnDirectoryAccess(targetDirectory);
+       int blockStateDirectory = targetDirectory.getBlockState(blockNumber);
+
+       //The block number can actually be shared (C), or modified(M) in other caches
+       //So we need to invalidate and even store to memory if necessary.
+
+       if (blockStateDirectory == Constant.C) {
+           //This means that we need to invalidate this block in other caches.
+           int[] updateResult = propateStateInCaches(Constant.I, blockNumber, targetDirectory);
+           if (updateResult == Constant.ABORT) {
+               bus.freeOwnedByCurrentThread();
+               return Constant.ABORT;
+           }
+       }
+
+       if (blockStateDirectory == Constant.M) {
+           //This means that we need to invalidate this block in the other cache where it is modified,
+           //Although, we need to store that block in memory, and allocate this block back into our cache.
            Cache targetCache = getCacheFromDirectoryBlockOnModified(targetDirectory, blockNumber);
-           //TODO preconditions for handling null targetCache.
-           if(!bus.request(targetCache.getCacheID())){
-               releaseAllResources();
+           if (!bus.request(targetCache.getCacheID())) {
+               bus.freeOwnedByCurrentThread();
                return Constant.ABORT;
            }
            //Change cache from M to I
            targetCache.setBlockState(blockNumber, Constant.I);
-           writeBlockToMemory(blockNumber,targetMemory,targetCache);
-           writeBlockCacheToCache(targetCache,localCache,blockNumber);
-
-           targetDirectory.setExistenceInCore(blockNumber,myCoreId,Constant.OFF);
+           increaseDurationOnMemoryRW(targetMemory);
+           writeBlockToMemory(blockNumber, targetMemory, targetCache);
+           int coreId = getCoreIdByCache(targetCache);
+           targetDirectory.setExistenceInCore(blockNumber, coreId, Constant.OFF);
            bus.setFree(targetCache.getCacheID());
-       }else{
-           //We are C or I
-           //Update caches with Shared status.
-           if(targetDirectory.getBlockState(blockNumber)==Constant.C ) {
-               int[] updateResult = propateStateInCaches(Constant.I, blockNumber, targetDirectory);
-               if (updateResult == Constant.ABORT) {
-                   releaseAllResources();
-                   return Constant.ABORT;
-               }
-           }
-           targetDirectory.setBlockState(blockNumber,Constant.M);
-           targetDirectory.setExistenceInCore(blockNumber, myCoreId, Constant.ON);
-           writeFromMemoryToCache(blockNumber,targetMemory,localCache);
+
        }
 
-       localCache.setBlockState(blockNumber, Constant.M);
-       localCache.writeWordOnCache(blockNumber,wordNumber,data);
-       releaseAllResources();
+       //The last case would be having block U (uncached), so we need to update the directory.
+       if (blockStateDirectory == Constant.U) {
+           targetDirectory.setExistenceInCore(blockNumber, myCoreId, Constant.ON);
+       }
+
+       increaseDurationOnMemoryRW(targetMemory);
+       writeFromMemoryToCache(blockNumber, targetMemory, localCache); //WRITE ALLOCATE!
+       bus.setFree(targetMemory.getIdSharedMem());
+
+       //For the rest of the states, we just write on the cache after making the previous, conditional changes.
+       localCache.writeWordOnCache(blockNumber, wordNumber, data);
+
+       if(blockStateDirectory != Constant.M) {
+          //Update the directory of this block number because we are storing it. 
+           localCache.setBlockState(blockNumber, Constant.M);
+           targetDirectory.setBlockState(blockNumber, Constant.M);
+       }
+
+       bus.freeOwnedByCurrentThread(); //Release all blocked resources!
        return Constant.COMPLETED;
    }
 
@@ -297,21 +467,13 @@ public class DataManager {
         return blockFromCache;
     }
 
-   public void releaseAllResources(){
-       int initSize = lockedResources.size();
-    for(int resourcesQuantity = 0 ; resourcesQuantity < initSize ; resourcesQuantity++){
-        bus.setFree(lockedResources.pop());//WARNING
-    }
-       bus.freeOwnedByCurrentThread();
-   }
+
 
    public void addLockableResource(String resource){
        lockedResources.add(resource);
    }
 
-   public void removeLockableResource(String resource){
-       lockedResources.remove(resource);
-   }
+
 
     /**
      * Check if it is a hit, miss
@@ -337,10 +499,8 @@ public class DataManager {
 
     public Directory getDirectoryByBlock(int block){
         if(myProcessor.getLocalDirectory().existsInDirectory(block)){
-            duration += Constant.LOCAL_DIRECTORY_ACCESS;
             return myProcessor.getLocalDirectory();
         }
-        duration+= Constant.REMOTE_DIRECTORY_ACCESS;
         return externalProcessor.getLocalDirectory();
     }
 
@@ -355,21 +515,28 @@ public class DataManager {
        }
    }
 
+   public void increaseDurationOnDirectoryAccess(Directory dir){
+       if(dir.getDirectoryID().equals(localDirectory.getDirectoryID())){
+           duration += Constant.LOCAL_DIRECTORY_ACCESS;
+       }else{
+           duration+= Constant.REMOTE_DIRECTORY_ACCESS;
+       }
+   }
+
+   public void increaseDurationOnMemoryRW(PhysicalMemory mem){
+       if(mem.getIdSharedMem().equals(localMem.getIdSharedMem())){
+           duration+= Constant.LOCAL_MEMORY_ACCESS;
+       }else{
+           duration+= Constant.REMOTE_MEMORY_ACCESS;
+       }
+   }
+
    public PhysicalMemory getPhysicalMemoryByBlock(int block){
        if ( myProcessor.getLocalPhysicalMemory().getExistenceBlockInSharedMemory(block)){
-           duration+= Constant.LOCAL_MEMORY_ACCESS;
            return myProcessor.getLocalPhysicalMemory();
        }
-       duration+= Constant.REMOTE_MEMORY_ACCESS;
        return externalProcessor.getLocalPhysicalMemory();
    }
-    public String getIdPhysicalMemory(int block){
-        if ( myProcessor.getLocalPhysicalMemory().getExistenceBlockInSharedMemory(block)){
-            return myProcessor.getLocalPhysicalMemory().getIdSharedMem();
-        }
-          return externalProcessor.getLocalPhysicalMemory().getIdSharedMem();
-
-    }
 
     public Cache getCacheFromDirectoryBlockOnModified(Directory directory, int blockNumber){
         if(directory.getBlockState(blockNumber)==Constant.M) {
@@ -433,18 +600,31 @@ public class DataManager {
                 }
 
                 if(!bus.request(dataCache.getCacheID())){
-                    releaseAllResources();
+                   //We are freeing resources outside.
                     return Constant.ABORT;
                 }
+
                 if(dataCache.existsInCache(blockNumber)) {
                     dataCache.setBlockState(blockNumber, state);
                 }
                 targetDirectory.setExistenceInCore(blockNumber,currentCore,Constant.OFF);
-                addLockableResource(dataCache.getCacheID());
+                bus.setFree(dataCache.getCacheID());
+
             }
         }
         return Constant.COMPLETED;
 
+    }
+
+    public int getCoreIdByCache(Cache cache){
+        String cacheId = cache.getCacheID();
+        if(cacheId.equals(Constant.DATA_CACHE_0) || cacheId.equals(Constant.INSTRUCTIONS_CACHE_0)){
+            return Constant.CORE_0;
+        }else if(cacheId.equals(Constant.DATA_CACHE_1) || cacheId.equals(Constant.INSTRUCTIONS_CACHE_1)){
+            return Constant.CORE_1;
+        }else{
+            return Constant.CORE_2;
+        }
     }
 }
 

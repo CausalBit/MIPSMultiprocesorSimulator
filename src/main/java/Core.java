@@ -85,18 +85,16 @@ public class Core implements Runnable {
                touchBarrier();
                 /*fetch new and decodeAndExceute*/
 
-               if (instructionDuration == 0) {
-
+               if(instructionDuration == 0){
                    instruction.setPC(pc);
-
                     try {
                         int[] currentIntruction = instruction.fetchInstruction();//Get Instruction
                         instruction.decodeAndExecute(currentIntruction);
                         instructionDuration = instruction.getDuration();
+                       // System.out.println("DURATION: "+instructionDuration);
                     }catch(Exception ex){
                         ex.printStackTrace();
                     }
-
                     pc = instruction.getPC();
                     currentProgramIsFinished = instruction.programIsFinished();
                }

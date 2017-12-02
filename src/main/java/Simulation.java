@@ -74,9 +74,16 @@ public class Simulation {
         Directory directory1 = new Directory(8, 16,Constant.DIRECTORY_1);
 
         String parentPath = getPublicPath();
-       // System.out.println(parentPath+Constant.PATH_1);
-        Processor processor0 = new Processor(processorOneCaches, P0memory, directory0, parentPath+Constant.PATH_1);
-        Processor processor1 = new Processor(processorTwoCaches, P1memory, directory1, parentPath+Constant.PATH_2);
+
+        //Jar paths!
+
+        //String path1 = parentPath+Constant.PATH_1;
+        //String path2 = parentPath+Constant.PATH_2;
+
+        String path1 = "/home/irvin/Documents/Universidad/VIIISemester/Archi/MIPSMultiprocesorSimulator/threads/hilillosP0";
+        String path2 = "/home/irvin/Documents/Universidad/VIIISemester/Archi/MIPSMultiprocesorSimulator/threads/hilillosP1";
+        Processor processor0 = new Processor(processorOneCaches, P0memory, directory0, path1);
+        Processor processor1 = new Processor(processorTwoCaches, P1memory, directory1, path2);
 
         Map<String, Processor> processors = new HashMap<String, Processor>();
         processors.put(Constant.PROCESSOR_0, processor0);

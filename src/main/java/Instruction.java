@@ -47,7 +47,7 @@ public class Instruction {
      * @return clock cycles that the instruction lasts
      */
     public void decodeAndExecute(int[] instruction){
-
+        this.duration = 0;
         int codOP= instruction[0]; // the first position is the cod operation
         //Simulation.out.println(cacheIns+"  codop+"+codOP+"wordtoREad "+word);
         int reg1 = instruction[1];
@@ -115,7 +115,6 @@ public class Instruction {
     * */
     public int[] fetchInstruction() throws Exception{
         progIsFinished = false;
-        duration = 0;
         int block = memLocal.getLocalInstMemBlockNumber(pc);
         int word = getWordNumber(pc);/*word is instruction*/
 
@@ -261,16 +260,15 @@ public class Instruction {
         DataManager dataManagerLW = new DataManager(bus,processorID,myCoreID);
         int block = getBlockNumberInSharedMemory(dataAddress);
         int word = getWordNumber(dataAddress);
-
+        System.out.println("I am "+myCoreID);
         int[] result = dataManagerLW.loadWordProcedure(word, block);
         if(result != Constant.ABORT) {
             int readWord = result[0];
             registers.put(Integer.toString(destinationRegister), readWord);
         }else{
-
             pc -= 4;
         }
-        this.duration += dataManagerLW.getDuration();
+        this.duration += dataManagerLW.getDuration()+1;
 
     }
 
@@ -281,18 +279,19 @@ public class Instruction {
         DataManager dataManagerSW = new DataManager(bus,processorID,myCoreID);
         int block = getBlockNumberInSharedMemory(dataAddress);
         int word = getWordNumber(dataAddress);
+        System.out.println("I am "+myCoreID);
         int[] result =  dataManagerSW.storeWordProcedure(word,block,data);
         if(result == Constant.ABORT) {
             pc -= 4;
-            bus.freeOwnedByCurrentThread();
         }
-        this.duration += dataManagerSW.getDuration();
+        this.duration += dataManagerSW.getDuration()+1;
 
     }
 
 
     private void FIN(){
         this.progIsFinished = true;
+        this.duration += Constant.DURATION_OF_INSTRUCTION_ALU;
     }
 
     public void setPC(int pc){
